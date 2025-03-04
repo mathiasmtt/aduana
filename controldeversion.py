@@ -6,6 +6,7 @@ import subprocess
 import sys
 from datetime import datetime
 from termcolor import colored
+import re
 
 class GitHelper:
     def __init__(self, repo_path=None):
@@ -320,14 +321,14 @@ class GitHelper:
             commit_option = input(colored("\n¿Deseas realizar un commit? (s/N): ", "cyan"))
             if commit_option.lower() == "s":
                 # Sistema de versiones simple
-                version_type = input(colored("\nTipo de cambio (1: Mayor, 2: Menor, 3: Parche): ", "cyan"))
-                version_prefix = ""
-                if version_type == "1":
-                    version_prefix = "[MAYOR] "
-                elif version_type == "2":
-                    version_prefix = "[MENOR] "
-                elif version_type == "3":
-                    version_prefix = "[PARCHE] "
+                version_number = input(colored("\nIngresa el número de versión (formato X.Y, ej: 1.1, 3.4): ", "cyan"))
+                
+                # Validar el formato del número de versión
+                if not version_number or not re.match(r'^\d{1,2}\.\d{1,2}$', version_number):
+                    print(colored("Formato de versión inválido. Usando formato sin versión.", "yellow"))
+                    version_prefix = ""
+                else:
+                    version_prefix = f"[v{version_number}] "
                 
                 commit_msg = input(colored("Mensaje para el commit: ", "cyan"))
                 full_message = f"{version_prefix}{commit_msg}"
