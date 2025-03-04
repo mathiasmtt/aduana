@@ -13,6 +13,7 @@ Este script de Python está diseñado para simplificar el trabajo con Git en tu 
 
 - Python 3.6 o superior
 - Git instalado y configurado en tu sistema
+- Librería termcolor (`pip install termcolor`)
 
 ## Instalación
 
@@ -106,6 +107,7 @@ Si encuentras algún error al ejecutar el script, asegúrate de:
 1. Estar en un repositorio Git válido
 2. Tener Git correctamente instalado y configurado
 3. Tener conexión a Internet para operaciones con el remoto
+4. Tener instalada la librería termcolor (`pip install termcolor`)
 
 ## Extensión del script
 
