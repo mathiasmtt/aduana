@@ -27,7 +27,7 @@ env/
 envs/
 .env
 .venv
-
+.windsurf/
 # Archivos de Jupyter Notebook
 .ipynb_checkpoints
 
