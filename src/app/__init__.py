@@ -1,4 +1,4 @@
-from flask import Flask, g, request, session, current_app, has_app_context, redirect
+from flask import Flask, g, request, session, current_app, has_app_context, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -110,7 +110,7 @@ def create_app(config_name='default'):
                 return None
                 
             # Importamos User aquí para evitar importaciones circulares
-            from src.app.models.user import User
+            from app.models.user import User
             
             # Usamos db.session.get que es más eficiente para búsquedas por clave primaria
             user = db.session.get(User, int(user_id))
@@ -151,6 +151,27 @@ def create_app(config_name='default'):
             logging.info("Tablas creadas/verificadas correctamente")
     except Exception as e:
         logging.error(f"Error al crear tablas: {str(e)}")
+    
+    # Registrar manejadores de errores HTTP
+    @app.errorhandler(404)
+    def page_not_found(e):
+        logging.error(f"Error 404: {request.path}")
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(403)
+    def forbidden(e):
+        logging.error(f"Error 403: {request.path}")
+        return render_template('errors/403.html'), 403
+    
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        logging.error(f"Error 500: {str(e)}")
+        return render_template('errors/500.html'), 500
+    
+    @app.errorhandler(503)
+    def service_unavailable(e):
+        logging.error(f"Error 503: {str(e)}")
+        return render_template('errors/503.html'), 503
     
     return app
 

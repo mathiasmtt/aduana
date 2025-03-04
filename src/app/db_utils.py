@@ -56,27 +56,33 @@ def get_available_versions():
     """Obtener todas las versiones disponibles de la base de datos."""
     versions = []
     
-    # Verificar que el directorio existe
-    if not DB_VERSIONS_DIR.exists():
-        logging.warning(f"El directorio {DB_VERSIONS_DIR} no existe")
-        return versions
-    
-    # Buscar archivos .sqlite3 en el directorio de versiones
-    for file in DB_VERSIONS_DIR.glob('arancel_*.sqlite3'):
-        filename = file.name
+    try:
+        # Verificar que el directorio existe
+        if not DB_VERSIONS_DIR.exists():
+            logging.warning(f"El directorio {DB_VERSIONS_DIR} no existe")
+            return versions
         
-        # No incluir el enlace simbólico "latest"
-        if filename == 'arancel_latest.sqlite3' and file.is_symlink():
-            continue
+        # Buscar archivos .sqlite3 en el directorio de versiones
+        for file in DB_VERSIONS_DIR.glob('arancel_*.sqlite3'):
+            filename = file.name
             
-        # Extraer la versión del nombre del archivo (arancel_20XX.sqlite3 -> 20XX)
-        if '_' in filename:
-            version = filename.split('_')[1].split('.')[0]
-            versions.append(version)
+            # No incluir el enlace simbólico "latest"
+            if filename == 'arancel_latest.sqlite3' and file.is_symlink():
+                continue
+                
+            # Extraer la versión del nombre del archivo (arancel_20XX.sqlite3 -> 20XX)
+            if '_' in filename:
+                version = filename.split('_')[1].split('.')[0]
+                versions.append(version)
+        
+        # Ordenar las versiones de manera descendente
+        versions.sort(reverse=True)
+    except Exception as e:
+        logging.error(f"Error al obtener versiones disponibles: {str(e)}")
+        # Devolver lista vacía en caso de error
+        versions = []
     
-    # Ordenar las versiones de manera descendente
-    versions.sort(reverse=True)
-    
+    logging.debug(f"Versiones disponibles: {versions}")
     return versions
 
 def get_db_path_for_version(version=None):

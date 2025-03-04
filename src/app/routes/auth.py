@@ -29,12 +29,14 @@ def check_session_expiry():
     """
     # Si no hay usuario logueado, no hay nada que verificar
     if not current_user.is_authenticated:
+        logging.debug("check_session_expiry: No hay usuario autenticado")
         return None
         
     # Verificar si existe el timestamp de la última actividad
     last_active = flask_session.get('last_active')
     if not last_active:
         # Si no existe, actualizar el timestamp y continuar
+        logging.debug(f"check_session_expiry: No hay timestamp de última actividad para {current_user.email}, actualizando")
         flask_session['last_active'] = datetime.utcnow().timestamp()
         return None
         
@@ -42,14 +44,18 @@ def check_session_expiry():
     last_active_dt = datetime.fromtimestamp(last_active)
     expiry_time = last_active_dt + timedelta(minutes=SESSION_EXPIRY_MINUTES)
     
+    logging.debug(f"check_session_expiry: Usuario: {current_user.email}, Última actividad: {last_active_dt}, Expiración: {expiry_time}")
+    
     if datetime.utcnow() > expiry_time:
         # La sesión ha expirado, cerrar sesión
+        logging.warning(f"check_session_expiry: Sesión expirada para {current_user.email}")
         logout_user()
         flask_session.pop('last_active', None)
         flash('Su sesión ha expirado. Por favor inicie sesión nuevamente.', 'warning')
         return redirect(url_for('auth.login'))
         
     # Actualizar el timestamp de última actividad
+    logging.debug(f"check_session_expiry: Actualizando timestamp para {current_user.email}")
     flask_session['last_active'] = datetime.utcnow().timestamp()
     return None
 
@@ -57,13 +63,23 @@ def check_session_expiry():
 def update_last_active():
     """Actualizar timestamp de última actividad para cada solicitud."""
     if current_user.is_authenticated:
+        logging.debug(f"update_last_active: Actualizando timestamp para {current_user.email}")
         flask_session['last_active'] = datetime.utcnow().timestamp()
+        
+        # Verificar si la sesión del usuario es válida según el modelo
+        if not current_user.is_session_valid():
+            logging.warning(f"update_last_active: Sesión inválida para {current_user.email} según el modelo")
+            # Actualizar la expiración de sesión
+            current_user.update_session_expiry()
+            db.session.commit()
+            logging.info(f"update_last_active: Expiración actualizada para {current_user.email}: {current_user.session_expires_at}")
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Ruta para inicio de sesión."""
     # Si el usuario ya está autenticado, redirigir a la página principal
     if current_user.is_authenticated:
+        logging.info(f"login: Usuario ya autenticado: {current_user.email}")
         return redirect(url_for('main.index'))
     
     if request.method == 'POST':
@@ -100,19 +116,34 @@ def login():
             
             # Iniciar sesión del usuario
             logging.info(f"Inicio de sesión exitoso para usuario: {email}")
-            login_user(user, remember=remember)
+            login_result = login_user(user, remember=remember)
+            
+            if not login_result:
+                logging.error(f"Error en login_user para {email}, devolvió False")
+                flash('Error al iniciar sesión. Por favor intente nuevamente.', 'danger')
+                return render_template('auth/login.html')
+                
+            logging.debug(f"Usuario autenticado: {current_user.is_authenticated}")
             
             # Guardar timestamp de última actividad
             flask_session['last_active'] = datetime.utcnow().timestamp()
             
-            # Actualizar último login
+            # Actualizar último login y expiración de sesión
             user.last_login = datetime.utcnow()
+            if user.role in ['free', 'user']:
+                user.update_session_expiry()
+                logging.info(f"Expiración de sesión actualizada para {email}: {user.session_expires_at}")
+            
             db.session.commit()
             
             # Redirigir a la página solicitada o a la página principal
             next_page = request.args.get('next')
+            
             if next_page:
+                logging.info(f"Redirigiendo a la página solicitada: {next_page}")
                 return redirect(next_page)
+                
+            logging.info(f"Redirigiendo a la página principal (main.index)")
             return redirect(url_for('main.index'))
         except Exception as e:
             # Registrar el error

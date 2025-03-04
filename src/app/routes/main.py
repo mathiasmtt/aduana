@@ -19,6 +19,10 @@ def get_formatted_versions():
     versions_data = []
     versions = get_available_versions()
     
+    # Verificar si hay versiones disponibles
+    if not versions:
+        return [], "Actual"
+    
     for version in versions:
         # Formato más legible: 202502 -> Feb 2025
         if len(version) == 6:  # formato AAAAMM
@@ -60,10 +64,16 @@ def get_formatted_versions():
 def index():
     """Ruta para la página principal."""
     # Verificamos la sesión del usuario primero
-    check_session_expiry()
+    session_check = check_session_expiry()
+    if session_check is not None:
+        return session_check
     
     # Obtener las versiones disponibles para el selector
-    versiones, latest_formatted = get_formatted_versions()
+    try:
+        versiones, latest_formatted = get_formatted_versions()
+    except Exception as e:
+        logging.error(f"Error obteniendo versiones formateadas: {str(e)}")
+        versiones, latest_formatted = [], "Actual"
     
     try:
         if not has_app_context():
