@@ -71,4 +71,4 @@ secret_key.txt
 *.secret
 
 # Agregar una Carpeta Completa al .gitignore
-pruebas/
+dontshare/
