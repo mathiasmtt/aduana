@@ -1,0 +1,139 @@
+from datetime import datetime
+from .. import db
+from sqlalchemy import Column, String, Text, DateTime
+from sqlalchemy.orm import sessionmaker, scoped_session
+
+class Arancel(db.Model):
+    """Modelo para la tabla de aranceles nacionales."""
+    __tablename__ = 'arancel_nacional'
+    __table_args__ = {'extend_existing': True}
+    
+    # Usamos NCM como primary_key ya que no tenemos un campo id
+    NCM = Column(String(20), primary_key=True, nullable=False, index=True)
+    DESCRIPCION = Column(Text)
+    AEC = Column(String(10))
+    CL = Column(String(10))
+    # Nombres especiales con slash necesitan ser referenciados con comillas
+    EZ = Column('E/Z', String(10))
+    IZ = Column('I/Z', String(10))
+    UVF = Column(String(10))
+    SECTION = Column(String(255))
+    CHAPTER = Column(String(255))
+    
+    def __repr__(self):
+        """Representación en string del objeto Arancel"""
+        return f"<Arancel NCM: {self.NCM}, Descripción: {self.DESCRIPCION[:30]}...>"
+        
+    @classmethod
+    def buscar_por_ncm(cls, ncm, session=None):
+        """Busca aranceles por código NCM."""
+        session = session or db.session
+        return session.query(cls).filter(cls.NCM == ncm).first()
+    
+    @classmethod
+    def buscar_por_ncm_parcial(cls, ncm_parcial, limit=50, session=None):
+        """Busca aranceles que comiencen con un código NCM parcial.
+        
+        Args:
+            ncm_parcial (str): Primeros dígitos del código NCM a buscar
+            limit (int): Límite de resultados (por defecto 50)
+            session (Session): Sesión de SQLAlchemy a utilizar (opcional)
+            
+        Returns:
+            list: Lista de aranceles que coinciden con el inicio del NCM
+        """
+        session = session or db.session
+        return session.query(cls).filter(
+            cls.NCM.like(f'{ncm_parcial}%')
+        ).limit(limit).all()
+    
+    @classmethod
+    def buscar_por_descripcion(cls, texto, limit=50, session=None):
+        """Busca aranceles que contengan texto en su descripción.
+        
+        Args:
+            texto (str): Texto a buscar. Si contiene múltiples palabras, busca productos que
+                         contengan todas las palabras en cualquier orden.
+            limit (int): Límite de resultados (por defecto 50)
+            session (Session): Sesión de SQLAlchemy a utilizar (opcional)
+            
+        Returns:
+            list: Lista de aranceles que coinciden con la descripción
+        """
+        from sqlalchemy import or_
+        
+        session = session or db.session
+        # Dividimos el texto en palabras para buscar cada una por separado
+        palabras = texto.strip().split()
+        
+        if not palabras:
+            return []
+        
+        # Construimos una consulta que busque productos que contengan TODAS las palabras
+        # en cualquier orden
+        query = session.query(cls)
+        
+        for palabra in palabras:
+            query = query.filter(cls.DESCRIPCION.ilike(f'%{palabra}%'))
+            
+        return query.limit(limit).all()
+    
+    @classmethod
+    def listar_por_seccion(cls, seccion, limit=500, session=None):
+        """Lista los aranceles por sección.
+        
+        Args:
+            seccion (str): Número de sección a filtrar
+            limit (int): Límite de resultados (por defecto 500)
+            session (Session): Sesión de SQLAlchemy a utilizar (opcional)
+            
+        Returns:
+            list: Lista de aranceles que pertenecen a la sección especificada
+        """
+        session = session or db.session
+        
+        # Aseguramos que la sección tenga dos dígitos (con ceros a la izquierda si es necesario)
+        seccion_formateada = seccion.zfill(2) if seccion.isdigit() else seccion
+        
+        return session.query(cls).filter(
+            cls.SECTION == seccion_formateada
+        ).limit(limit).all()
+    
+    @classmethod
+    def listar_por_capitulo(cls, capitulo, limit=500, session=None):
+        """Lista los aranceles por capítulo.
+        
+        Args:
+            capitulo (str): Número de capítulo a filtrar
+            limit (int): Límite de resultados (por defecto 500)
+            session (Session): Sesión de SQLAlchemy a utilizar (opcional)
+            
+        Returns:
+            list: Lista de aranceles que pertenecen al capítulo especificado
+        """
+        session = session or db.session
+        
+        # Aseguramos que el capítulo tenga dos dígitos (con ceros a la izquierda si es necesario)
+        capitulo_formateado = capitulo.zfill(2) if capitulo.isdigit() else capitulo
+        
+        return session.query(cls).filter(
+            cls.CHAPTER == capitulo_formateado
+        ).limit(limit).all()
+    
+    def to_dict(self):
+        """Convierte el objeto a un diccionario para API.
+        
+        Returns:
+            dict: Representación del arancel como diccionario
+        """
+        return {
+            'ncm': self.NCM,
+            'descripcion': self.DESCRIPCION,
+            'aec': self.AEC,
+            'cl': self.CL,
+            'ez': self.EZ,
+            'iz': self.IZ,
+            'uvf': self.UVF,
+            'seccion': self.SECTION,
+            'capitulo': self.CHAPTER
+        }

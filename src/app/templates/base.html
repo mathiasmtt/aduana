@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Aranceles{% endblock %}</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    
+    <!-- jQuery primero, luego DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Tema Dark/Light -->
+    <script>
+        // Verificar si hay una preferencia guardada
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // Función para cambiar el tema
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+                document.querySelector('.fa-moon').classList.remove('hidden');
+                document.querySelector('.fa-sun').classList.add('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+                document.querySelector('.fa-moon').classList.add('hidden');
+                document.querySelector('.fa-sun').classList.remove('hidden');
+            }
+        }
+
+        // Establecer el icono correcto al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.querySelector('.fa-moon').classList.add('hidden');
+                document.querySelector('.fa-sun').classList.remove('hidden');
+            } else {
+                document.querySelector('.fa-moon').classList.remove('hidden');
+                document.querySelector('.fa-sun').classList.add('hidden');
+            }
+        });
+    </script>
+    
+    <style>
+        /* Variables CSS según el sistema de diseño */
+        :root {
+            /* Colores primarios */
+            --color-primary: 59, 130, 246; /* rgb values for #3B82F6 */
+            --color-primary-dark: 30, 64, 175;
+            
+            /* Colores secundarios */
+            --color-secondary: 16, 185, 129;
+            --color-secondary-alt: 139, 92, 246;
+            
+            /* Colores neutros */
+            --color-text: 31, 41, 55;
+            --color-text-light: 107, 114, 128;
+            --color-background: 255, 255, 255;
+            --color-background-alt: 243, 244, 246;
+            
+            /* Colores de estado */
+            --color-success: 16, 185, 129;
+            --color-warning: 245, 158, 11;
+            --color-error: 239, 68, 68;
+            --color-info: 59, 130, 246;
+        }
+
+        .dark {
+            --color-text: 249, 250, 251;
+            --color-text-light: 209, 213, 219;
+            --color-background: 17, 24, 39;
+            --color-background-alt: 31, 41, 55;
+        }
+        
+        /* Estilos para el temporizador */
+        @keyframes pulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .timer-alert {
+            animation: pulsate 1.5s ease-in-out infinite;
+        }
+        
+        .timer-low {
+            animation: pulsate 0.8s ease-in-out infinite;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col h-full">
+    <!-- Navbar -->
+    <nav class="bg-gray-800 dark:bg-gray-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ url_for('main.index') }}" class="text-blue-400 dark:text-blue-400 font-bold text-xl">
+                            <i class="fas fa-box-open mr-2"></i>Aduana
+                        </a>
+                    </div>
+                    
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="{{ url_for('main.index') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                <i class="fas fa-home mr-1"></i> Inicio
+                            </a>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('main.buscar') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <i class="fas fa-search mr-1"></i> Buscar
+                                </a>
+                                <a href="{{ url_for('main.secciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <i class="fas fa-book mr-1"></i> Secciones
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Autenticación -->
+                    <div class="relative">
+                        {% if current_user.is_authenticated %}
+                            <div class="relative group">
+                                <button class="flex items-center text-white hover:text-blue-300 focus:outline-none">
+                                    <i class="fas fa-user-circle text-lg mr-1"></i>
+                                    <span class="text-sm">{{ current_user.username }}</span>
+                                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                                </button>
+                                <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                                    <div class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <div>{{ current_user.email }}</div>
+                                        <div class="mt-1">
+                                            <span class="px-2 py-1 rounded-full text-xs
+                                                {% if current_user.role == 'admin' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                                {% elif current_user.role == 'vip' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200
+                                                {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                                                {{ current_user.role }}
+                                            </span>
+                                        </div>
+                                        {% if current_user.is_free %}
+                                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                Sesión expira en: {{ current_user.session_remaining_time }} minutos
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ url_for('auth.profile') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <i class="fas fa-user mr-2"></i>Mi Perfil
+                                    </a>
+                                    <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-sign-in-alt mr-1.5"></i>Iniciar Sesión
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Selector de versiones (solo para administradores) -->
+                    {% if versiones and current_user.is_authenticated and current_user.role == 'admin' %}
+                    <div class="relative group">
+                        <div class="flex items-center">
+                            <span class="text-xs font-medium text-gray-300 mr-2">
+                                <i class="fas fa-calendar-alt mr-1"></i>Versión:
+                            </span>
+                            <select id="version-selector" 
+                                    class="appearance-none bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-600 dark:border-gray-700 text-white rounded-lg py-1.5 pl-3 pr-8 cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                                <option value="" {% if not g.version %}selected{% endif %}>Actual ({{ latest_formatted }})</option>
+                                {% for version in versiones %}
+                                    <option value="{{ version.code }}" {% if g.version == version.code %}selected{% endif %}>{{ version.formatted }}{% if version.is_latest %} (Actual){% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="pointer-events-none absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="hidden group-hover:block absolute top-10 right-0 bg-gray-800 text-xs text-gray-300 p-2 rounded shadow-lg z-10">
+                            Cambiar a otra versión del Arancel Nacional
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Toggle de tiempo restante para usuarios free -->
+                    {% if current_user.is_authenticated and current_user.is_free %}
+                    <div class="relative group">
+                        <button class="flex items-center bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-lg py-1.5 px-3 text-sm transition-colors duration-200">
+                            <i class="fas fa-clock text-yellow-400 mr-1.5"></i>
+                            <span id="tiempo-restante">{{ current_user.session_remaining_time }}m</span>
+                        </button>
+                        <div class="hidden group-hover:block absolute top-10 right-0 bg-gray-800 text-xs text-gray-300 p-2 rounded shadow-lg z-10 w-48">
+                            <div class="flex items-center justify-between">
+                                <span>Tiempo restante:</span>
+                                <span id="tiempo-detallado" class="font-medium text-yellow-400">{{ current_user.session_remaining_time }} minutos</span>
+                            </div>
+                            <div class="mt-1.5">
+                                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                    <div id="barra-progreso" class="bg-yellow-400 h-2.5 rounded-full" style="width: {{ (current_user.session_remaining_time / 60) * 100 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Botón para alternar modo oscuro/claro -->
+                    <button onclick="toggleDarkMode()" class="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white dark:bg-gray-900 dark:hover:bg-gray-800 p-2 rounded-full w-10 h-10" title="Cambiar tema">
+                        <i class="fas fa-moon text-blue-300"></i>
+                        <i class="fas fa-sun text-yellow-300 hidden"></i>
+                        <span class="sr-only">Cambiar tema</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menú móvil -->
+        <div class="mobile-menu hidden md:hidden bg-white dark:bg-gray-800 pt-2 pb-3 space-y-1 shadow-lg">
+            <a href="{{ url_for('main.index') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-home mr-1"></i> Inicio
+            </a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.buscar') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-search mr-1"></i> Buscar
+                </a>
+                <a href="{{ url_for('main.secciones') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-book mr-1"></i> Secciones
+                </a>
+                {% if current_user.role in ['admin', 'vip'] %}
+                    <a href="{{ url_for('main.capitulos') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-bookmark mr-1"></i> Capítulos
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('auth.profile') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-user mr-1"></i> Mi Perfil
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Cerrar Sesión
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión
+                </a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Alerta de mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 {% if category == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% elif category == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700{% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %}">
+                            {% if category == 'error' %}<i class="fas fa-exclamation-circle mr-2"></i>
+                            {% elif category == 'success' %}<i class="fas fa-check-circle mr-2"></i>
+                            {% else %}<i class="fas fa-info-circle mr-2"></i>{% endif %}
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Contenido específico de cada página -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div class="text-gray-500 dark:text-gray-400 text-sm">
+                    Sistema de Aranceles &copy; 2024
+                </div>
+                <div class="text-gray-500 dark:text-gray-400 text-sm">
+                    Versión 1.0
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Script para el selector de versiones -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const versionSelector = document.getElementById('version-selector');
+            if (versionSelector) {
+                versionSelector.addEventListener('change', function(e) {
+                    if (e.target.value) {
+                        window.location.href = '{{ url_for("main.set_version") }}?version=' + e.target.value;
+                    } else {
+                        window.location.href = '{{ url_for("main.reset_version") }}';
+                    }
+                });
+            }
+            
+            // Manejo del menú móvil
+            const burgerButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (burgerButton && mobileMenu) {
+                burgerButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            {% if current_user.is_authenticated and current_user.is_free %}
+            // Función para actualizar el temporizador cada minuto para usuarios free
+            function initializeTimerUpdates() {
+                const tiempoRestante = document.getElementById("tiempo-restante");
+                const tiempoDetallado = document.getElementById("tiempo-detallado");
+                const barraProgreso = document.getElementById("barra-progreso");
+                const timerButton = tiempoRestante ? tiempoRestante.closest('button') : null;
+                
+                if (tiempoRestante && tiempoDetallado && barraProgreso) {
+                    let minutos = parseInt('{{ current_user.session_remaining_time }}');
+                    const tiempoTotal = 60; // La sesión es de 60 minutos (1 hora)
+                    
+                    // Aplicar efectos visuales iniciales según el tiempo restante
+                    if (minutos <= 5) {
+                        tiempoRestante.classList.add("text-red-500");
+                        tiempoDetallado.classList.remove("text-yellow-400");
+                        tiempoDetallado.classList.add("text-red-500");
+                        barraProgreso.classList.remove("bg-yellow-400");
+                        barraProgreso.classList.add("bg-red-500");
+                    }
+                    
+                    function actualizarTiempo() {
+                        minutos = minutos - 1;
+                        
+                        // Actualizar texto y barra de progreso
+                        if (minutos > 0) {
+                            tiempoRestante.textContent = minutos + "m";
+                            tiempoDetallado.textContent = minutos + " minutos";
+                            barraProgreso.style.width = (minutos / tiempoTotal * 100) + "%";
+                            
+                            // Cambiar a rojo cuando quedan 5 minutos o menos
+                            if (minutos <= 5 && !tiempoRestante.classList.contains("text-red-500")) {
+                                tiempoRestante.classList.add("text-red-500");
+                                tiempoDetallado.classList.remove("text-yellow-400");
+                                tiempoDetallado.classList.add("text-red-500");
+                                barraProgreso.classList.remove("bg-yellow-400");
+                                barraProgreso.classList.add("bg-red-500");
+                                
+                                // Hacer que el botón del temporizador parpadee cuando queda poco tiempo
+                                if (timerButton) {
+                                    timerButton.classList.add("animate-pulse");
+                                }
+                            }
+                        } else {
+                            // Tiempo expirado, redireccionar a logout
+                            window.location.href = "{{ url_for('auth.logout') }}";
+                        }
+                    }
+                    
+                    // Actualizar cada minuto
+                    setInterval(actualizarTiempo, 60000);
+                }
+            }
+            
+            // Inicializar el temporizador
+            initializeTimerUpdates();
+            {% endif %}
+        });
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+    
+    <!-- Bloque para scripts adicionales de las páginas -->
+    {% block scripts %}{% endblock %}
+    
+</body>
+</html>

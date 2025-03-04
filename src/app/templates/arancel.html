@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema de Aranceles - {{ arancel.NCM }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <nav class="mb-5" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
+            <li>
+                <a href="{{ url_for('main.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-1 text-xs"></i>
+                <a href="{{ url_for('main.buscar') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                    Búsqueda
+                </a>
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-1 text-xs"></i>
+                <span class="text-gray-700 dark:text-gray-300">Arancel {{ arancel.NCM }}</span>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-white text-2xl font-bold tracking-tight">
+                        {{ arancel.NCM }}
+                    </h1>
+                    <p class="text-blue-100 mt-1">
+                        <i class="fas fa-tag mr-1"></i> Arancel Nacional
+                    </p>
+                </div>
+                {% if version_actual %}
+                <div class="bg-white bg-opacity-20 rounded-md px-3 py-1">
+                    <span class="text-white text-sm font-medium">
+                        Versión: {{ version_actual }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-6">
+                <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Información General</h2>
+                <div class="border-t border-b border-gray-200 dark:border-gray-700 py-3">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Código NCM</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel.NCM }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">AEC</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel.AEC }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">CL</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel.CL }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">EZ</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel['E/Z'] }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">IZ</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel['I/Z'] }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">UVF</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel.UVF }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Descripción</h2>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <p class="text-gray-800 dark:text-gray-200">{{ arancel.DESCRIPCION }}</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Clasificación</h2>
+                <div class="border-t border-b border-gray-200 dark:border-gray-700 py-3">
+                    <dl class="grid grid-cols-1 gap-y-6">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Sección</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ arancel.SECTION }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Capítulo</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ arancel.CHAPTER }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+            
+            {% if notas and (notas.seccion or notas.capitulo) %}
+            <div class="mb-6">
+                <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Notas Relacionadas</h2>
+                
+                {% if notas.seccion %}
+                <div class="mb-4">
+                    <h3 class="text-gray-700 dark:text-gray-300 text-lg font-medium mb-2">Notas de la Sección</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        {% for nota in notas.seccion %}
+                        <div class="mb-3">
+                            <div class="text-gray-800 dark:text-gray-200">{{ nota.texto|safe }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if notas.capitulo %}
+                <div>
+                    <h3 class="text-gray-700 dark:text-gray-300 text-lg font-medium mb-2">Notas del Capítulo</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        {% for nota in notas.capitulo %}
+                        <div class="mb-3">
+                            <div class="text-gray-800 dark:text-gray-200">{{ nota.texto|safe }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Historial de Versiones</h5>
+                </div>
+                <div class="card-body">
+                    {% if versiones and versiones|length > 0 %}
+                        <!-- Información de disponibilidad por versión -->
+                        <div class="alert alert-info mb-4">
+                            <h6>Disponibilidad del NCM:</h6>
+                            <p>Este código NCM está disponible en los siguientes aranceles:</p>
+                            <ul>
+                                {% set unique_files = [] %}
+                                {% for version in versiones %}
+                                    {% if version.source_file not in unique_files %}
+                                        <li><strong>{{ version.source_file }}</strong> ({{ version.formatted_version_date }})</li>
+                                        {% set _ = unique_files.append(version.source_file) %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        {% if versiones|length > 1 %}
+                            <!-- Línea de tiempo -->
+                            <h6 class="mb-3">Línea de tiempo de cambios:</h6>
+                            <div class="timeline mb-4">
+                                {% for version in versiones %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-date">{{ version.formatted_version_date }}</div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">{{ version.source_file }}</div>
+                                            <div class="timeline-body">
+                                                <p>{{ version.description }}</p>
+                                                <p>
+                                                    <small>
+                                                        AEC: {{ version.aec if version.aec is not none else 'N/A' }} | 
+                                                        EZ: {{ version.ez if version.ez is not none else 'N/A' }} | 
+                                                        IZ: {{ version.iz if version.iz is not none else 'N/A' }} | 
+                                                        UVF: {{ version.uvf if version.uvf is not none else 'N/A' }} | 
+                                                        CL: {{ version.cl if version.cl is not none else 'N/A' }}
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <p>Este NCM solo tiene una versión registrada ({{ versiones[0].formatted_version_date }} - {{ versiones[0].source_file }}). No hay historial de cambios disponible para comparar.</p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-secondary">
+                            <p>No hay información de versiones anteriores disponible.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex justify-between mt-8">
+                <a href="{{ url_for('main.buscar') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver a la búsqueda
+                </a>
+                
+                <a href="{{ url_for('api.obtener_arancel', ncm=arancel.NCM) }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-code mr-2"></i> Ver en API
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block styles %}
+<style>
+    /* Estilos para la línea de tiempo */
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+    }
+    
+    .timeline:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: #007bff;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+        padding-left: 40px;
+    }
+    
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 4px solid #007bff;
+    }
+    
+    .timeline-date {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #007bff;
+    }
+    
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .timeline-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // No se requiere código JavaScript para la funcionalidad actual
+</script>
+{% endblock %}

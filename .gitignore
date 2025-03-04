@@ -1,0 +1,71 @@
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+venv/
+ENV/
+env/
+envs/
+.env
+.venv
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos de base de datos y configuración local
+*.db
+*.sqlite3
+*.sqlite
+instance/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Bases de datos específicas del proyecto
+data/*.sqlite3
+data/db_versions/*.sqlite3
+data/arancel.sqlite3
+data/database.sqlite3
+
+# Logs y archivos temporales
+logs/
+*.log
+.DS_Store
+.idea/
+.vs/
+.vscode/
+*.swp
+*~
+
+# Archivos de configuración de seguridad
+*.pem
+*.key
+*.cer
+*.crt
+
+# Archivos específicos de Flask
+instance/
+
+# Archivos que deberían estar solo en local
+secret_key.txt
+*.secret

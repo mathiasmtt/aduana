@@ -1,0 +1,1 @@
+import sqlite3; path = "/Users/mat/Code/aduana/data/db_versions/arancel_latest.sqlite3"; conn = sqlite3.connect(path); cursor = conn.cursor(); cursor.execute("SELECT NCM FROM arancel_nacional WHERE NCM LIKE \"2004%\" LIMIT 5"); resultados = cursor.fetchall(); print(f"Resultados para 2004: {resultados}"); conn.close()

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Aranceles{% endblock %}</title>
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tema Dark/Light -->
+    <script>
+        // Verificar si hay una preferencia guardada
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // Función para cambiar el tema
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+                document.querySelector('.fa-moon').classList.remove('hidden');
+                document.querySelector('.fa-sun').classList.add('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+                document.querySelector('.fa-moon').classList.add('hidden');
+                document.querySelector('.fa-sun').classList.remove('hidden');
+            }
+        }
+
+        // Establecer el icono correcto al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.querySelector('.fa-moon').classList.add('hidden');
+                document.querySelector('.fa-sun').classList.remove('hidden');
+            } else {
+                document.querySelector('.fa-moon').classList.remove('hidden');
+                document.querySelector('.fa-sun').classList.add('hidden');
+            }
+        });
+    </script>
+    
+    <style>
+        /* Variables CSS según el sistema de diseño */
+        :root {
+            /* Colores primarios */
+            --color-primary: 59, 130, 246; /* rgb values for #3B82F6 */
+            --color-primary-dark: 30, 64, 175;
+            
+            /* Colores secundarios */
+            --color-secondary: 16, 185, 129;
+            --color-secondary-alt: 139, 92, 246;
+            
+            /* Colores neutros */
+            --color-text: 31, 41, 55;
+            --color-text-light: 107, 114, 128;
+            --color-background: 255, 255, 255;
+            --color-background-alt: 243, 244, 246;
+            
+            /* Colores de estado */
+            --color-success: 16, 185, 129;
+            --color-warning: 245, 158, 11;
+            --color-error: 239, 68, 68;
+            --color-info: 59, 130, 246;
+        }
+
+        .dark {
+            --color-text: 249, 250, 251;
+            --color-text-light: 209, 213, 219;
+            --color-background: 17, 24, 39;
+            --color-background-alt: 31, 41, 55;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col h-full">
+    <!-- Navbar simple para autenticación -->
+    <nav class="bg-gray-800 dark:bg-gray-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ url_for('main.index') }}" class="text-blue-400 dark:text-blue-400 font-bold text-xl">
+                            <i class="fas fa-box-open mr-2"></i>Aduana
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <!-- Botón para alternar modo oscuro/claro -->
+                    <button onclick="toggleDarkMode()" class="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white dark:bg-gray-900 dark:hover:bg-gray-800 p-2 rounded-full w-10 h-10" title="Cambiar tema">
+                        <i class="fas fa-moon text-blue-300"></i>
+                        <i class="fas fa-sun text-yellow-300 hidden"></i>
+                        <span class="sr-only">Cambiar tema</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Alerta de mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 {% if category == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% elif category == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700{% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %}">
+                            {% if category == 'error' %}<i class="fas fa-exclamation-circle mr-2"></i>
+                            {% elif category == 'success' %}<i class="fas fa-check-circle mr-2"></i>
+                            {% else %}<i class="fas fa-info-circle mr-2"></i>{% endif %}
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Contenido específico de cada página -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 shadow mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    &copy; 2025 Sistema de Aranceles
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Desarrollado con <i class="fas fa-heart text-red-500"></i> en Python y Flask
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    {% block scripts %}
+    <!-- Agregar aquí scripts adicionales -->
+    {% endblock %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
