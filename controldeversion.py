@@ -212,7 +212,7 @@ class GitHelper:
             print(colored("Opciones disponibles:", "yellow"))
             print("1. Hacer commit de los cambios antes de restaurar")
             print("2. Hacer stash de los cambios (guardarlos temporalmente)")
-            print("3. Descartar los cambios y restaurar")
+            print("3. Descartar los cambios y restaurar (también elimina archivos sin seguimiento)")
             print("4. Cancelar la operación")
             
             option = input(colored("\nSelecciona una opción: ", "cyan"))
@@ -235,6 +235,8 @@ class GitHelper:
                 print(colored("git stash apply", "cyan"))
             elif option == "3":
                 # Ya está listo para restaurar, continuará con el proceso
+                print(colored("🗑️ Eliminando archivos sin seguimiento...", "red"))
+                self.run_command("git clean -fd")
                 pass
             else:
                 print(colored("Operación cancelada", "yellow"))
