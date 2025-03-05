@@ -65,8 +65,10 @@ class Arancel(db.Model):
         if os.path.exists(latest_symlink):
             return latest_symlink
         
-        # Como última opción, usar la ruta clásica
-        return str(base_dir / 'data' / 'database.sqlite3')
+        # Ya no se usa database.sqlite3 como última opción
+        error_msg = "No se encontró ninguna base de datos válida de aranceles. Por favor, configure correctamente la base de datos."
+        logging.error(error_msg)
+        raise FileNotFoundError(error_msg)
     
     @classmethod
     def buscar_por_ncm(cls, ncm, session=None):

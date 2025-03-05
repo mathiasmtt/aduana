@@ -147,8 +147,13 @@ def create_app(config_name='default'):
     # Crear todas las tablas si no existen
     try:
         with app.app_context():
-            db.create_all()
-            logging.info("Tablas creadas/verificadas correctamente")
+            # Verificar si estamos usando una base de datos diferente a database.sqlite3
+            db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+            if 'database.sqlite3' not in db_uri:
+                db.create_all()
+                logging.info("Tablas creadas/verificadas correctamente en la base de datos de usuarios")
+            else:
+                logging.info("Se omitió la creación automática de database.sqlite3")
     except Exception as e:
         logging.error(f"Error al crear tablas: {str(e)}")
     

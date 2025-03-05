@@ -25,13 +25,14 @@ logger = logging.getLogger('db_version_manager')
 # Rutas base
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_VERSIONS_DIR = os.path.join(BASE_DIR, 'data', 'db_versions')
-ORIGINAL_DB_PATH = os.path.join(BASE_DIR, 'data', 'database.sqlite3')
+# Ya no usamos database.sqlite3 como base de datos predeterminada
+# ORIGINAL_DB_PATH = os.path.join(BASE_DIR, 'data', 'database.sqlite3')
 LATEST_SYMLINK = os.path.join(DB_VERSIONS_DIR, 'arancel_latest.sqlite3')
 
 # Para diagnóstico
 logger.info(f"BASE_DIR: {BASE_DIR}")
 logger.info(f"DB_VERSIONS_DIR: {DB_VERSIONS_DIR}")
-logger.info(f"ORIGINAL_DB_PATH: {ORIGINAL_DB_PATH}")
+# logger.info(f"ORIGINAL_DB_PATH: {ORIGINAL_DB_PATH}")
 logger.info(f"LATEST_SYMLINK: {LATEST_SYMLINK}")
 
 # Asegurar que el directorio de versiones exista
@@ -58,8 +59,9 @@ def get_db_path_for_date(date):
             if os.path.exists(alt_symlink):
                 return alt_symlink
             else:
-                logger.warning(f"No se encontró ningún enlace simbólico, usando la base de datos original")
-                return ORIGINAL_DB_PATH
+                error_msg = "No se encontró ninguna base de datos válida. Por favor, configure correctamente la base de datos."
+                logger.error(error_msg)
+                raise FileNotFoundError(error_msg)
         
         return LATEST_SYMLINK
     
@@ -81,17 +83,20 @@ def get_db_path_for_date(date):
                 date_prefix = f"{date_obj.year}{date_obj.month:02d}"
                 logger.info(f"Buscando base de datos para fecha: {date} (YYYYMM: {date_prefix})")
             except ValueError:
-                logger.warning(f"Formato de fecha inválido: {date}")
-                return ORIGINAL_DB_PATH
+                error_msg = f"Formato de fecha inválido: {date}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
         else:
-            logger.warning(f"Formato de fecha no reconocido: {date}")
-            return ORIGINAL_DB_PATH
+            error_msg = f"Formato de fecha no reconocido: {date}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
     elif isinstance(date, datetime.datetime):
         date_prefix = f"{date.year}{date.month:02d}"
         logger.info(f"Buscando base de datos para fecha datetime: (YYYYMM: {date_prefix})")
     else:
-        logger.warning(f"Tipo de fecha no soportado: {type(date)}")
-        return ORIGINAL_DB_PATH
+        error_msg = f"Tipo de fecha no soportado: {type(date)}"
+        logger.error(error_msg)
+        raise TypeError(error_msg)
     
     # Buscar todas las bases de datos que empiecen con ese prefijo
     db_files = []
@@ -130,8 +135,9 @@ def get_db_path_for_date(date):
                         logger.info(f"Usando base de datos más cercana anterior: {db_file}")
                         return os.path.join(DB_VERSIONS_DIR, db_file)
         
-        logger.warning("No hay bases de datos disponibles, usando la original")
-        return ORIGINAL_DB_PATH
+        error_msg = "No hay bases de datos disponibles"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
     
     # Ordenar para tomar la versión más reciente dentro del mes
     db_files.sort(reverse=True)
@@ -168,7 +174,12 @@ def get_db_connection(version=None):
         Conexión a la base de datos
     """
     if version is None:
-        db_path = LATEST_SYMLINK
+        if os.path.exists(LATEST_SYMLINK):
+            db_path = LATEST_SYMLINK
+        else:
+            error_msg = "No se encontró el enlace simbólico a la versión más reciente"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
     else:
         db_path = os.path.join(DB_VERSIONS_DIR, f'arancel_{version}.sqlite3')
     
@@ -176,10 +187,16 @@ def get_db_connection(version=None):
         logger.warning(f"No existe la base de datos {db_path}")
         if version:
             logger.info(f"Buscando versión más cercana a {version}")
-            db_path = get_db_path_for_date(f"{version[:4]}-{version[4:6]}-01")
+            try:
+                db_path = get_db_path_for_date(f"{version[:4]}-{version[4:6]}-01")
+            except Exception as e:
+                error_msg = f"No se pudo encontrar una versión cercana a {version}: {str(e)}"
+                logger.error(error_msg)
+                raise FileNotFoundError(error_msg)
         else:
-            logger.warning("Usando base de datos original")
-            db_path = ORIGINAL_DB_PATH
+            error_msg = "No se encontró ninguna base de datos disponible"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
     
     return sqlite3.connect(db_path)
 
@@ -215,8 +232,20 @@ def create_new_version_db(version_date, source_name):
     # Crear una nueva base de datos con el esquema correcto
     logger.info(f"Creando nueva base de datos para la versión {version_str}")
     
-    # Copiar el esquema desde la base de datos original
-    with closing(sqlite3.connect(ORIGINAL_DB_PATH)) as conn:
+    # Buscar una base de datos existente para usar como plantilla
+    template_db = None
+    versions = get_available_versions()
+    if versions:
+        # Usar la versión más reciente como plantilla
+        template_db = os.path.join(DB_VERSIONS_DIR, f'arancel_{versions[0]}.sqlite3')
+        logger.info(f"Usando la base de datos {template_db} como plantilla")
+    else:
+        error_msg = "No hay bases de datos disponibles para usar como plantilla"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+    
+    # Copiar el esquema desde la base de datos plantilla
+    with closing(sqlite3.connect(template_db)) as conn:
         schema = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()
         indexes = conn.execute("SELECT sql FROM sqlite_master WHERE type='index'").fetchall()
         

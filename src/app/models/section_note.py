@@ -4,6 +4,7 @@ import re
 import os
 import sqlite3
 from pathlib import Path
+import logging
 
 class SectionNote(db.Model):
     """Modelo para las notas de sección del Arancel Nacional."""
@@ -20,7 +21,6 @@ class SectionNote(db.Model):
         try:
             # Intentar obtener la ruta desde la configuración
             from flask import current_app, session, g
-            import logging
             
             # Verificar si hay una versión específica seleccionada
             version = None
@@ -47,7 +47,6 @@ class SectionNote(db.Model):
                     return db_path
         except Exception as e:
             # Log del error
-            import logging
             logging.error(f"Error al obtener la ruta de la base de datos: {str(e)}")
         
         # Si falla todo lo anterior, usar la base de datos predeterminada (symlink a la última versión)
@@ -56,8 +55,10 @@ class SectionNote(db.Model):
         if os.path.exists(latest_symlink):
             return latest_symlink
         
-        # Como última opción, usar la ruta clásica
-        return str(base_dir / 'data' / 'database.sqlite3')
+        # Ya no se usa database.sqlite3 como última opción
+        error_msg = "No se encontró ninguna base de datos válida de aranceles. Por favor, configure correctamente la base de datos."
+        logging.error(error_msg)
+        raise FileNotFoundError(error_msg)
     
     @classmethod
     def get_note_by_section(cls, section_number, session=None):
@@ -89,7 +90,6 @@ class SectionNote(db.Model):
                 if note:
                     return note.note_text
             except Exception as e:
-                import logging
                 logging.error(f"Error en SectionNote.get_note_by_section con SQLAlchemy: {e}")
         
         # Si falla o no hay resultados, usar SQLite directamente
@@ -112,7 +112,6 @@ class SectionNote(db.Model):
             if row:
                 return row['note_text']
         except Exception as e:
-            import logging
             logging.error(f"Error en SectionNote.get_note_by_section con SQLite: {e}")
             
         return None
@@ -144,7 +143,6 @@ class SectionNote(db.Model):
                 if arancel and arancel.SECTION:
                     return cls.get_note_by_section(arancel.SECTION, session=session)
             except Exception as e:
-                import logging
                 logging.error(f"Error en SectionNote.get_note_by_ncm con SQLAlchemy: {e}")
         
         # Si falla o no hay resultados, usar SQLite directamente
@@ -171,7 +169,6 @@ class SectionNote(db.Model):
             if row and row['SECTION']:
                 return cls.get_note_by_section(row['SECTION'], session=session)
         except Exception as e:
-            import logging
             logging.error(f"Error en SectionNote.get_note_by_ncm con SQLite: {e}")
             
         return None
@@ -194,7 +191,6 @@ class SectionNote(db.Model):
                 if notes:
                     return {note.section_number: note.note_text for note in notes}
             except Exception as e:
-                import logging
                 logging.error(f"Error en SectionNote.get_all_notes con SQLAlchemy: {e}")
         
         # Si falla o no hay resultados, usar SQLite directamente
@@ -216,7 +212,6 @@ class SectionNote(db.Model):
             
             return {row['section_number']: row['note_text'] for row in rows}
         except Exception as e:
-            import logging
             logging.error(f"Error en SectionNote.get_all_notes con SQLite: {e}")
             
         return {}

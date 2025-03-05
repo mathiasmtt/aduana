@@ -16,13 +16,14 @@ logging.basicConfig(
 # Constantes
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DB_VERSIONS_DIR = BASE_DIR / 'data' / 'db_versions'
-ORIGINAL_DB_PATH = BASE_DIR / 'data' / 'database.sqlite3'
+# Ya no usamos database.sqlite3 como base de datos predeterminada
+# ORIGINAL_DB_PATH = BASE_DIR / 'data' / 'database.sqlite3'
 LATEST_SYMLINK = DB_VERSIONS_DIR / 'arancel_latest.sqlite3'
 
 # Registrar las rutas de base de datos para depuración
 logging.info(f"BASE_DIR: {BASE_DIR}")
 logging.info(f"DB_VERSIONS_DIR: {DB_VERSIONS_DIR}")
-logging.info(f"ORIGINAL_DB_PATH: {ORIGINAL_DB_PATH}")
+# Ya no mostramos la ruta a database.sqlite3
 logging.info(f"LATEST_SYMLINK: {LATEST_SYMLINK}")
 
 def init_app(app):
@@ -101,8 +102,11 @@ def get_db_path_for_version(version=None):
             db_path = LATEST_SYMLINK
             logging.info(f"Solicitada base de datos más reciente, devolviendo: {db_path}")
         else:
-            db_path = ORIGINAL_DB_PATH
-            logging.warning(f"No se encontró el enlace simbólico a la versión más reciente, usando: {db_path}")
+            # Ya no usamos database.sqlite3 como base de datos predeterminada
+            # db_path = ORIGINAL_DB_PATH
+            error_msg = "No se encontró el enlace simbólico a la versión más reciente y no hay una base de datos predeterminada."
+            logging.warning(error_msg)
+            raise FileNotFoundError(error_msg)
     else:
         # Buscar una versión específica
         db_path = DB_VERSIONS_DIR / f"arancel_{version}.sqlite3"
@@ -113,7 +117,10 @@ def get_db_path_for_version(version=None):
             if LATEST_SYMLINK.exists():
                 db_path = LATEST_SYMLINK
             else:
-                db_path = ORIGINAL_DB_PATH
+                # Ya no usamos database.sqlite3 como base de datos predeterminada
+                error_msg = "No se encontró la versión especificada ni una versión predeterminada."
+                logging.warning(error_msg)
+                raise FileNotFoundError(error_msg)
     
     return db_path
 
@@ -208,8 +215,9 @@ def check_and_create_notes_tables(app=None):
 
 def check_versions(app=None):
     """
-    Verifica y crea la estructura de directorios y archivos necesarios para
+    Verifica y crea la estructura de directorios necesarios para
     el funcionamiento del sistema de versiones de base de datos.
+    Ya no crea automáticamente la base de datos principal.
     
     Args:
         app (Flask): Instancia de la aplicación Flask
@@ -219,24 +227,10 @@ def check_versions(app=None):
         DB_VERSIONS_DIR.mkdir(parents=True, exist_ok=True)
         logging.info(f"Creado directorio de versiones: {DB_VERSIONS_DIR}")
     
-    # Asegurar que exista la base de datos principal
-    if not ORIGINAL_DB_PATH.exists():
-        # Crear el archivo de base de datos vacío
-        ORIGINAL_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(str(ORIGINAL_DB_PATH))
-        conn.close()
-        logging.info(f"Creada base de datos principal en: {ORIGINAL_DB_PATH}")
+    # Ya no se crea automáticamente la base de datos principal
     
-    # Asegurar que existe el enlace simbólico a la versión más reciente
-    if not LATEST_SYMLINK.exists() and ORIGINAL_DB_PATH.exists():
-        try:
-            # Crear enlace simbólico a la base de datos principal
-            if os.path.exists(LATEST_SYMLINK):
-                os.remove(LATEST_SYMLINK)
-            os.symlink(ORIGINAL_DB_PATH, LATEST_SYMLINK)
-            logging.info(f"Creado enlace simbólico: {LATEST_SYMLINK} -> {ORIGINAL_DB_PATH}")
-        except Exception as e:
-            logging.error(f"Error al crear enlace simbólico: {str(e)}")
+    # Ya no es necesario verificar el enlace simbólico a la base de datos principal
+    # puesto que ya no se crea la base de datos predeterminada
 
 # Mapa de nombres de meses
 meses_map = {
