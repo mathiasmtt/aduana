@@ -67,4 +67,76 @@ La API proporciona acceso a datos de aranceles a través de los siguientes endpo
 
 ## Licencia
 
-Este proyecto está licenciado bajo [insertar licencia aquí]. 
+Este proyecto está licenciado bajo [insertar licencia aquí].
+
+## Módulo Aduana
+
+Este módulo permite gestionar una base de datos para almacenar y consultar resoluciones de clasificación arancelaria.
+
+### Estructura de la base de datos
+
+La base de datos `aduana.db` se almacena en el directorio `/data/aduana/` y contiene la siguiente tabla:
+
+#### Tabla: resoluciones_clasificacion_arancelaria
+
+| Columna      | Tipo      | Descripción                                |
+|--------------|-----------|-------------------------------------------|
+| id           | INTEGER   | Clave primaria autoincremental            |
+| year         | INTEGER   | Año de la resolución                       |
+| numero       | INTEGER   | Número de la resolución                    |
+| fecha        | DATE      | Fecha de la resolución                      |
+| referencia   | TEXT      | Texto de referencia sobre la resolución    |
+| dictamen     | TEXT      | Texto del dictamen                         |
+| resolucion   | TEXT      | Texto de la resolución final               |
+| created_at   | TIMESTAMP | Fecha y hora de creación del registro      |
+| updated_at   | TIMESTAMP | Fecha y hora de actualización del registro |
+
+### Scripts disponibles
+
+- `src/crear_db_aduana.py`: Crea la base de datos y la tabla de resoluciones.
+- `src/agregar_ejemplos_aduana.py`: Agrega ejemplos de resoluciones a la base de datos.
+- `src/consultar_resoluciones.py`: Permite consultar las resoluciones almacenadas.
+- `src/descargar_resoluciones.py`: Descarga resoluciones de clasificación arancelaria desde el sitio web oficial de la Dirección Nacional de Aduanas de Uruguay.
+
+### Ejemplos de uso
+
+Para crear la base de datos:
+```
+python src/crear_db_aduana.py
+```
+
+Para agregar ejemplos a la base de datos:
+```
+python src/agregar_ejemplos_aduana.py
+```
+
+Para consultar todas las resoluciones:
+```
+python src/consultar_resoluciones.py
+```
+
+Para filtrar por año:
+```
+python src/consultar_resoluciones.py --year 2023
+```
+
+Para filtrar por año y número:
+```
+python src/consultar_resoluciones.py --year 2024 --numero 1
+```
+
+Para limitar el número de resultados:
+```
+python src/consultar_resoluciones.py --limit 3
+```
+
+Para descargar resoluciones de un año específico:
+```
+python src/descargar_resoluciones.py 2025
+```
+
+Este script descargará automáticamente:
+- La información básica de cada resolución (número, fecha, referencia)
+- Los PDFs del dictamen y resolución
+- Guardará los PDFs en `data/aduana/{año}/`
+- Registrará la información en la base de datos 
