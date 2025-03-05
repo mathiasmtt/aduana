@@ -156,6 +156,29 @@ class GitHelper:
         print(colored(f"📜 Últimos {count} commits:", "blue"))
         return self.run_command(f"git log --pretty=format:'%h - %s (%cr) <%an>' -n {count}")
     
+    def get_last_version(self):
+        """Extrae la última versión utilizada en los commits"""
+        # Obtener los últimos 20 mensajes de commit para buscar versiones
+        result = subprocess.run(
+            f"git log --pretty=format:'%s' -n 20",
+            shell=True,
+            cwd=self.repo_path,
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode != 0:
+            return None
+        
+        # Buscar patrones de versión [vX.Y] en los mensajes
+        version_pattern = r'\[v(\d{1,2}\.\d{1,2})\]'
+        for line in result.stdout.strip().split('\n'):
+            match = re.search(version_pattern, line)
+            if match:
+                return match.group(1)
+        
+        return None
+    
     def restore_to_commit(self, commit_hash):
         """Restaura el repositorio a un commit específico"""
         # Verificar si hay cambios sin confirmar
@@ -237,7 +260,11 @@ class GitHelper:
             else:
                 print(f"{i}.   {branch}")
         
-        branch_action = input(colored("\n¿Qué deseas hacer? (1: Usar rama actual, 2: Seleccionar otra rama, 3: Crear nueva rama): ", "cyan"))
+        print(colored("\n¿Qué deseas hacer?", "cyan"))
+        print(colored("1: Usar rama actual", "cyan"))
+        print(colored("2: Seleccionar otra rama", "cyan"))
+        print(colored("3: Crear nueva rama", "cyan"))
+        branch_action = input(colored("\nSelecciona una opción: ", "cyan"))
         
         selected_branch = current_branch
         
@@ -321,7 +348,12 @@ class GitHelper:
             commit_option = input(colored("\n¿Deseas realizar un commit? (s/N): ", "cyan"))
             if commit_option.lower() == "s":
                 # Sistema de versiones simple
-                version_number = input(colored("\nIngresa el número de versión (formato X.Y, ej: 1.1, 3.4): ", "cyan"))
+                last_version = self.get_last_version()
+                version_prompt = "\nIngresa el número de versión (formato X.Y, ej: 1.1, 3.4)"
+                if last_version:
+                    version_prompt += f" [última versión: {last_version}]"
+                version_prompt += ": "
+                version_number = input(colored(version_prompt, "cyan"))
                 
                 # Validar el formato del número de versión
                 if not version_number or not re.match(r'^\d{1,2}\.\d{1,2}$', version_number):
