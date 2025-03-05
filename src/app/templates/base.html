@@ -133,6 +133,9 @@
                                 <a href="{{ url_for('main.secciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                     <i class="fas fa-book mr-1"></i> Secciones
                                 </a>
+                                <a href="{{ url_for('main.costo') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <i class="fas fa-calculator mr-1"></i> Costos
+                                </a>
                                 {% if current_user.is_admin or current_user.is_vip %}
                                 <a href="{{ url_for('main.resoluciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                     <i class="fas fa-file-contract mr-1"></i> Resoluciones
@@ -214,7 +217,9 @@
                     <!-- Toggle de tiempo restante para usuarios free -->
                     {% if current_user.is_authenticated and current_user.is_free %}
                     <div class="relative group">
-                        <button class="flex items-center bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-lg py-1.5 px-3 text-sm transition-colors duration-200">
+                        <button class="flex items-center bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-lg py-1.5 px-3 text-sm transition-colors duration-200"
+                               data-remaining-time="{{ current_user.session_remaining_time }}"
+                               id="timer-button">
                             <i class="fas fa-clock text-yellow-400 mr-1.5"></i>
                             <span id="tiempo-restante">{{ current_user.session_remaining_time }}m</span>
                         </button>
@@ -225,7 +230,7 @@
                             </div>
                             <div class="mt-1.5">
                                 <div class="w-full bg-gray-700 rounded-full h-2.5">
-                                    <div id="barra-progreso" class="bg-yellow-400 h-2.5 rounded-full" style="width: {{ (current_user.session_remaining_time / 60) * 100 }}%"></div>
+                                    <div id="barra-progreso" class="bg-yellow-400 h-2.5 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -323,7 +328,7 @@
                 });
             }
             
-            // Manejo del menú móvil
+            /* Manejo del menú móvil */
             const burgerButton = document.querySelector('.mobile-menu-button');
             const mobileMenu = document.querySelector('.mobile-menu');
             
@@ -332,18 +337,25 @@
                     mobileMenu.classList.toggle('hidden');
                 });
             }
+        });
+    </script>
+    
+    <!-- Script para el temporizador de usuario free -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timerButton = document.getElementById('timer-button');
             
-            {% if current_user.is_authenticated and current_user.is_free %}
-            /* Función para actualizar el temporizador cada minuto para usuarios free */
-            function initializeTimerUpdates() {
+            if (timerButton) {
                 const tiempoRestante = document.getElementById("tiempo-restante");
                 const tiempoDetallado = document.getElementById("tiempo-detallado");
                 const barraProgreso = document.getElementById("barra-progreso");
-                const timerButton = tiempoRestante ? tiempoRestante.closest('button') : null;
                 
                 if (tiempoRestante && tiempoDetallado && barraProgreso) {
-                    let minutos = parseInt('{{ current_user.session_remaining_time }}');
+                    let minutos = parseInt(timerButton.getAttribute('data-remaining-time') || '0');
                     const tiempoTotal = 60; // La sesión es de 60 minutos (1 hora)
+                    
+                    // Configurar el ancho inicial de la barra de progreso
+                    barraProgreso.style.width = (minutos / tiempoTotal * 100) + "%";
                     
                     // Aplicar efectos visuales iniciales según el tiempo restante
                     if (minutos <= 5) {
@@ -372,9 +384,7 @@
                                 barraProgreso.classList.add("bg-red-500");
                                 
                                 // Hacer que el botón del temporizador parpadee cuando queda poco tiempo
-                                if (timerButton) {
-                                    timerButton.classList.add("animate-pulse");
-                                }
+                                timerButton.classList.add("animate-pulse");
                             }
                         } else {
                             // Tiempo expirado, redireccionar a logout
@@ -386,10 +396,6 @@
                     setInterval(actualizarTiempo, 60000);
                 }
             }
-            
-            /* Inicializar el temporizador */
-            initializeTimerUpdates();
-            {% endif %}
         });
     </script>
     

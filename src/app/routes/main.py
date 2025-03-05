@@ -10,6 +10,7 @@ import logging
 import os
 from pathlib import Path
 import sqlite3
+from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
@@ -705,3 +706,13 @@ def resoluciones():
     return render_template('resoluciones.html', 
                            versions=versions_data,
                            current_version=g.version or default_version)
+
+@main_bp.route('/costo')
+@login_required
+def costo():
+    """Renderiza la página de costos de importación."""
+    # Obtener la fecha actual en formato legible
+    fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
+    
+    # Renderizar la plantilla con la fecha actual
+    return render_template('costo.html', fecha_actual=fecha_actual)
