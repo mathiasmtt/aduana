@@ -171,13 +171,36 @@ class GitHelper:
             return None
         
         # Buscar patrones de versión [vX.Y] en los mensajes
-        version_pattern = r'\[v(\d{1,2}\.\d{1,2})\]'
+        version_pattern = r'\[v(\d{1,2})\.(\d{1,2})\]'
         for line in result.stdout.strip().split('\n'):
             match = re.search(version_pattern, line)
             if match:
-                return match.group(1)
+                major = int(match.group(1))
+                minor = int(match.group(2))
+                return (major, minor)
         
-        return None
+        # Si no hay versiones previas, comenzar con 1.01
+        return (1, 1)
+    
+    def get_next_version(self):
+        """Calcula automáticamente la siguiente versión basada en la última"""
+        last_version = self.get_last_version()
+        
+        if not last_version:
+            return "1.01"
+            
+        major, minor = last_version
+        
+        # Incrementar el número menor
+        minor += 1
+        
+        # Si el número menor llega a 100, incrementar el mayor y reiniciar el menor
+        if minor > 99:
+            major += 1
+            minor = 0
+            
+        # Formatear como X.YY (asegurando dos dígitos para la parte menor)
+        return f"{major}.{minor:02d}"
     
     def restore_to_commit(self, commit_hash):
         """Restaura el repositorio a un commit específico"""
@@ -347,13 +370,18 @@ class GitHelper:
             # 5. Realizar commit si no se hizo antes
             commit_option = input(colored("\n¿Deseas realizar un commit? (s/N): ", "cyan"))
             if commit_option.lower() == "s":
-                # Sistema de versiones simple
-                last_version = self.get_last_version()
-                version_prompt = "\nIngresa el número de versión (formato X.Y, ej: 1.1, 3.4)"
-                if last_version:
-                    version_prompt += f" [última versión: {last_version}]"
-                version_prompt += ": "
-                version_number = input(colored(version_prompt, "cyan"))
+                # Sistema de versiones automático
+                next_version = self.get_next_version()
+                version_prompt = f"\nNúmero de versión sugerido: {next_version}\n¿Aceptar esta versión? (s/n, Enter para aceptar): "
+                version_choice = input(colored(version_prompt, "cyan"))
+                
+                if version_choice.lower() in ["", "s"]:
+                    # Usar la versión automática
+                    version_number = next_version
+                else:
+                    # Solicitar versión personalizada
+                    custom_prompt = "Ingresa el número de versión personalizado (formato X.YY, ej: 1.01, 2.35): "
+                    version_number = input(colored(custom_prompt, "cyan"))
                 
                 # Validar el formato del número de versión
                 if not version_number or not re.match(r'^\d{1,2}\.\d{1,2}$', version_number):
