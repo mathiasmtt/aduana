@@ -72,4 +72,7 @@ secret_key.txt
 
 # Agregar una Carpeta Completa al .gitignore
 dontshare/
-data/aduana
+
+
+# Archivos PDF
+*.pdf
