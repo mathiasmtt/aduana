@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Resoluciones - Sistema de Aranceles{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
+        <i class="fas fa-file-contract mr-2"></i>RESOLUCIONES
+    </h1>
+    
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+                En esta sección podrá encontrar las resoluciones relacionadas con el sistema arancelario.
+            </p>
+        </div>
+        
+        <!-- Contenido de la página de resoluciones -->
+        <div class="grid grid-cols-1 gap-4">
+            <!-- Aquí se puede agregar el contenido específico de resoluciones -->
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h2 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i>Información
+                </h2>
+                <p class="text-blue-600 dark:text-blue-400">
+                    Esta sección está en desarrollo. Próximamente se añadirán las resoluciones más recientes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

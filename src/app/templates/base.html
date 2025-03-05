@@ -133,6 +133,11 @@
                                 <a href="{{ url_for('main.secciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                     <i class="fas fa-book mr-1"></i> Secciones
                                 </a>
+                                {% if current_user.is_admin or current_user.is_vip %}
+                                <a href="{{ url_for('main.resoluciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <i class="fas fa-file-contract mr-1"></i> Resoluciones
+                                </a>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -329,7 +334,7 @@
             }
             
             {% if current_user.is_authenticated and current_user.is_free %}
-            // Función para actualizar el temporizador cada minuto para usuarios free
+            /* Función para actualizar el temporizador cada minuto para usuarios free */
             function initializeTimerUpdates() {
                 const tiempoRestante = document.getElementById("tiempo-restante");
                 const tiempoDetallado = document.getElementById("tiempo-detallado");
@@ -382,7 +387,7 @@
                 }
             }
             
-            // Inicializar el temporizador
+            /* Inicializar el temporizador */
             initializeTimerUpdates();
             {% endif %}
         });

@@ -683,3 +683,25 @@ def reset_version():
         
     flash('Se ha restablecido la versión del arancel a la más reciente.', 'success')
     return redirect(url_for('main.index'))
+
+@main_bp.route('/resoluciones')
+@login_required
+def resoluciones():
+    """Ruta para acceder a la página de resoluciones.
+    Acceso permitido solo para usuarios admin y vip."""
+    # Verificar si el usuario es admin o vip
+    if not (current_user.is_admin or current_user.is_vip):
+        flash('Acceso restringido. Se requiere una cuenta de nivel superior.', 'warning')
+        return redirect(url_for('main.index'))
+    
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    # Obtener las versiones para el selector
+    versions_data, default_version = get_formatted_versions()
+    
+    return render_template('resoluciones.html', 
+                           versions=versions_data,
+                           current_version=g.version or default_version)
