@@ -62,6 +62,7 @@ logs/
 *.key
 *.cer
 *.crt
+*.backup
 
 # Archivos específicos de Flask
 instance/
