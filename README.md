@@ -1,142 +1,165 @@
-# Sistema de Aranceles
+# Sistema de Consulta y Gestión de Aranceles
 
-Sistema para consultar y gestionar información sobre aranceles nacionales de importación y exportación.
+Sistema para consultar y gestionar información sobre aranceles nacionales de importación y exportación, con soporte para múltiples versiones históricas de los aranceles. Esta aplicación permite a usuarios consultar códigos NCM (Nomenclatura Común del MERCOSUR), visualizar información detallada de aranceles, y acceder a notas explicativas de secciones y capítulos.
 
-## Características
+## Características principales
 
-- Consulta de aranceles por código NCM (con y sin puntos)
-- Visualización de secciones y capítulos del sistema arancelario
-- Historial de versiones de aranceles
-- Notas explicativas para secciones y capítulos
-- API para acceso a datos de aranceles
+- **Consulta de aranceles**: Búsqueda por código NCM (con y sin puntos), descripción o texto parcial
+- **Navegación jerárquica**: Exploración por secciones, capítulos y partidas
+- **Sistema de versiones**: Acceso a diferentes versiones históricas de aranceles
+- **Notas explicativas**: Visualización de notas de secciones y capítulos para facilitar la clasificación
+- **Gestión de resoluciones**: Almacenamiento y consulta de resoluciones de clasificación arancelaria
+- **API completa**: Acceso programático a todos los datos del sistema
+- **Sistema de usuarios**: Control de acceso y personalización de la experiencia
 
 ## Requisitos
 
 - Python 3.7+
 - Flask
+- SQLAlchemy
 - SQLite3
+- Navegador web moderno
 
 ## Instalación
 
 1. Clonar el repositorio:
-```
-git clone https://github.com/tuusuario/aduana.git
+```bash
+git clone https://github.com/usuario/aduana.git
 cd aduana
 ```
 
 2. Crear un entorno virtual e instalar dependencias:
-```
+```bash
 python -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 3. Iniciar la aplicación:
-```
+```bash
 python src/run.py
 ```
 
-## Estructura de directorios
+La aplicación estará disponible en `http://localhost:5051`
 
-- `src/` - Código fuente de la aplicación
-  - `app/` - Aplicación Flask
-    - `models/` - Modelos de datos
-    - `routes/` - Rutas y endpoints
-    - `templates/` - Plantillas HTML
-    - `static/` - Archivos estáticos (CSS, JS)
-- `data/` - Archivos de base de datos
-  - `db_versions/` - Diferentes versiones de bases de datos de aranceles
-- `docs/` - Documentación adicional
+## Estructura del proyecto
 
-## Uso de la API
+```
+aduana/
+├── data/                  # Datos y bases de datos
+│   ├── aduana/            # Base de datos de resoluciones
+│   ├── db_versions/       # Versiones históricas de bases de datos
+│   ├── excel/             # Archivos Excel originales
+│   └── users/             # Base de datos de usuarios
+├── docs/                  # Documentación adicional
+├── src/                   # Código fuente
+│   ├── app/               # Aplicación principal Flask
+│   │   ├── models/        # Modelos de datos (SQLAlchemy)
+│   │   ├── routes/        # Rutas y controladores
+│   │   ├── static/        # Archivos estáticos (CSS, JS)
+│   │   ├── templates/     # Plantillas HTML (Jinja2)
+│   │   ├── __init__.py    # Inicialización de la aplicación
+│   │   ├── config.py      # Configuración de la aplicación
+│   │   └── db_utils.py    # Utilidades para manejo de bases de datos
+│   ├── auxiliares/        # Scripts auxiliares
+│   │   ├── db_management/ # Gestión de bases de datos
+│   │   ├── debug/         # Herramientas de depuración
+│   │   ├── tools/         # Herramientas diversas
+│   │   └── updates/       # Actualizaciones de datos
+│   ├── aduana/            # Módulo específico para resoluciones
+│   └── run.py             # Script principal de ejecución
+└── tests/                 # Pruebas y verificaciones
+    ├── comparison/        # Comparación entre versiones
+    ├── fixes/             # Correcciones de datos
+    ├── tools/             # Herramientas para pruebas
+    ├── updates/           # Scripts de actualización
+    └── verification/      # Verificación de integridad
+```
 
-La API proporciona acceso a datos de aranceles a través de los siguientes endpoints:
+## Módulos principales
 
-- `GET /api/aranceles` - Listar aranceles con filtros opcionales
-- `GET /api/aranceles/<ncm>` - Obtener información de un arancel específico
-- `GET /api/secciones` - Listar todas las secciones disponibles
-- `GET /api/capitulos` - Listar todos los capítulos disponibles
+### Sistema de aranceles
 
-## Contribución
+El sistema de aranceles permite consultar información detallada sobre códigos NCM, incluyendo:
+
+- Descripción del producto
+- Alícuotas de importación y exportación
+- Aranceles externos comunes (AEC)
+- Tratamientos especiales por acuerdos comerciales
+- Notas interpretativas de secciones y capítulos
+
+### Sistema de versiones
+
+El sistema soporta múltiples versiones de aranceles, permitiendo:
+
+- Consultar información histórica de aranceles
+- Comparar cambios entre diferentes versiones
+- Acceder a notas específicas de cada versión
+- Filtrar búsquedas por fecha o versión específica
+
+### Módulo de resoluciones
+
+El módulo de resoluciones gestiona dictámenes oficiales de clasificación arancelaria:
+
+- Almacenamiento de resoluciones completas con dictámenes técnicos
+- Búsqueda por año, número, referencia o texto
+- Descarga automática de resoluciones desde fuentes oficiales
+- Archivado de documentos PDF relacionados
+
+## API REST
+
+La API proporciona acceso completo a los datos del sistema, incluyendo:
+
+### Endpoints principales
+
+- `GET /api/arancel/<ncm>` - Información de un código NCM específico
+- `GET /api/arancel/buscar?q=<texto>` - Búsqueda por texto en descripción
+- `GET /api/secciones` - Lista de todas las secciones
+- `GET /api/capitulos/<seccion>` - Capítulos de una sección específica
+- `GET /api/versiones` - Versiones disponibles de aranceles
+- `GET /api/notas/seccion/<num>` - Notas de una sección específica
+- `GET /api/notas/capitulo/<num>` - Notas de un capítulo específico
+- `GET /api/resoluciones` - Búsqueda de resoluciones con filtros
+
+## Gestión de bases de datos
+
+El sistema utiliza múltiples bases de datos para distintos propósitos:
+
+1. **Base de datos de usuarios**: Almacena usuarios, roles y preferencias
+2. **Base de datos de aranceles**: Contiene información de aranceles en versiones específicas
+3. **Base de datos de resoluciones**: Gestiona resoluciones de clasificación
+
+Las bases de datos se gestionan mediante SQLAlchemy y SQLite, con soporte para:
+
+- Versionado automático de bases de datos
+- Migración de datos entre versiones
+- Verificación de integridad
+- Backup y restauración
+
+## Desarrollo y contribuciones
+
+Para contribuir al proyecto:
 
 1. Crear un fork del repositorio
-2. Crear una rama para tu característica (`git checkout -b feature/nueva-caracteristica`)
-3. Hacer commit de tus cambios (`git commit -am 'Añadir nueva característica'`)
+2. Crear una rama para su característica (`git checkout -b feature/nueva-caracteristica`)
+3. Hacer commit de los cambios (`git commit -am 'Añadir nueva característica'`)
 4. Push a la rama (`git push origin feature/nueva-caracteristica`)
 5. Crear un Pull Request
 
+### Guía de estilo
+
+- Seguir PEP 8 para código Python
+- Documentar funciones y clases con docstrings
+- Usar nombres descriptivos en español
+- Agregar pruebas para nuevas funcionalidades
+
 ## Licencia
 
-Este proyecto está licenciado bajo [insertar licencia aquí].
+Este proyecto está licenciado bajo la licencia MIT.
 
-## Módulo Aduana
+## Soporte y contacto
 
-Este módulo permite gestionar una base de datos para almacenar y consultar resoluciones de clasificación arancelaria.
+Para reportar problemas o solicitar ayuda:
 
-### Estructura de la base de datos
-
-La base de datos `aduana.db` se almacena en el directorio `/data/aduana/` y contiene la siguiente tabla:
-
-#### Tabla: resoluciones_clasificacion_arancelaria
-
-| Columna      | Tipo      | Descripción                                |
-|--------------|-----------|-------------------------------------------|
-| id           | INTEGER   | Clave primaria autoincremental            |
-| year         | INTEGER   | Año de la resolución                       |
-| numero       | INTEGER   | Número de la resolución                    |
-| fecha        | DATE      | Fecha de la resolución                      |
-| referencia   | TEXT      | Texto de referencia sobre la resolución    |
-| dictamen     | TEXT      | Texto del dictamen                         |
-| resolucion   | TEXT      | Texto de la resolución final               |
-| created_at   | TIMESTAMP | Fecha y hora de creación del registro      |
-| updated_at   | TIMESTAMP | Fecha y hora de actualización del registro |
-
-### Scripts disponibles
-
-- `src/crear_db_aduana.py`: Crea la base de datos y la tabla de resoluciones.
-- `src/agregar_ejemplos_aduana.py`: Agrega ejemplos de resoluciones a la base de datos.
-- `src/consultar_resoluciones.py`: Permite consultar las resoluciones almacenadas.
-- `src/descargar_resoluciones.py`: Descarga resoluciones de clasificación arancelaria desde el sitio web oficial de la Dirección Nacional de Aduanas de Uruguay.
-
-### Ejemplos de uso
-
-Para crear la base de datos:
-```
-python src/crear_db_aduana.py
-```
-
-Para agregar ejemplos a la base de datos:
-```
-python src/agregar_ejemplos_aduana.py
-```
-
-Para consultar todas las resoluciones:
-```
-python src/consultar_resoluciones.py
-```
-
-Para filtrar por año:
-```
-python src/consultar_resoluciones.py --year 2023
-```
-
-Para filtrar por año y número:
-```
-python src/consultar_resoluciones.py --year 2024 --numero 1
-```
-
-Para limitar el número de resultados:
-```
-python src/consultar_resoluciones.py --limit 3
-```
-
-Para descargar resoluciones de un año específico:
-```
-python src/descargar_resoluciones.py 2025
-```
-
-Este script descargará automáticamente:
-- La información básica de cada resolución (número, fecha, referencia)
-- Los PDFs del dictamen y resolución
-- Guardará los PDFs en `data/aduana/{año}/`
-- Registrará la información en la base de datos 
+- Crear un issue en el repositorio
+- Contactar a los desarrolladores principales 
