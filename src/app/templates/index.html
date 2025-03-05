@@ -35,7 +35,7 @@
         <p class="text-gray-600 dark:text-gray-300">Información actualizada de la base de datos de aranceles</p>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total de registros -->
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div class="p-5">
@@ -49,8 +49,8 @@
                                 Total de Aranceles
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white">
-                                    {{ total_registros|default('0') }}
+                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-aranceles">
+                                    {{ total_registros|default('0', true) }}
                                 </div>
                             </dd>
                         </dl>
@@ -72,8 +72,8 @@
                                 Total de Capítulos
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white">
-                                    {{ total_capitulos|default('0') }}
+                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-capitulos">
+                                    {{ total_capitulos|default('0', true) }}
                                 </div>
                             </dd>
                         </dl>
@@ -95,31 +95,8 @@
                                 Total de Secciones
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white">
-                                    {{ total_secciones|default('0') }}
-                                </div>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Fecha de actualización -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                        <i class="fas fa-calendar-check text-white text-xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                Última Actualización
-                            </dt>
-                            <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white">
-                                    Abril 2024
+                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-secciones">
+                                    {{ total_secciones|default('0', true) }}
                                 </div>
                             </dd>
                         </dl>
@@ -234,5 +211,89 @@
 {% endblock %}
 
 {% block scripts %}
-// Cualquier script específico para la página de inicio
+<script>
+    // Ejecutar código cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM cargado, iniciando carga de estadísticas...');
+        
+        // Obtener referencias a los elementos que mostrarán las estadísticas
+        var totalAranceles = document.getElementById('total-aranceles');
+        var totalCapitulos = document.getElementById('total-capitulos');
+        var totalSecciones = document.getElementById('total-secciones');
+        
+        // Mostrar indicadores de carga
+        if (totalAranceles) totalAranceles.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        if (totalCapitulos) totalCapitulos.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        if (totalSecciones) totalSecciones.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Crear la solicitud AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{{ url_for("api.get_estadisticas") }}', true);
+        
+        // Configurar el manejador de respuesta
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log('Respuesta recibida del servidor');
+                try {
+                    // Convertir la respuesta JSON a un objeto
+                    var data = JSON.parse(xhr.responseText);
+                    console.log('Datos de estadísticas:', data);
+                    
+                    // Actualizar los valores en la página
+                    if (totalAranceles) totalAranceles.textContent = data.total_registros;
+                    if (totalCapitulos) totalCapitulos.textContent = data.total_capitulos;
+                    if (totalSecciones) totalSecciones.textContent = data.total_secciones;
+                    
+                    console.log('Estadísticas actualizadas correctamente');
+                } catch (error) {
+                    console.error('Error al procesar la respuesta JSON:', error);
+                    mostrarError();
+                }
+            } else {
+                console.error('Error en la solicitud HTTP:', xhr.status);
+                mostrarError();
+            }
+        };
+        
+        // Manejar errores de red
+        xhr.onerror = function() {
+            console.error('Error de red al solicitar estadísticas');
+            mostrarError();
+        };
+        
+        // Enviar la solicitud
+        console.log('Enviando solicitud de estadísticas...');
+        xhr.send();
+        
+        // Función para mostrar error en los contenedores
+        function mostrarError() {
+            if (totalAranceles) totalAranceles.innerHTML = '<span class="text-red-500">Error</span>';
+            if (totalCapitulos) totalCapitulos.innerHTML = '<span class="text-red-500">Error</span>';
+            if (totalSecciones) totalSecciones.innerHTML = '<span class="text-red-500">Error</span>';
+        }
+        
+        // Configurar el evento para el selector de versiones
+        var versionSelector = document.getElementById('version-selector');
+        if (versionSelector) {
+            console.log('Configurando evento para el selector de versiones');
+            versionSelector.addEventListener('change', function() {
+                // Mostrar indicadores de carga
+                if (totalAranceles) totalAranceles.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                if (totalCapitulos) totalCapitulos.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                if (totalSecciones) totalSecciones.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                
+                // Retrasar la redirección para que se vean los indicadores de carga
+                setTimeout(function() {
+                    var url = versionSelector.value ? 
+                        '{{ url_for("main.set_version") }}?version=' + versionSelector.value : 
+                        '{{ url_for("main.reset_version") }}';
+                    console.log('Redirigiendo a:', url);
+                    window.location.href = url;
+                }, 500);
+            });
+        } else {
+            console.log('Selector de versiones no encontrado');
+        }
+    });
+</script>
 {% endblock %}

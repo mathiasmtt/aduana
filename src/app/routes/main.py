@@ -82,44 +82,64 @@ def index():
             return "Error: No hay contexto de aplicación", 500
             
         # Obtenemos estadísticas para mostrar en la página principal
-        # No usamos with db.session.begin() para evitar problemas con transacciones
         try:
-            # Contar registros totales
-            total_registros = db.session.query(func.count(Arancel.NCM)).scalar()
+            # Contar registros totales con manejo específico de errores
+            try:
+                total_registros = db.session.query(func.count(Arancel.NCM)).scalar()
+                logging.info(f"Total registros obtenidos: {total_registros}")
+            except Exception as err:
+                logging.error(f"Error al contar registros: {str(err)}")
+                total_registros = 0
             
-            # Contar secciones únicas directamente de la base de datos
-            total_secciones = db.session.query(func.count(distinct(Arancel.SECTION))).scalar()
+            # Contar secciones únicas con manejo específico de errores
+            try:
+                total_secciones = db.session.query(func.count(distinct(Arancel.SECTION))).scalar()
+                logging.info(f"Total secciones obtenidas: {total_secciones}")
+            except Exception as err:
+                logging.error(f"Error al contar secciones: {str(err)}")
+                total_secciones = 0
             
-            # Contar capítulos únicos de la base de datos
-            chapters = db.session.query(Arancel.CHAPTER).distinct().all()
-            chapter_numbers = set()
+            # Contar capítulos únicos con manejo específico de errores
+            try:
+                chapters = db.session.query(Arancel.CHAPTER).distinct().all()
+                chapter_numbers = set()
+                
+                for chapter_tuple in chapters:
+                    chapter_str = chapter_tuple[0]
+                    if chapter_str:
+                        # Extraer el número de capítulo (formato típico: "XX - Descripción")
+                        match = re.match(r'^(\d+)', chapter_str)
+                        if match:
+                            chapter_numbers.add(match.group(1))
+                
+                total_capitulos = len(chapter_numbers)
+                logging.info(f"Total capítulos obtenidos: {total_capitulos}")
+            except Exception as err:
+                logging.error(f"Error al contar capítulos: {str(err)}")
+                total_capitulos = 0
             
-            for chapter_tuple in chapters:
-                chapter_str = chapter_tuple[0]
-                # Extraer el número de capítulo (formato típico: "XX - Descripción")
-                if chapter_str:
-                    match = re.match(r'^(\d+)', chapter_str)
-                    if match:
-                        chapter_numbers.add(int(match.group(1)))
-            
-            total_capitulos = len(chapter_numbers)
         except Exception as e:
-            logging.error(f"Error al consultar estadísticas: {str(e)}")
+            logging.error(f"Error al obtener estadísticas: {str(e)}")
             total_registros = 0
             total_secciones = 0
             total_capitulos = 0
         
-        return render_template(
-            'index.html', 
-            total_registros=total_registros,
-            total_secciones=total_secciones,
-            total_capitulos=total_capitulos,
-            versiones=versiones,
-            latest_formatted=latest_formatted
-        )
+        # Renderizamos la plantilla con las estadísticas
+        return render_template('index.html', 
+                              versiones=versiones,
+                              latest_formatted=latest_formatted,
+                              total_registros=total_registros,
+                              total_secciones=total_secciones, 
+                              total_capitulos=total_capitulos)
     except Exception as e:
         logging.error(f"Error en la ruta index: {str(e)}")
-        return f"Error al cargar la página principal: {str(e)}", 500
+        flash(f"Error: {str(e)}", "error")
+        return render_template('index.html', 
+                              versiones=versiones,
+                              latest_formatted=latest_formatted,
+                              total_registros=0,
+                              total_secciones=0, 
+                              total_capitulos=0)
 
 @main_bp.route('/buscar', methods=['GET', 'POST'])
 @login_required

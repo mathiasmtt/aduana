@@ -1,8 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g, current_app
 from ..models import Arancel
 from ..models.ncm_version import NCMVersion
 from .. import db
 from datetime import datetime
+from flask_login import login_required, current_user
+from sqlalchemy import func, distinct
+import re
 
 api_bp = Blueprint('api', __name__)
 
@@ -145,3 +148,100 @@ def compare_ncm_versions(ncm_code):
         return jsonify(changes)
     except Exception as e:
         return jsonify({'error': f'Error al comparar versiones: {str(e)}'}), 500
+
+@api_bp.route('/estadisticas')
+def get_estadisticas():
+    """Retorna las estadísticas básicas para mostrar en la página principal."""
+    try:
+        current_app.logger.info(f"API: Solicitud de estadísticas recibida. Versión: {g.version if hasattr(g, 'version') else 'actual'}")
+        
+        # Inicializar contadores
+        total_registros = 0
+        total_secciones = 0
+        total_capitulos = 0
+        
+        # Verificar que la base de datos está disponible usando un enfoque directo
+        try:
+            # Obtener la ruta a la base de datos actual basada en la versión
+            from ..models.arancel import Arancel
+            db_path = Arancel._get_arancel_db_path()
+            current_app.logger.info(f"API: Usando base de datos: {db_path}")
+            
+            # Conectar directamente a la base de datos SQLite
+            import sqlite3
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # 1. Contar registros totales
+            try:
+                cursor.execute("SELECT COUNT(*) as count FROM arancel_nacional")
+                row = cursor.fetchone()
+                total_registros = row['count']
+                current_app.logger.info(f"API: Total de registros encontrados: {total_registros}")
+            except Exception as e:
+                current_app.logger.error(f"API: Error al contar registros: {str(e)}")
+            
+            # 2. Contar secciones únicas (no vacías)
+            try:
+                cursor.execute("SELECT COUNT(DISTINCT SECTION) as count FROM arancel_nacional WHERE SECTION IS NOT NULL AND SECTION != ''")
+                row = cursor.fetchone()
+                total_secciones = row['count']
+                current_app.logger.info(f"API: Total de secciones encontradas: {total_secciones}")
+            except Exception as e:
+                current_app.logger.error(f"API: Error al contar secciones: {str(e)}")
+            
+            # 3. Contar capítulos únicos (extraer número de capítulo)
+            try:
+                # Obtener todos los capítulos
+                cursor.execute("SELECT DISTINCT CHAPTER FROM arancel_nacional WHERE CHAPTER IS NOT NULL AND CHAPTER != ''")
+                chapters = cursor.fetchall()
+                
+                # Extraer y contar números de capítulo únicos
+                import re
+                chapter_numbers = set()
+                for chapter in chapters:
+                    chapter_str = chapter['CHAPTER']
+                    if chapter_str:
+                        # Formato típico: "XX - Descripción" o "XX"
+                        match = re.match(r'^(\d+)', chapter_str)
+                        if match:
+                            chapter_numbers.add(match.group(1))
+                
+                total_capitulos = len(chapter_numbers)
+                current_app.logger.info(f"API: Total de capítulos encontrados: {total_capitulos} (números únicos: {', '.join(sorted(chapter_numbers))})")
+            except Exception as e:
+                current_app.logger.error(f"API: Error al contar capítulos: {str(e)}")
+            
+            # Cerrar la conexión
+            conn.close()
+            
+        except Exception as e:
+            current_app.logger.error(f"API: Error al conectar a la base de datos: {str(e)}")
+            import traceback
+            current_app.logger.error(traceback.format_exc())
+        
+        # Crear objeto de respuesta
+        response_data = {
+            'total_registros': total_registros,
+            'total_secciones': total_secciones,
+            'total_capitulos': total_capitulos,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'version': g.version if hasattr(g, 'version') else 'actual'
+        }
+        
+        current_app.logger.info(f"API: Enviando respuesta de estadísticas: {response_data}")
+        return jsonify(response_data)
+    except Exception as e:
+        current_app.logger.error(f"API: Error al obtener estadísticas: {str(e)}")
+        # Registrar el traceback completo para debug
+        import traceback
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({
+            'error': str(e),
+            'mensaje': 'Error al obtener estadísticas del sistema',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'total_registros': 0,
+            'total_secciones': 0,
+            'total_capitulos': 0
+        }), 500
