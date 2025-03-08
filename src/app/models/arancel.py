@@ -52,7 +52,13 @@ class Arancel(db.Model):
             
             # Si hay una configuración específica, usarla
             if hasattr(current_app, 'config') and 'ARANCEL_DATABASE_URI' in current_app.config:
-                db_path = current_app.config['ARANCEL_DATABASE_URI'].replace('sqlite:///', '')
+                db_uri = current_app.config['ARANCEL_DATABASE_URI']
+                # Verificar si estamos usando una base de datos en memoria
+                if ':memory:' in db_uri:
+                    # Para operaciones SQLite directas con base de datos en memoria,
+                    # necesitamos devolver ":memory:" en lugar de un path
+                    return ":memory:"
+                db_path = db_uri.replace('sqlite:///', '')
                 if os.path.exists(db_path):
                     return db_path
         except Exception as e:
@@ -83,6 +89,12 @@ class Arancel(db.Model):
         # Si falla, usar SQLite directamente
         try:
             db_path = cls._get_arancel_db_path()
+            # Si es una base de datos en memoria, usar SQLAlchemy en su lugar
+            if db_path == ":memory:":
+                from flask import current_app
+                with current_app.app_context():
+                    return cls.query.filter_by(NCM=ncm).first()
+                    
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -113,45 +125,77 @@ class Arancel(db.Model):
     @classmethod
     def buscar_por_ncm_parcial(cls, ncm_parcial, limit=50, session=None):
         """Busca aranceles que comiencen con un código NCM parcial."""
-        # Si no hay entrada, retornar lista vacía
-        if not ncm_parcial or len(ncm_parcial) < 2:
-            return []
-            
-        # Preparar variantes del código para buscar con y sin puntos
-        formato_sin_puntos = ncm_parcial.replace('.', '')
+        # Formatear el código NCM para búsqueda con o sin puntos
+        formato_original = ncm_parcial.strip()
+        formato_sin_puntos = formato_original.replace('.', '')
         
-        # Preparar formato con puntos si no los tiene
-        if '.' not in ncm_parcial:
-            # Convertir código sin puntos a formato con puntos (de acuerdo a la regla 2-2-2-2)
-            # Ejemplo: 20041000 -> 2004.10.00.00, 1905 -> 1905, 200410 -> 2004.10
-            formato_con_puntos = ''
-            for i, char in enumerate(ncm_parcial):
-                if i > 0 and i % 2 == 0 and i < len(ncm_parcial) and i <= 6:
-                    formato_con_puntos += '.' + char
-                else:
-                    formato_con_puntos += char
+        # Si ya tiene formato con puntos (ej: "1234.56.78"), también buscar sin puntos
+        if '.' in formato_original:
+            formato_con_puntos = formato_original
         else:
-            formato_con_puntos = ncm_parcial
-            
-        # Intentar primero con SQLAlchemy (para compatibilidad)
+            # Intentar dar formato con puntos (ej: "12345678" -> "1234.56.78")
+            formato_con_puntos = formato_sin_puntos
+            if len(formato_sin_puntos) >= 4:
+                formato_con_puntos = formato_sin_puntos[:4]
+                if len(formato_sin_puntos) >= 6:
+                    formato_con_puntos += '.' + formato_sin_puntos[4:6]
+                    if len(formato_sin_puntos) >= 8:
+                        formato_con_puntos += '.' + formato_sin_puntos[6:8]
+        
+        # Intentar primero con SQLAlchemy
         resultados = []
         if session:
             try:
-                # Buscar ambos formatos: con puntos y sin puntos
-                resultados_sin_puntos = session.query(cls).filter(cls.NCM.like(f'{formato_sin_puntos}%')).limit(limit).all()
-                resultados_con_puntos = session.query(cls).filter(cls.NCM.like(f'{formato_con_puntos}%')).limit(limit).all()
+                # Buscar primero el formato sin puntos
+                query = session.query(cls).filter(
+                    cls.NCM.like(f"{formato_sin_puntos}%")
+                ).limit(limit)
+                resultados = query.all()
                 
-                # Combinar resultados (puede haber duplicados en diferente formato)
-                resultados = resultados_sin_puntos + [r for r in resultados_con_puntos if r.NCM not in [x.NCM for x in resultados_sin_puntos]]
+                # Si no hay resultados, probar con formato con puntos
+                if not resultados and formato_con_puntos != formato_sin_puntos:
+                    query = session.query(cls).filter(
+                        cls.NCM.like(f"{formato_con_puntos}%")
+                    ).limit(limit)
+                    resultados = query.all()
                 
                 if resultados:
-                    return resultados[:limit]
+                    return resultados
             except Exception as e:
-                logging.error(f"Error en búsqueda SQLAlchemy: {e}")
+                print(f"Error al buscar con SQLAlchemy: {e}")
         
         # Si falla o no hay resultados, usar SQLite directamente
         try:
             db_path = cls._get_arancel_db_path()
+            # Si es una base de datos en memoria, usar SQLAlchemy en su lugar
+            if db_path == ":memory:":
+                from flask import current_app
+                with current_app.app_context():
+                    query = cls.query.filter(cls.NCM.like(f"{formato_sin_puntos}%")).limit(limit)
+                    resultados_sin_puntos = query.all()
+                    
+                    if formato_con_puntos != formato_sin_puntos:
+                        query = cls.query.filter(cls.NCM.like(f"{formato_con_puntos}%")).limit(limit)
+                        resultados_con_puntos = query.all()
+                    else:
+                        resultados_con_puntos = []
+                    
+                    # Combinar resultados evitando duplicados
+                    ncm_procesados = set()
+                    result = []
+                    
+                    for arancel in resultados_sin_puntos:
+                        if arancel.NCM not in ncm_procesados:
+                            ncm_procesados.add(arancel.NCM)
+                            result.append(arancel)
+                    
+                    for arancel in resultados_con_puntos:
+                        if arancel.NCM not in ncm_procesados:
+                            ncm_procesados.add(arancel.NCM)
+                            result.append(arancel)
+                    
+                    return result[:limit]
+                    
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()

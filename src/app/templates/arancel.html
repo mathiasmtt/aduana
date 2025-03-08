@@ -74,6 +74,31 @@
                             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">UVF</dt>
                             <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ arancel.UVF }}</dd>
                         </div>
+                        {% if anticipo_irae is not none %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">IRAE</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ (anticipo_irae * 100)|int }}%</dd>
+                            {% if decretos_irae and (decretos_irae.dto_230_009 or decretos_irae.dto_110_012 or decretos_irae.dto_141_012) %}
+                            <div class="mt-1 flex flex-wrap gap-1">
+                                {% if decretos_irae.dto_230_009 %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+                                    DTO 230/009
+                                </span>
+                                {% endif %}
+                                {% if decretos_irae.dto_110_012 %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                                    DTO 110/012
+                                </span>
+                                {% endif %}
+                                {% if decretos_irae.dto_141_012 %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
+                                    DTO 141/012
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </dl>
                 </div>
             </div>

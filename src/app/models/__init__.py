@@ -7,3 +7,4 @@ from .arancel import Arancel
 from .chapter_note import ChapterNote
 from .section_note import SectionNote
 from .user import User
+from .auxiliares import CodigoPaises, init_auxiliares_db

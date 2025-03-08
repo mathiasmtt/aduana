@@ -44,7 +44,6 @@ instance/
 # Bases de datos específicas del proyecto
 data/*.sqlite3
 data/db_versions/*.sqlite3
-data/arancel.sqlite3
 data/database.sqlite3
 
 # Logs y archivos temporales

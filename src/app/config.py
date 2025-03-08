@@ -12,7 +12,9 @@ class Config:
     # Configuración de la base de datos principal (unificada para aranceles y usuarios)
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR}/data/users/users.sqlite3"
     # URI para la base de datos de aranceles
-    ARANCEL_DATABASE_URI = f"sqlite:////Users/mat/Code/aduana/data/arancel.sqlite3"
+    ARANCEL_DATABASE_URI = "sqlite:///:memory:"  # Base de datos en memoria
+    # URI para la base de datos de auxiliares
+    AUXILIARES_DATABASE_URI = f"sqlite:///{BASE_DIR}/data/auxiliares.sqlite3"
     
     # Deshabilitamos el tracking de modificaciones para mejorar el rendimiento
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -32,6 +34,8 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{Config.BASE_DIR}/data/test_database.sqlite3"
     # URI para la base de datos de aranceles
     ARANCEL_DATABASE_URI = f"sqlite:////Users/mat/Code/aduana/data/arancel.sqlite3"
+    # URI para la base de datos de auxiliares
+    AUXILIARES_DATABASE_URI = f"sqlite:///{Config.BASE_DIR}/data/auxiliares.sqlite3"
     WTF_CSRF_ENABLED = False
 
 class ProductionConfig(Config):

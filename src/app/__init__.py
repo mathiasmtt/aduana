@@ -21,6 +21,9 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Por favor inicia sesión para acceder a esta página.'
 login_manager.login_message_category = 'info'
 
+# Importamos aquí para evitar importaciones circulares
+from .models.auxiliares import init_auxiliares_db
+
 # Única instancia global de la aplicación
 _app = None
 
@@ -54,6 +57,11 @@ def create_app(config_name='default'):
         'pool_recycle': 300,
     }
     
+    app.config["SQLALCHEMY_BINDS"] = {
+        'arancel': app.config['ARANCEL_DATABASE_URI'],
+        'auxiliares': app.config['AUXILIARES_DATABASE_URI']
+    }
+    
     config[config_name].init_app(app)
     
     # Guardar como instancia global
@@ -63,6 +71,9 @@ def create_app(config_name='default'):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    
+    # Inicializar base de datos auxiliares
+    init_auxiliares_db(app)
     
     # Push manual del contexto de aplicación - SIEMPRE SE MANTIENE ACTIVO
     ctx = app.app_context()
@@ -154,6 +165,84 @@ def create_app(config_name='default'):
                 logging.info("Tablas creadas/verificadas correctamente en la base de datos de usuarios")
             else:
                 logging.info("Se omitió la creación automática de database.sqlite3")
+                
+            # Si estamos usando una base de datos en memoria para aranceles, 
+            # necesitamos crear las tablas y añadir datos de ejemplo
+            arancel_db_uri = app.config.get('ARANCEL_DATABASE_URI', '')
+            if ':memory:' in arancel_db_uri:
+                logging.info("Detectada base de datos en memoria para aranceles. Creando tablas...")
+                db.create_all(bind='arancel')
+                
+                # Crear datos de ejemplo básicos
+                from .models.arancel import Arancel
+                from .models.section_note import SectionNote
+                from .models.chapter_note import ChapterNote
+                
+                # Verificar si ya hay datos
+                if not db.session.query(Arancel).first():
+                    logging.info("Creando datos de ejemplo para la base de datos de aranceles en memoria...")
+                    
+                    # Crear algunas secciones y capítulos de ejemplo
+                    secciones_ejemplo = [
+                        {
+                            "NCM": "01.01.10.00",
+                            "DESCRIPCION": "Caballos reproductores de raza pura",
+                            "AEC": "0",
+                            "SECTION": "I - ANIMALES VIVOS Y PRODUCTOS DEL REINO ANIMAL",
+                            "CHAPTER": "01 - ANIMALES VIVOS"
+                        },
+                        {
+                            "NCM": "02.01.10.00",
+                            "DESCRIPCION": "Carne de bovinos fresca o refrigerada",
+                            "AEC": "0",
+                            "SECTION": "I - ANIMALES VIVOS Y PRODUCTOS DEL REINO ANIMAL",
+                            "CHAPTER": "02 - CARNE Y DESPOJOS COMESTIBLES"
+                        },
+                        {
+                            "NCM": "15.01.10.00",
+                            "DESCRIPCION": "Manteca de cerdo",
+                            "AEC": "10",
+                            "SECTION": "III - GRASAS Y ACEITES ANIMALES O VEGETALES",
+                            "CHAPTER": "15 - GRASAS Y ACEITES ANIMALES O VEGETALES"
+                        },
+                        {
+                            "NCM": "25.01.00.11",
+                            "DESCRIPCION": "Sal de mesa",
+                            "AEC": "0",
+                            "SECTION": "V - PRODUCTOS MINERALES",
+                            "CHAPTER": "25 - SAL; AZUFRE; TIERRAS Y PIEDRAS"
+                        }
+                    ]
+                    
+                    for item in secciones_ejemplo:
+                        arancel = Arancel(
+                            NCM=item["NCM"],
+                            DESCRIPCION=item["DESCRIPCION"],
+                            AEC=item["AEC"],
+                            SECTION=item["SECTION"],
+                            CHAPTER=item["CHAPTER"]
+                        )
+                        db.session.add(arancel)
+                    
+                    # Crear algunas notas de sección de ejemplo
+                    if not db.session.query(SectionNote).first():
+                        section_note = SectionNote(
+                            section_number="I",
+                            note_text="Nota de ejemplo para la sección I"
+                        )
+                        db.session.add(section_note)
+                    
+                    # Crear algunas notas de capítulo de ejemplo
+                    if not db.session.query(ChapterNote).first():
+                        chapter_note = ChapterNote(
+                            chapter_number="01",
+                            note_text="Nota de ejemplo para el capítulo 01"
+                        )
+                        db.session.add(chapter_note)
+                    
+                    # Guardar cambios
+                    db.session.commit()
+                    logging.info("Datos de ejemplo creados correctamente para la base de datos en memoria")
     except Exception as e:
         logging.error(f"Error al crear tablas: {str(e)}")
     

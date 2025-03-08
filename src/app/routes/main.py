@@ -14,6 +14,15 @@ from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
+# Función para verificar si hay un contexto de aplicación
+def has_app_context():
+    """Verificar si existe un contexto de aplicación"""
+    try:
+        from flask import current_app
+        return current_app is not None
+    except:
+        return False
+
 # Función auxiliar para obtener las versiones formateadas para el selector
 def get_formatted_versions():
     """Obtiene las versiones disponibles formateadas para el selector."""
@@ -180,9 +189,51 @@ def buscar():
                         
                         # Si hay resultados, obtenemos las notas del primer resultado
                         if resultados:
-                            chapter_note = ChapterNote.get_note_by_ncm(resultados[0].NCM, session=db.session)
-                            section_note = SectionNote.get_note_by_ncm(resultados[0].NCM, resultados[0].SECTION, session=db.session)
-                            logging.debug(f"DEBUG - NCM Parcial: section={resultados[0].SECTION}, chapter={resultados[0].CHAPTER}, section_note={section_note is not None}, chapter_note={chapter_note is not None}")
+                            ncm_primer_resultado = resultados[0].NCM
+                            seccion_primer_resultado = resultados[0].SECTION
+                            capitulo_primer_resultado = resultados[0].CHAPTER
+                            
+                            logging.info(f"Datos del primer resultado: NCM={ncm_primer_resultado}, SECTION={seccion_primer_resultado}, CHAPTER={capitulo_primer_resultado}")
+                            
+                            # Obtener directamente de la base de datos para diagnóstico
+                            try:
+                                db_path = Arancel._get_arancel_db_path()
+                                conn = sqlite3.connect(db_path)
+                                conn.row_factory = sqlite3.Row
+                                cursor = conn.cursor()
+                                
+                                # Verificar si existe la nota de sección IV
+                                cursor.execute("SELECT * FROM section_notes WHERE section_number = ?", (seccion_primer_resultado,))
+                                section_row = cursor.fetchone()
+                                logging.info(f"Consulta directa SQLite para sección '{seccion_primer_resultado}': {section_row is not None}")
+                                
+                                # Verificar si existe la nota de capítulo 20
+                                capitulo_numero = capitulo_primer_resultado.split(' ')[0] if capitulo_primer_resultado and ' ' in capitulo_primer_resultado else capitulo_primer_resultado
+                                cursor.execute("SELECT * FROM chapter_notes WHERE chapter_number = ?", (capitulo_numero,))
+                                chapter_row = cursor.fetchone()
+                                logging.info(f"Consulta directa SQLite para capítulo '{capitulo_numero}': {chapter_row is not None}")
+                                
+                                conn.close()
+                            except Exception as e:
+                                logging.error(f"Error en consulta directa: {str(e)}")
+                            
+                            # Intentar obtener usando los métodos de modelo pero con exactamente los valores de la BD
+                            if seccion_primer_resultado:
+                                section_note = SectionNote.get_note_by_section(seccion_primer_resultado, session=db.session)
+                            
+                            if capitulo_primer_resultado:
+                                # Extraer solo el número del capítulo (ej: "20 -" -> "20")
+                                capitulo_numero = capitulo_primer_resultado.split(' ')[0] if ' ' in capitulo_primer_resultado else capitulo_primer_resultado
+                                chapter_note = ChapterNote.get_note_by_chapter(capitulo_numero, session=db.session)
+                            
+                            # Si aún no se encuentran, intentar con los métodos por NCM como respaldo
+                            if section_note is None:
+                                section_note = SectionNote.get_note_by_ncm(ncm_primer_resultado, seccion_primer_resultado, session=db.session)
+                            
+                            if chapter_note is None:
+                                chapter_note = ChapterNote.get_note_by_ncm(ncm_primer_resultado, session=db.session)
+                            
+                            logging.debug(f"DEBUG - NCM Parcial: section={seccion_primer_resultado}, chapter={capitulo_primer_resultado}, section_note={section_note is not None}, chapter_note={chapter_note is not None}")
 
                     if not resultados and query.isdigit():
                         # Si no hay resultados y el query es numérico, intentar con ceros a la izquierda
@@ -217,6 +268,13 @@ def buscar():
                                 chapter_number = chapter_match.group(1).zfill(2)
                                 chapter_note = ChapterNote.get_note_by_chapter(chapter_number, session=db.session)
                                 logging.info(f"Intento manual de obtener nota de capítulo {chapter_number}: {chapter_note is not None}")
+                            else:
+                                # Si no podemos extraer con regex, intentar usar directamente los primeros 2 dígitos del NCM
+                                ncm_limpio = first_result.NCM.replace('.', '')
+                                if len(ncm_limpio) >= 2:
+                                    chapter_number = ncm_limpio[:2]
+                                    chapter_note = ChapterNote.get_note_by_chapter(chapter_number, session=db.session)
+                                    logging.info(f"Intento con primeros 2 dígitos del NCM para capítulo {chapter_number}: {chapter_note is not None}")
                         
                         # Intentar obtener la nota de sección
                         if section_note is None and hasattr(first_result, 'SECTION') and first_result.SECTION:
@@ -226,6 +284,10 @@ def buscar():
                                 section_id = section_match.group(1)
                                 section_note = SectionNote.get_note_by_section(section_id, session=db.session)
                                 logging.info(f"Intento manual de obtener nota de sección {section_id}: {section_note is not None}")
+                            # Si no se encuentra con el regex, intentar usar toda la sección
+                            elif first_result.SECTION.strip():
+                                section_note = SectionNote.get_note_by_section(first_result.SECTION.strip(), session=db.session)
+                                logging.info(f"Intento con texto completo de sección {first_result.SECTION.strip()}: {section_note is not None}")
                 except Exception as e:
                     logging.error(f"ERROR en búsqueda por NCM: {e}")
                     flash(f"Error al buscar: {str(e)}", "error")
@@ -281,8 +343,8 @@ def buscar():
                           total_resultados=total_resultados,
                           query=query,
                           tipo_busqueda=tipo_busqueda,
-                          section_note=section_note,
-                          chapter_note=chapter_note,
+                          section_note=section_note.note_text if section_note else None,
+                          chapter_note=chapter_note.note_text if chapter_note else None,
                           versiones=versiones,
                           latest_formatted=latest_formatted)
 
@@ -344,6 +406,49 @@ def ver_arancel(ncm):
         arancel = {}
         for key in row.keys():
             arancel[key] = row[key]
+        
+        # Obtener el valor de ANTICIPO_IRAE de la base de datos auxiliares
+        anticipo_irae = None
+        decretos_irae = {}
+        try:
+            # Ruta a la base de datos auxiliares
+            base_dir = Path(__file__).resolve().parent.parent.parent.parent
+            auxiliares_db_path = base_dir / 'data' / 'auxiliares.sqlite3'
+            
+            # Conectar a la base de datos auxiliares
+            aux_conn = sqlite3.connect(str(auxiliares_db_path))
+            aux_conn.row_factory = sqlite3.Row
+            aux_cursor = aux_conn.cursor()
+            
+            # Convertir el formato del NCM de "2004.10.00.00" a "2004100000.0"
+            # Eliminar puntos y luego convertir a float
+            ncm_numerico = float(ncm.replace('.', ''))
+            logging.info(f"Consultando ANTICIPO_IRAE para NCM: {ncm} (convertido a: {ncm_numerico})")
+            
+            # Consultar el valor de ANTICIPO_IRAE para el NCM actual
+            aux_cursor.execute("""
+                SELECT ANTICIPO_PORCENTAJE, 
+                       DTO_230_009, 
+                       DTO_110_012, 
+                       DTO_141_012 
+                FROM ANTICIPO_IRAE 
+                WHERE NCM = ?
+            """, (ncm_numerico,))
+            irae_row = aux_cursor.fetchone()
+            
+            if irae_row:
+                anticipo_irae = irae_row['ANTICIPO_PORCENTAJE']
+                # Obtener información de los decretos aplicables
+                decretos_irae = {
+                    'dto_230_009': bool(irae_row['DTO_230_009']),
+                    'dto_110_012': bool(irae_row['DTO_110_012']),
+                    'dto_141_012': bool(irae_row['DTO_141_012'])
+                }
+                
+            aux_conn.close()
+            
+        except Exception as e:
+            logging.warning(f"Error al obtener datos de ANTICIPO_IRAE: {str(e)}")
         
         # Buscar notas relacionadas con este NCM (capítulo o sección)
         notas = {}
@@ -454,6 +559,8 @@ def ver_arancel(ncm):
                               arancel=arancel, 
                               versiones=historico_versiones,
                               notas=notas,
+                              anticipo_irae=anticipo_irae,
+                              decretos_irae=decretos_irae,
                               version_actual=version_formateada,
                               versiones_selector=versiones_selector,
                               latest_formatted=latest_formatted)
@@ -473,9 +580,6 @@ def secciones():
             logging.error("No hay contexto de aplicación en ruta secciones")
             return "Error: No hay contexto de aplicación", 500
             
-        # Usar el método de Arancel para obtener la ruta a la base de datos actual
-        db_path = Arancel._get_arancel_db_path()
-        
         # Obtener versión seleccionada para mostrar en UI
         version_actual = None
         if hasattr(g, 'version') and g.version:
@@ -499,17 +603,33 @@ def secciones():
         else:
             version_formateada = "Última versión" if not version_actual else version_actual
             
-        # Conectar directamente a la base de datos SQLite
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        # Usar el método de Arancel para obtener la ruta a la base de datos actual
+        db_path = Arancel._get_arancel_db_path()
         
-        # Obtener secciones únicas ordenadas
-        cursor.execute("SELECT DISTINCT SECTION FROM arancel_nacional WHERE SECTION != '' ORDER BY SECTION")
-        secciones_list = [row['SECTION'] for row in cursor.fetchall()]
-        conn.close()
+        secciones_list = []
         
-        logging.info(f"Se encontraron {len(secciones_list)} secciones en la versión {version_actual or 'latest'}")
+        # Si la base de datos está en memoria, usar SQLAlchemy
+        if db_path == ":memory:":
+            # Obtener secciones únicas usando SQLAlchemy
+            from .. import db
+            secciones_query = db.session.query(Arancel.SECTION).distinct().filter(
+                Arancel.SECTION != ''
+            ).order_by(Arancel.SECTION)
+            
+            secciones_list = [seccion[0] for seccion in secciones_query]
+            logging.info(f"Se encontraron {len(secciones_list)} secciones en la versión {version_actual or 'latest'} (en memoria)")
+        else:
+            # Conectar directamente a la base de datos SQLite
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Obtener secciones únicas ordenadas
+            cursor.execute("SELECT DISTINCT SECTION FROM arancel_nacional WHERE SECTION != '' ORDER BY SECTION")
+            secciones_list = [row['SECTION'] for row in cursor.fetchall()]
+            conn.close()
+            
+            logging.info(f"Se encontraron {len(secciones_list)} secciones en la versión {version_actual or 'latest'}")
         
         # Obtener las notas de sección (para mostrar información adicional)
         secciones_con_notas = []
@@ -557,7 +677,7 @@ def capitulos():
     # Obtener las versiones disponibles para el selector
     versiones, latest_formatted = get_formatted_versions()
     
-    seccion = request.args.get('seccion', '')
+    seccion = request.args.get('seccion', '')  # Filtrar por sección si existe
     
     # Verificar permisos: solo admin y vip pueden acceder a esta ruta
     if current_user.role not in ['admin', 'vip']:
@@ -568,10 +688,7 @@ def capitulos():
         if not has_app_context():
             logging.error("No hay contexto de aplicación en ruta capitulos")
             return "Error: No hay contexto de aplicación", 500
-        
-        # Usar el método de Arancel para obtener la ruta a la base de datos actual
-        db_path = Arancel._get_arancel_db_path()
-        
+            
         # Obtener versión seleccionada para mostrar en UI
         version_actual = None
         if hasattr(g, 'version') and g.version:
@@ -595,75 +712,131 @@ def capitulos():
         else:
             version_formateada = "Última versión" if not version_actual else version_actual
             
-        # Conectar directamente a la base de datos SQLite
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
+        # Usar el método de Arancel para obtener la ruta a la base de datos actual
+        db_path = Arancel._get_arancel_db_path()
         
-        # Si se proporciona una sección, filtramos los capítulos por esa sección
-        if seccion:
-            cursor.execute(
-                "SELECT CHAPTER, COUNT(NCM) as count FROM arancel_nacional WHERE SECTION = ? GROUP BY CHAPTER ORDER BY CHAPTER", 
-                (seccion,)
-            )
-        else:
-            cursor.execute(
-                "SELECT CHAPTER, COUNT(NCM) as count FROM arancel_nacional GROUP BY CHAPTER ORDER BY CHAPTER"
-            )
-        
-        rows = cursor.fetchall()
-        
-        # Si se proporcionó una sección, obtener su nombre para mostrarlo en la UI
+        rows = []
         seccion_nombre = ""
-        if seccion:
-            cursor.execute("SELECT DISTINCT SECTION FROM arancel_nacional WHERE SECTION = ? LIMIT 1", (seccion,))
-            seccion_row = cursor.fetchone()
-            if seccion_row:
-                seccion_nombre = seccion_row['SECTION']
+        
+        # Si la base de datos está en memoria, usar SQLAlchemy
+        if db_path == ":memory:":
+            # Obtener capítulos únicos usando SQLAlchemy
+            from .. import db
+            from sqlalchemy import func
+            
+            if seccion:
+                # Si se proporciona una sección, filtramos los capítulos por esa sección
+                capitulos_query = db.session.query(
+                    Arancel.CHAPTER, 
+                    func.count(Arancel.NCM).label('count')
+                ).filter(
+                    Arancel.SECTION == seccion
+                ).group_by(
+                    Arancel.CHAPTER
+                ).order_by(
+                    Arancel.CHAPTER
+                )
                 
-        conn.close()
+                # Obtener nombre de sección para mostrar en UI
+                if seccion:
+                    seccion_query = db.session.query(Arancel.SECTION).filter(
+                        Arancel.SECTION == seccion
+                    ).first()
+                    if seccion_query:
+                        seccion_nombre = seccion_query[0]
+            else:
+                # Si no se proporciona sección, mostrar todos los capítulos
+                capitulos_query = db.session.query(
+                    Arancel.CHAPTER, 
+                    func.count(Arancel.NCM).label('count')
+                ).group_by(
+                    Arancel.CHAPTER
+                ).order_by(
+                    Arancel.CHAPTER
+                )
+                
+            # Convertir a formato compatible con el resto del código
+            rows = [{'CHAPTER': row[0], 'count': row[1]} for row in capitulos_query]
+            
+            logging.info(f"Se encontraron {len(rows)} capítulos en la versión {version_actual or 'latest'} (en memoria)")
+        else:
+            # Conectar directamente a la base de datos SQLite
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Si se proporciona una sección, filtramos los capítulos por esa sección
+            if seccion:
+                cursor.execute(
+                    "SELECT CHAPTER, COUNT(NCM) as count FROM arancel_nacional WHERE SECTION = ? GROUP BY CHAPTER ORDER BY CHAPTER", 
+                    (seccion,)
+                )
+            else:
+                cursor.execute(
+                    "SELECT CHAPTER, COUNT(NCM) as count FROM arancel_nacional GROUP BY CHAPTER ORDER BY CHAPTER"
+                )
+            
+            rows = cursor.fetchall()
+            
+            # Si se proporcionó una sección, obtener su nombre para mostrarlo en la UI
+            seccion_nombre = ""
+            if seccion:
+                cursor.execute("SELECT DISTINCT SECTION FROM arancel_nacional WHERE SECTION = ? LIMIT 1", (seccion,))
+                seccion_row = cursor.fetchone()
+                if seccion_row:
+                    seccion_nombre = seccion_row['SECTION']
+                    
+            conn.close()
         
         # Procesar los resultados para extraer el número de capítulo
         capitulos_list = []
-        for row in rows:
-            capitulo = row['CHAPTER']
-            count = row['count']
-            
-            if capitulo:
-                match = re.match(r'^(\d+)', capitulo)
-                if match:
-                    numero = int(match.group(1))
-                    
-                    # Verificar si hay notas para este capítulo
-                    numero_str = f"{numero:02d}"
-                    nota = ChapterNote.get_note_by_chapter(numero_str)
-                    
-                    # Extraer título
-                    titulo = capitulo
-                    if " - " in capitulo:
-                        titulo = capitulo.split(" - ", 1)[1]
-                    
-                    # Añadir a la lista como un diccionario
-                    capitulos_list.append({
-                        'numero': numero,
-                        'numero_str': numero_str,
-                        'titulo': titulo,
-                        'capitulo': capitulo,
-                        'count': count,
-                        'tiene_nota': nota is not None
-                    })
         
-        logging.info(f"Se encontraron {len(capitulos_list)} capítulos para la sección {seccion if seccion else 'todas'}")
+        for row in rows:
+            capitulo = row['CHAPTER'] if isinstance(row, dict) else row['CHAPTER']
+            ncm_count = row['count'] if isinstance(row, dict) else row['count']
+            
+            # Extraer el número del capítulo (ej: "01 - ANIMALES VIVOS" -> "01")
+            numero = ""
+            titulo = capitulo
+            
+            if capitulo and " - " in capitulo:
+                partes = capitulo.split(" - ", 1)
+                numero = partes[0].strip()
+                titulo = partes[1]
+            
+            # Verificar si hay notas para este capítulo
+            nota = None
+            if numero:
+                nota = ChapterNote.get_note_by_chapter(numero)
+            
+            capitulos_list.append({
+                'capitulo': capitulo,
+                'numero': numero,
+                'titulo': titulo,
+                'count': ncm_count,
+                'tiene_nota': nota is not None
+            })
+        
+        # Determinar el título de la página según el filtro
+        titulo_pagina = "Capítulos del Arancel Nacional"
+        if seccion_nombre:
+            titulo_pagina = f"Capítulos de la Sección: {seccion_nombre}"
         
         return render_template('capitulos.html', 
-                              capitulos=capitulos_list, 
-                              seccion=seccion,
+                              capitulos=capitulos_list,
+                              seccion_filtro=seccion,
                               seccion_nombre=seccion_nombre,
+                              titulo_pagina=titulo_pagina,
                               versiones=versiones,
                               latest_formatted=latest_formatted,
                               version_actual=version_formateada)
     except Exception as e:
         logging.error(f"Error en la ruta capitulos: {str(e)}")
+        # Intentar hacer rollback para limpiar cualquier transacción pendiente
+        try:
+            db.session.rollback()
+        except:
+            pass
         return f"Error al cargar los capítulos: {str(e)}", 500
 
 @main_bp.route('/set_version')
@@ -736,3 +909,9 @@ def costo():
     
     # Renderizar la plantilla con la fecha actual
     return render_template('costo.html', fecha_actual=fecha_actual)
+
+@main_bp.route('/cargar_factura')
+@login_required
+def cargar_factura():
+    """Renderiza el formulario para cargar una nueva factura."""
+    return render_template('cargar_factura.html')
