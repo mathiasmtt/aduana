@@ -501,6 +501,67 @@ def ver_arancel(ncm):
                             })
                 except Exception as e:
                     logging.warning(f"Error al buscar notas de sección: {str(e)}")
+        
+        # Obtener resoluciones de clasificación arancelaria para este NCM
+        resoluciones_clasificacion = []
+        try:
+            # Ruta a la base de datos aduana.db
+            aduana_db_path = base_dir / 'data' / 'aduana' / 'aduana.db'
+            
+            # Conectar a la base de datos aduana.db
+            aduana_conn = sqlite3.connect(str(aduana_db_path))
+            aduana_conn.row_factory = sqlite3.Row
+            aduana_cursor = aduana_conn.cursor()
+            
+            # Preparar formatos del NCM para la búsqueda (con y sin puntos)
+            ncm_sin_puntos = ncm.replace('.', '')
+            ncm_con_puntos = None
+            
+            # Solo intentar formatear con puntos si tiene suficiente longitud
+            if len(ncm_sin_puntos) >= 8:
+                try:
+                    # Formato estándar de NCM con puntos (8471.50.10.00)
+                    ncm_con_puntos = '.'.join([
+                        ncm_sin_puntos[0:4], 
+                        ncm_sin_puntos[4:6], 
+                        ncm_sin_puntos[6:8], 
+                        ncm_sin_puntos[8:10] if len(ncm_sin_puntos) >= 10 else ''
+                    ]).rstrip('.')
+                except Exception:
+                    ncm_con_puntos = None
+            
+            # Consultar resoluciones para el NCM actual en ambos formatos
+            if ncm_con_puntos:
+                aduana_cursor.execute("""
+                    SELECT id, year, numero, fecha, dictamen, resolucion 
+                    FROM resoluciones_clasificacion_arancelaria 
+                    WHERE referencia = ? OR referencia = ? 
+                    ORDER BY year DESC, numero DESC
+                """, (ncm_sin_puntos, ncm_con_puntos))
+            else:
+                aduana_cursor.execute("""
+                    SELECT id, year, numero, fecha, dictamen, resolucion 
+                    FROM resoluciones_clasificacion_arancelaria 
+                    WHERE referencia = ? 
+                    ORDER BY year DESC, numero DESC
+                """, (ncm_sin_puntos,))
+            
+            resoluciones_rows = aduana_cursor.fetchall()
+            
+            for res in resoluciones_rows:
+                resoluciones_clasificacion.append({
+                    'id': res['id'],
+                    'year': res['year'],
+                    'numero': res['numero'],
+                    'fecha': res['fecha'],
+                    'dictamen': res['dictamen'],
+                    'resolucion': res['resolucion']
+                })
+                
+            aduana_conn.close()
+            
+        except Exception as e:
+            logging.warning(f"Error al obtener resoluciones de clasificación: {str(e)}")
             
         # Obtener versiones históricas del NCM si está disponible
         historico_versiones = []
@@ -563,7 +624,8 @@ def ver_arancel(ncm):
                               decretos_irae=decretos_irae,
                               version_actual=version_formateada,
                               versiones_selector=versiones_selector,
-                              latest_formatted=latest_formatted)
+                              latest_formatted=latest_formatted,
+                              resoluciones_clasificacion=resoluciones_clasificacion)
     except Exception as e:
         logging.error(f"Error en la ruta ver_arancel: {str(e)}")
         return f"Error al cargar los detalles del arancel: {str(e)}", 500
@@ -932,8 +994,30 @@ def resoluciones():
             params.append(numero)
             
         if ncm:
-            where_clauses.append("referencia LIKE ?")
-            params.append(f"%{ncm}%")
+            # Considerar ambos formatos: con y sin puntos
+            ncm_sin_puntos = ncm.replace('.', '')
+            ncm_con_puntos = None
+            
+            # Solo intentar formatear con puntos si tiene suficiente longitud
+            if len(ncm_sin_puntos) >= 8:
+                try:
+                    # Formato estándar de NCM con puntos (8471.50.10.00)
+                    ncm_con_puntos = '.'.join([
+                        ncm_sin_puntos[0:4], 
+                        ncm_sin_puntos[4:6], 
+                        ncm_sin_puntos[6:8], 
+                        ncm_sin_puntos[8:10] if len(ncm_sin_puntos) >= 10 else ''
+                    ]).rstrip('.')
+                except Exception:
+                    ncm_con_puntos = None
+            
+            if ncm_con_puntos:
+                where_clauses.append("(referencia LIKE ? OR referencia LIKE ?)")
+                params.append(f"%{ncm_sin_puntos}%")
+                params.append(f"%{ncm_con_puntos}%")
+            else:
+                where_clauses.append("referencia LIKE ?")
+                params.append(f"%{ncm_sin_puntos}%")
             
         if concepto:
             where_clauses.append("dictamen LIKE ?")
@@ -982,3 +1066,221 @@ def costo():
 def cargar_factura():
     """Renderiza el formulario para cargar una nueva factura."""
     return render_template('cargar_factura.html')
+
+@main_bp.route('/agregar_resolucion', methods=['POST'])
+@login_required
+def agregar_resolucion():
+    """Ruta para agregar una nueva resolución de clasificación arancelaria.
+    Acceso permitido solo para usuarios admin."""
+    # Verificar si el usuario es admin
+    if not current_user.is_admin:
+        flash('Acceso restringido. Solo administradores pueden agregar resoluciones.', 'danger')
+        return redirect(url_for('main.resoluciones'))
+    
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    try:
+        # Obtener los datos del formulario
+        year = request.form.get('year', type=int)
+        numero = request.form.get('numero', type=int)
+        fecha = request.form.get('fecha')
+        ncm = request.form.get('ncm')
+        concepto = request.form.get('concepto')
+        resolucion_texto = request.form.get('resolucion', '')
+        
+        # Validar los datos requeridos
+        if not all([year, numero, fecha, ncm, concepto]):
+            flash('Todos los campos marcados con * son obligatorios.', 'warning')
+            return redirect(url_for('main.resoluciones'))
+        
+        # Conectar a la base de datos
+        import sqlite3
+        from pathlib import Path
+        
+        # Obtener la ruta de la base de datos
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        db_path = str(project_root / 'data' / 'aduana' / 'aduana.db')
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Verificar si ya existe una resolución con el mismo año y número
+        cursor.execute(
+            "SELECT COUNT(*) FROM resoluciones_clasificacion_arancelaria WHERE year = ? AND numero = ?", 
+            (year, numero)
+        )
+        if cursor.fetchone()[0] > 0:
+            flash(f'Ya existe una resolución con número {numero}/{year}.', 'warning')
+            conn.close()
+            return redirect(url_for('main.resoluciones'))
+        
+        # Insertar la nueva resolución
+        cursor.execute('''
+            INSERT INTO resoluciones_clasificacion_arancelaria 
+            (year, numero, fecha, referencia, dictamen, resolucion) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (year, numero, fecha, ncm, concepto, resolucion_texto))
+        
+        # Guardar los cambios
+        conn.commit()
+        conn.close()
+        
+        # Notificar al usuario
+        flash(f'Resolución {numero}/{year} agregada exitosamente.', 'success')
+        
+        # Registrar la acción en el log
+        current_app.logger.info(f"Usuario {current_user.username} agregó la resolución {numero}/{year}")
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al agregar resolución: {str(e)}")
+        flash(f'Error al agregar la resolución: {str(e)}', 'danger')
+    
+    return redirect(url_for('main.resoluciones'))
+
+@main_bp.route('/editar_resolucion', methods=['POST'])
+@login_required
+def editar_resolucion():
+    """Ruta para editar una resolución existente.
+    Acceso permitido solo para usuarios admin."""
+    # Verificar si el usuario es admin
+    if not current_user.is_admin:
+        flash('Acceso restringido. Solo administradores pueden modificar resoluciones.', 'danger')
+        return redirect(url_for('main.resoluciones'))
+    
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    try:
+        # Obtener los datos del formulario
+        resolucion_id = request.form.get('id', type=int)
+        year = request.form.get('year', type=int)
+        numero = request.form.get('numero', type=int)
+        fecha = request.form.get('fecha')
+        ncm = request.form.get('ncm')
+        concepto = request.form.get('concepto')
+        resolucion_texto = request.form.get('resolucion', '')
+        
+        # Validar los datos requeridos
+        if not all([resolucion_id, year, numero, fecha, ncm, concepto]):
+            flash('Todos los campos marcados con * son obligatorios.', 'warning')
+            return redirect(url_for('main.resoluciones'))
+        
+        # Conectar a la base de datos
+        import sqlite3
+        from pathlib import Path
+        
+        # Obtener la ruta de la base de datos
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        db_path = str(project_root / 'data' / 'aduana' / 'aduana.db')
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Verificar si existe el registro a modificar
+        cursor.execute("SELECT COUNT(*) FROM resoluciones_clasificacion_arancelaria WHERE id = ?", (resolucion_id,))
+        if cursor.fetchone()[0] == 0:
+            flash('La resolución que intenta modificar no existe.', 'warning')
+            conn.close()
+            return redirect(url_for('main.resoluciones'))
+        
+        # Verificar si ya existe otra resolución con el mismo año y número (excepto el mismo registro)
+        cursor.execute(
+            "SELECT COUNT(*) FROM resoluciones_clasificacion_arancelaria WHERE year = ? AND numero = ? AND id != ?", 
+            (year, numero, resolucion_id)
+        )
+        if cursor.fetchone()[0] > 0:
+            flash(f'Ya existe otra resolución con número {numero}/{year}.', 'warning')
+            conn.close()
+            return redirect(url_for('main.resoluciones'))
+        
+        # Actualizar la resolución
+        cursor.execute('''
+            UPDATE resoluciones_clasificacion_arancelaria 
+            SET year = ?, numero = ?, fecha = ?, referencia = ?, dictamen = ?, resolucion = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (year, numero, fecha, ncm, concepto, resolucion_texto, resolucion_id))
+        
+        # Guardar los cambios
+        conn.commit()
+        conn.close()
+        
+        # Notificar al usuario
+        flash(f'Resolución {numero}/{year} actualizada exitosamente.', 'success')
+        
+        # Registrar la acción en el log
+        current_app.logger.info(f"Usuario {current_user.username} actualizó la resolución {numero}/{year}")
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al actualizar resolución: {str(e)}")
+        flash(f'Error al actualizar la resolución: {str(e)}', 'danger')
+    
+    return redirect(url_for('main.resoluciones'))
+
+@main_bp.route('/eliminar_resolucion', methods=['POST'])
+@login_required
+def eliminar_resolucion():
+    """Ruta para eliminar una resolución.
+    Acceso permitido solo para usuarios admin."""
+    # Verificar si el usuario es admin
+    if not current_user.is_admin:
+        flash('Acceso restringido. Solo administradores pueden eliminar resoluciones.', 'danger')
+        return redirect(url_for('main.resoluciones'))
+    
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    try:
+        # Obtener el ID de la resolución a eliminar
+        resolucion_id = request.form.get('id', type=int)
+        
+        if not resolucion_id:
+            flash('ID de resolución no proporcionado.', 'warning')
+            return redirect(url_for('main.resoluciones'))
+        
+        # Conectar a la base de datos
+        import sqlite3
+        from pathlib import Path
+        
+        # Obtener la ruta de la base de datos
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        db_path = str(project_root / 'data' / 'aduana' / 'aduana.db')
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Obtener información de la resolución antes de eliminarla (para el log)
+        cursor.execute("SELECT year, numero FROM resoluciones_clasificacion_arancelaria WHERE id = ?", (resolucion_id,))
+        res_info = cursor.fetchone()
+        
+        if not res_info:
+            flash('La resolución que intenta eliminar no existe.', 'warning')
+            conn.close()
+            return redirect(url_for('main.resoluciones'))
+        
+        year, numero = res_info
+        
+        # Eliminar la resolución
+        cursor.execute("DELETE FROM resoluciones_clasificacion_arancelaria WHERE id = ?", (resolucion_id,))
+        
+        # Guardar los cambios
+        conn.commit()
+        conn.close()
+        
+        # Notificar al usuario
+        flash(f'Resolución {numero}/{year} eliminada exitosamente.', 'success')
+        
+        # Registrar la acción en el log
+        current_app.logger.info(f"Usuario {current_user.username} eliminó la resolución {numero}/{year}")
+        
+    except Exception as e:
+        current_app.logger.error(f"Error al eliminar resolución: {str(e)}")
+        flash(f'Error al eliminar la resolución: {str(e)}', 'danger')
+    
+    return redirect(url_for('main.resoluciones'))

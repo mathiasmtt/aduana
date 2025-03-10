@@ -126,6 +126,51 @@
                 </div>
             </div>
             
+            {% if resoluciones_clasificacion and resoluciones_clasificacion|length > 0 %}
+            <div class="mb-6">
+                <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Resoluciones Junta Clasificación</h2>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-100 dark:bg-gray-600">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Número</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Dictamen</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-700 divide-y divide-gray-200 dark:divide-gray-600">
+                                {% for resolucion in resoluciones_clasificacion %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{{ resolucion.year }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{{ resolucion.numero }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                                        {% if resolucion.fecha %}
+                                            {% set fecha = resolucion.fecha.split('-') if '-' in resolucion.fecha else resolucion.fecha %}
+                                            {% if fecha is string %}
+                                                {{ fecha }}
+                                            {% else %}
+                                                {{ fecha[2] }}/{{ fecha[1] }}/{{ fecha[0] }}
+                                            {% endif %}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-200">
+                                        <div class="max-h-24 overflow-y-auto">
+                                            {{ resolucion.dictamen }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             {% if notas and (notas.seccion or notas.capitulo) %}
             <div class="mb-6">
                 <h2 class="text-gray-800 dark:text-white text-xl font-semibold mb-3">Notas Relacionadas</h2>

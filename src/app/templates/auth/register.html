@@ -12,6 +12,9 @@
     
     <div class="p-6">
         <form method="POST" action="{{ url_for('auth.register') }}">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
             <!-- Username -->
             <div class="mb-4">
                 <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

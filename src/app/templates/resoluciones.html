@@ -60,6 +60,9 @@
                         <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
                         <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">NCM</th>
                         <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
+                        {% if current_user.is_admin %}
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -71,11 +74,29 @@
                             <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.fecha }}</td>
                             <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.referencia }}</td>
                             <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.dictamen }}</td>
+                            {% if current_user.is_admin %}
+                            <td class="py-3 px-4 text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <!-- Botón Modificar -->
+                                    <button type="button" 
+                                            onclick="prepararEdicion({{ res.id }}, {{ res.year }}, {{ res.numero }}, '{{ res.fecha }}', '{{ res.referencia|replace("'", "\\'") }}', '{{ res.dictamen|replace("'", "\\'") }}', '{{ res.resolucion|default('')|replace("'", "\\'") }}')"
+                                            class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <!-- Botón Eliminar -->
+                                    <button type="button" 
+                                            onclick="confirmarEliminacion({{ res.id }}, {{ res.year }}, {{ res.numero }})"
+                                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="5" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">No se encontraron resoluciones para mostrar.</td>
+                            <td colspan="{{ 6 if current_user.is_admin else 5 }}" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">No se encontraron resoluciones para mostrar.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -93,6 +114,226 @@
             </div>
         </div>
         {% endif %}
+    </div>
+    
+    <!-- SECCIÓN EXCLUSIVA PARA ADMINISTRADORES: Agregar resoluciones manualmente -->
+    {% if current_user.is_admin %}
+    <div class="mt-8 bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+            <i class="fas fa-plus-circle mr-2"></i>Agregar Nueva Resolución
+        </h2>
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+                Esta sección es exclusiva para administradores. Aquí puede agregar nuevas resoluciones de clasificación arancelaria manualmente.
+            </p>
+        </div>
+        
+        <!-- Formulario para agregar resoluciones -->
+        <form method="POST" action="{{ url_for('main.agregar_resolucion') }}" class="space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Primera columna -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="add_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
+                        <select id="add_year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            {% for y in range(2025, 2019, -1) %}
+                            <option value="{{ y }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="add_numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
+                        <input type="number" id="add_numero" name="numero" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
+                    </div>
+                    
+                    <div>
+                        <label for="add_fecha" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
+                        <input type="date" id="add_fecha" name="fecha" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                </div>
+                
+                <!-- Segunda columna -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="add_ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
+                        <input type="text" id="add_ncm" name="ncm" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10.00">
+                    </div>
+                    
+                    <div>
+                        <label for="add_concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
+                        <textarea id="add_concepto" name="concepto" required rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Descripción del producto o mercadería"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="add_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
+                <textarea id="add_resolucion" name="resolucion" rows="4" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Texto completo de la resolución (opcional)"></textarea>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <i class="fas fa-save mr-2"></i>Guardar Resolución
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Establecer la fecha actual por defecto en el formulario de agregar
+        const fechaInput = document.getElementById('add_fecha');
+        if (fechaInput) {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            fechaInput.value = formattedDate;
+        }
+    });
+    
+    // Modal de edición
+    function prepararEdicion(id, year, numero, fecha, ncm, concepto, resolucion) {
+        // Rellenar el formulario con los datos de la resolución
+        const form = document.getElementById('editForm');
+        if (form) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_year').value = year;
+            document.getElementById('edit_numero').value = numero;
+            document.getElementById('edit_fecha').value = formatDate(fecha);
+            document.getElementById('edit_ncm').value = ncm;
+            document.getElementById('edit_concepto').value = concepto;
+            document.getElementById('edit_resolucion').value = resolucion || '';
+            
+            // Mostrar el modal
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+    }
+    
+    // Función para formatear la fecha de DD/MM/YYYY a YYYY-MM-DD para el input date
+    function formatDate(dateString) {
+        // Si ya tiene formato YYYY-MM-DD, devolverlo tal cual
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+            return dateString;
+        }
+        
+        // Formato esperado: DD/MM/YYYY
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+        
+        // Si no se puede formatear, devolver la fecha actual
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    }
+    
+    // Cerrar el modal de edición
+    function cerrarEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+    
+    // Confirmar eliminación
+    function confirmarEliminacion(id, year, numero) {
+        if (confirm(`¿Está seguro que desea eliminar la resolución ${numero}/${year}?`)) {
+            // Enviar solicitud de eliminación
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ url_for('main.eliminar_resolucion') }}";
+            
+            // Agregar token CSRF
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrf_token';
+            csrfToken.value = "{{ csrf_token() }}";
+            form.appendChild(csrfToken);
+            
+            // Agregar ID de la resolución
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            idInput.value = id;
+            form.appendChild(idInput);
+            
+            // Enviar el formulario
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+
+<!-- Modal para editar resolución -->
+<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">
+                <i class="fas fa-edit mr-2"></i>Editar Resolución
+            </h3>
+            <button onclick="cerrarEditModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="editForm" method="POST" action="{{ url_for('main.editar_resolucion') }}" class="mt-4 space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" id="edit_id" name="id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Primera columna -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
+                        <select id="edit_year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            {% for y in range(2025, 2019, -1) %}
+                            <option value="{{ y }}">{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="edit_numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
+                        <input type="number" id="edit_numero" name="numero" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_fecha" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
+                        <input type="date" id="edit_fecha" name="fecha" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                </div>
+                
+                <!-- Segunda columna -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit_ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
+                        <input type="text" id="edit_ncm" name="ncm" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
+                        <textarea id="edit_concepto" name="concepto" required rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="edit_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
+                <textarea id="edit_resolucion" name="resolucion" rows="4" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="cerrarEditModal()" class="py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button type="submit" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                    <i class="fas fa-save mr-2"></i>Guardar Cambios
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %} 
