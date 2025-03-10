@@ -53,7 +53,9 @@ def create_auxiliares_tables():
     db.init_app(app)
     
     with app.app_context():
-        db.create_all(bind='auxiliares')
+        # Actualizado para ser compatible con SQLAlchemy 2.0
+        with db.engine.connect() as conn:
+            db.metadata.create_all(bind=db.engines['auxiliares'])
         print("Tablas de auxiliares creadas correctamente.")
 
 if __name__ == "__main__":

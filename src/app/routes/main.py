@@ -575,7 +575,7 @@ def ver_arancel(ncm):
                 cursor.execute("""
                     SELECT source_file, version_date, description, aec, ez, iz, uvf, cl
                     FROM ncm_versions
-                    WHERE ncm = ?
+                    WHERE ncm_code = ?
                     ORDER BY version_date DESC
                 """, (ncm,))
                 

@@ -174,7 +174,9 @@ def create_app(config_name='default'):
             arancel_db_uri = app.config.get('ARANCEL_DATABASE_URI', '')
             if ':memory:' in arancel_db_uri:
                 logging.info("Detectada base de datos en memoria para aranceles. Creando tablas...")
-                db.create_all(bind='arancel')
+                # Actualizado para ser compatible con SQLAlchemy 2.0
+                with db.engine.connect() as conn:
+                    db.metadata.create_all(bind=db.engines['arancel'])
                 
                 # Crear datos de ejemplo básicos
                 from .models.arancel import Arancel
