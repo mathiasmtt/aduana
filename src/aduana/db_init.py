@@ -5,10 +5,22 @@ Módulo para inicializar la base de datos de aduana.
 import os
 import sqlite3
 import logging
+from pathlib import Path
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+def obtener_ruta_db():
+    """
+    Obtiene la ruta estándar de la base de datos.
+    
+    Returns:
+        str: Ruta a la base de datos.
+    """
+    # Ruta estándar de la base de datos
+    project_root = Path(__file__).resolve().parent.parent.parent
+    return str(project_root / 'data' / 'aduana' / 'aduana.db')
 
 def crear_base_datos(db_path='/data/aduana/aduana.db'):
     """

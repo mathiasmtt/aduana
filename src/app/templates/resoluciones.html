@@ -5,28 +5,94 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
-        <i class="fas fa-file-contract mr-2"></i>RESOLUCIONES
+        <i class="fas fa-file-contract mr-2"></i>RESOLUCIONES DE CLASIFICACIÓN ARANCELARIA
     </h1>
     
     <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <!-- Información de la sección -->
         <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
             <p class="text-gray-600 dark:text-gray-300">
-                En esta sección podrá encontrar las resoluciones relacionadas con el sistema arancelario.
+                En esta sección podrá encontrar las resoluciones de clasificación arancelaria emitidas por la Dirección Nacional de Aduanas.
             </p>
         </div>
         
-        <!-- Contenido de la página de resoluciones -->
-        <div class="grid grid-cols-1 gap-4">
-            <!-- Aquí se puede agregar el contenido específico de resoluciones -->
-            <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h2 class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                    <i class="fas fa-info-circle mr-2"></i>Información
-                </h2>
-                <p class="text-blue-600 dark:text-blue-400">
-                    Esta sección está en desarrollo. Próximamente se añadirán las resoluciones más recientes.
-                </p>
+        <!-- Formulario de búsqueda -->
+        <div class="mb-6">
+            <form method="GET" action="{{ url_for('main.resoluciones') }}" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Año</label>
+                        <select id="year" name="year" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">Todos</option>
+                            {% for y in range(2025, 2019, -1) %}
+                            <option value="{{ y }}" {% if request.args.get('year')|int == y %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número</label>
+                        <input type="number" id="numero" name="numero" value="{{ request.args.get('numero', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
+                    </div>
+                    <div>
+                        <label for="ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">NCM</label>
+                        <input type="text" id="ncm" name="ncm" value="{{ request.args.get('ncm', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10">
+                    </div>
+                    <div>
+                        <label for="concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Concepto</label>
+                        <input type="text" id="concepto" name="concepto" value="{{ request.args.get('concepto', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: Vehículo">
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tabla de resoluciones -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-700">
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Año</th>
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Número</th>
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">NCM</th>
+                        <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Concepto</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% if resoluciones %}
+                        {% for res in resoluciones %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.year }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.numero }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.fecha }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.referencia }}</td>
+                            <td class="py-3 px-4 text-sm text-gray-900 dark:text-gray-300">{{ res.dictamen }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="py-4 px-4 text-center text-gray-500 dark:text-gray-400">No se encontraron resoluciones para mostrar.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Contador de resultados -->
+        {% if resoluciones and resoluciones|length > 0 %}
+        <div class="mt-4 flex justify-between items-center">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                Mostrando {{ resoluciones|length }} resoluciones
+            </div>
+            <div class="flex space-x-1">
+                <!-- Aquí se puede añadir la paginación si es necesario -->
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 

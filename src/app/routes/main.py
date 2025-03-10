@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, g, abort, jsonify, session, has_app_context
+from flask import Blueprint, render_template, request, flash, redirect, url_for, g, abort, jsonify, session, has_app_context, current_app
 from ..models import Arancel, ChapterNote, SectionNote
 from .. import db
 from ..db_utils import get_available_versions
@@ -896,9 +896,76 @@ def resoluciones():
     # Obtener las versiones para el selector
     versions_data, default_version = get_formatted_versions()
     
+    # Obtener los parámetros de búsqueda
+    year = request.args.get('year', type=int)
+    numero = request.args.get('numero', type=int)
+    ncm = request.args.get('ncm', '')
+    concepto = request.args.get('concepto', '')
+    
+    # Obtener las resoluciones de la base de datos
+    try:
+        import sqlite3
+        # Corregir las importaciones para que funcionen desde dentro de src
+        import sys
+        from pathlib import Path
+        
+        # Para obtener la ruta de la base de datos
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        db_path = str(project_root / 'data' / 'aduana' / 'aduana.db')
+        
+        # Consultar resoluciones con los filtros proporcionados
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Construir la consulta según los filtros
+        query = "SELECT * FROM resoluciones_clasificacion_arancelaria"
+        params = []
+        where_clauses = []
+        
+        if year:
+            where_clauses.append("year = ?")
+            params.append(year)
+            
+        if numero:
+            where_clauses.append("numero = ?")
+            params.append(numero)
+            
+        if ncm:
+            where_clauses.append("referencia LIKE ?")
+            params.append(f"%{ncm}%")
+            
+        if concepto:
+            where_clauses.append("dictamen LIKE ?")
+            params.append(f"%{concepto}%")
+            
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
+            
+        query += " ORDER BY year DESC, numero DESC LIMIT 100"
+        
+        cursor.execute(query, params)
+        resoluciones = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        # Formatear fechas para mejor visualización
+        for res in resoluciones:
+            if 'fecha' in res and res['fecha']:
+                try:
+                    # Convertir la fecha de formato ISO a un formato más legible
+                    fecha = datetime.strptime(res['fecha'], '%Y-%m-%d')
+                    res['fecha'] = fecha.strftime('%d/%m/%Y')
+                except (ValueError, TypeError):
+                    pass  # Mantener el formato original si hay error
+    except Exception as e:
+        current_app.logger.error(f"Error al consultar resoluciones: {str(e)}")
+        resoluciones = []
+        flash('Error al cargar las resoluciones. Intente nuevamente más tarde.', 'error')
+    
     return render_template('resoluciones.html', 
-                           versions=versions_data,
-                           current_version=g.version or default_version)
+                          versions=versions_data,
+                          default_version=default_version,
+                          resoluciones=resoluciones)
 
 @main_bp.route('/costo')
 @login_required
