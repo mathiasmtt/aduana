@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Resolución {{ resolucion.year }}/{{ resolucion.numero }} - Sistema de Aranceles{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+            <i class="fas fa-file-contract mr-2"></i>Resolución {{ resolucion.year }}/{{ resolucion.numero }}
+        </h1>
+        <a href="{{ url_for('main.resoluciones') }}" class="py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a Resoluciones
+        </a>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-8">
+        <!-- Información general -->
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                Información General
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Primera columna -->
+                <div>
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Número de Resolución</h3>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.year }}/{{ resolucion.numero }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Emisión</h3>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.fecha }}</p>
+                    </div>
+                </div>
+                
+                <!-- Segunda columna -->
+                <div>
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Código NCM</h3>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.referencia }}</p>
+                    </div>
+                    
+                    <!-- Enlaces a documentos -->
+                    {% if resolucion.url_dictamen or resolucion.url_resolucion %}
+                    <div class="mt-4">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Enlaces a documentos</h3>
+                        <div class="flex flex-col gap-2">
+                            {% if resolucion.url_dictamen %}
+                            <a href="{{ resolucion.url_dictamen }}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
+                                <i class="fas fa-external-link-alt mr-2"></i>Ver dictamen original
+                            </a>
+                            {% endif %}
+                            
+                            {% if resolucion.url_resolucion %}
+                            <a href="{{ resolucion.url_resolucion }}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
+                                <i class="fas fa-external-link-alt mr-2"></i>Ver resolución original
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Concepto/Dictamen -->
+        <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                Concepto/Dictamen
+            </h2>
+            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p class="text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.dictamen }}</p>
+            </div>
+        </div>
+        
+        <!-- Texto de la Resolución -->
+        {% if resolucion.resolucion %}
+        <div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+                Texto Completo de la Resolución
+            </h2>
+            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p class="text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.resolucion }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Opciones administrativas -->
+    {% if current_user.is_admin %}
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+            <i class="fas fa-cog mr-2"></i>Opciones Administrativas
+        </h2>
+        
+        <div class="flex space-x-4">
+            <button type="button" 
+                    onclick="prepararEdicion({{ resolucion.id }}, {{ resolucion.year }}, {{ resolucion.numero }}, '{{ resolucion.fecha }}', '{{ resolucion.referencia|replace("'", "\\'") }}', '{{ resolucion.dictamen|replace("'", "\\'") }}', '{{ resolucion.resolucion|default('')|replace("'", "\\'") }}', '{{ resolucion.url_dictamen|default('') }}', '{{ resolucion.url_resolucion|default('') }}')"
+                    class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                <i class="fas fa-edit mr-2"></i>Editar Resolución
+            </button>
+            
+            <button type="button" 
+                    onclick="confirmarEliminacion({{ resolucion.id }}, {{ resolucion.year }}, {{ resolucion.numero }})"
+                    class="py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">
+                <i class="fas fa-trash-alt mr-2"></i>Eliminar Resolución
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    {% if current_user.is_admin %}
+    function prepararEdicion(id, year, numero, fecha, referencia, dictamen, resolucion, url_dictamen, url_resolucion) {
+        // Redirigir a la página de resoluciones con ancla al formulario de edición
+        window.location.href = "{{ url_for('main.resoluciones') }}?edit=true&id=" + id;
+    }
+    
+    function confirmarEliminacion(id, year, numero) {
+        if (confirm('¿Está seguro que desea eliminar la Resolución ' + year + '/' + numero + '?')) {
+            // Crear un formulario para enviar la solicitud POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ url_for('main.eliminar_resolucion') }}";
+            
+            // Agregar el token CSRF
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrf_token';
+            csrfToken.value = "{{ csrf_token() }}";
+            form.appendChild(csrfToken);
+            
+            // Agregar el ID de la resolución
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            idInput.value = id;
+            form.appendChild(idInput);
+            
+            // Agregar el formulario al documento y enviarlo
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    {% endif %}
+</script>
+{% endblock %} 

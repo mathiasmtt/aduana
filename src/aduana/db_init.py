@@ -50,6 +50,8 @@ def crear_base_datos(db_path='/data/aduana/aduana.db'):
             referencia TEXT,
             dictamen TEXT,
             resolucion TEXT,
+            url_dictamen TEXT,
+            url_resolucion TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -72,7 +74,7 @@ def crear_base_datos(db_path='/data/aduana/aduana.db'):
         logger.error(f"Error al crear la base de datos: {str(e)}")
         return False
 
-def agregar_resolucion(db_path, year, numero, fecha, referencia='', dictamen='', resolucion=''):
+def agregar_resolucion(db_path, year, numero, fecha, referencia='', dictamen='', resolucion='', url_dictamen='', url_resolucion=''):
     """
     Agrega una nueva resolución de clasificación arancelaria a la base de datos.
     
@@ -84,6 +86,8 @@ def agregar_resolucion(db_path, year, numero, fecha, referencia='', dictamen='',
         referencia (str): Referencia de la resolución.
         dictamen (str): Texto del dictamen.
         resolucion (str): Texto de la resolución.
+        url_dictamen (str): URL del dictamen.
+        url_resolucion (str): URL de la resolución.
         
     Returns:
         int: ID de la resolución creada o -1 en caso de error.
@@ -94,9 +98,9 @@ def agregar_resolucion(db_path, year, numero, fecha, referencia='', dictamen='',
         
         cursor.execute('''
         INSERT INTO resoluciones_clasificacion_arancelaria
-        (year, numero, fecha, referencia, dictamen, resolucion)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', (year, numero, fecha, referencia, dictamen, resolucion))
+        (year, numero, fecha, referencia, dictamen, resolucion, url_dictamen, url_resolucion)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (year, numero, fecha, referencia, dictamen, resolucion, url_dictamen, url_resolucion))
         
         last_id = cursor.lastrowid
         
@@ -126,5 +130,7 @@ if __name__ == "__main__":
             fecha='2023-01-15',
             referencia='Ejemplo de referencia',
             dictamen='Dictamen de prueba',
-            resolucion='Resolución de prueba'
+            resolucion='Resolución de prueba',
+            url_dictamen='http://example.com/dictamen',
+            url_resolucion='http://example.com/resolucion'
         ) 

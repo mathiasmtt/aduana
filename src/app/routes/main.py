@@ -1051,6 +1051,64 @@ def resoluciones():
                           default_version=default_version,
                           resoluciones=resoluciones)
 
+@main_bp.route('/resoluciones/<int:id>')
+@login_required
+def ver_resolucion(id):
+    """Ruta para ver los detalles de una resolución específica.
+    Acceso permitido solo para usuarios autenticados."""
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    # Obtener las versiones para el selector
+    versions_data, default_version = get_formatted_versions()
+    
+    # Obtener detalles de la resolución desde la base de datos
+    try:
+        import sqlite3
+        import sys
+        from pathlib import Path
+        
+        # Para obtener la ruta de la base de datos
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        db_path = str(project_root / 'data' / 'aduana' / 'aduana.db')
+        
+        # Consultar la resolución por su ID
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        query = "SELECT * FROM resoluciones_clasificacion_arancelaria WHERE id = ?"
+        cursor.execute(query, (id,))
+        resolucion = cursor.fetchone()
+        
+        if not resolucion:
+            flash('La resolución solicitada no existe.', 'error')
+            return redirect(url_for('main.resoluciones'))
+        
+        resolucion = dict(resolucion)
+        
+        # Formatear fecha para mejor visualización
+        if 'fecha' in resolucion and resolucion['fecha']:
+            try:
+                # Convertir la fecha de formato ISO a un formato más legible
+                fecha = datetime.strptime(resolucion['fecha'], '%Y-%m-%d')
+                resolucion['fecha'] = fecha.strftime('%d/%m/%Y')
+            except (ValueError, TypeError):
+                pass  # Mantener el formato original si hay error
+                
+        conn.close()
+    except Exception as e:
+        current_app.logger.error(f"Error al obtener detalles de la resolución: {str(e)}")
+        flash('Error al cargar los detalles de la resolución. Intente nuevamente más tarde.', 'error')
+        return redirect(url_for('main.resoluciones'))
+    
+    return render_template('ver_resolucion.html', 
+                          versions=versions_data,
+                          default_version=default_version,
+                          resolucion=resolucion)
+
 @main_bp.route('/costo')
 @login_required
 def costo():
@@ -1090,6 +1148,8 @@ def agregar_resolucion():
         ncm = request.form.get('ncm')
         concepto = request.form.get('concepto')
         resolucion_texto = request.form.get('resolucion', '')
+        url_dictamen = request.form.get('url_dictamen', '')
+        url_resolucion = request.form.get('url_resolucion', '')
         
         # Validar los datos requeridos
         if not all([year, numero, fecha, ncm, concepto]):
@@ -1120,9 +1180,9 @@ def agregar_resolucion():
         # Insertar la nueva resolución
         cursor.execute('''
             INSERT INTO resoluciones_clasificacion_arancelaria 
-            (year, numero, fecha, referencia, dictamen, resolucion) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (year, numero, fecha, ncm, concepto, resolucion_texto))
+            (year, numero, fecha, referencia, dictamen, resolucion, url_dictamen, url_resolucion) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (year, numero, fecha, ncm, concepto, resolucion_texto, url_dictamen, url_resolucion))
         
         # Guardar los cambios
         conn.commit()
@@ -1164,6 +1224,8 @@ def editar_resolucion():
         ncm = request.form.get('ncm')
         concepto = request.form.get('concepto')
         resolucion_texto = request.form.get('resolucion', '')
+        url_dictamen = request.form.get('url_dictamen', '')
+        url_resolucion = request.form.get('url_resolucion', '')
         
         # Validar los datos requeridos
         if not all([resolucion_id, year, numero, fecha, ncm, concepto]):
@@ -1201,9 +1263,9 @@ def editar_resolucion():
         # Actualizar la resolución
         cursor.execute('''
             UPDATE resoluciones_clasificacion_arancelaria 
-            SET year = ?, numero = ?, fecha = ?, referencia = ?, dictamen = ?, resolucion = ?, updated_at = CURRENT_TIMESTAMP
+            SET year = ?, numero = ?, fecha = ?, referencia = ?, dictamen = ?, resolucion = ?, url_dictamen = ?, url_resolucion = ?, updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-        ''', (year, numero, fecha, ncm, concepto, resolucion_texto, resolucion_id))
+        ''', (year, numero, fecha, ncm, concepto, resolucion_texto, url_dictamen, url_resolucion, resolucion_id))
         
         # Guardar los cambios
         conn.commit()
