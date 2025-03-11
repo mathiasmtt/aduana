@@ -1346,3 +1346,23 @@ def eliminar_resolucion():
         flash(f'Error al eliminar la resolución: {str(e)}', 'danger')
     
     return redirect(url_for('main.resoluciones'))
+
+@main_bp.route('/playground')
+@login_required
+def playground():
+    """Ruta para acceder al playground de operadores logísticos.
+    Acceso permitido solo para usuarios admin y vip."""
+    # Verificar si el usuario es admin o vip
+    if not (current_user.is_admin or current_user.is_vip):
+        flash('Acceso restringido. Se requiere una cuenta de nivel superior.', 'warning')
+        return redirect(url_for('main.index'))
+    
+    # Verificar si la sesión ha expirado
+    expiry_redirect = check_session_expiry()
+    if expiry_redirect:
+        return expiry_redirect
+    
+    # Obtener las versiones para el selector
+    versions_data, default_version = get_formatted_versions()
+    
+    return render_template('playground.html', versiones=versions_data, latest_formatted=default_version)
