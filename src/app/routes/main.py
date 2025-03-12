@@ -31,7 +31,7 @@ def get_formatted_versions():
     
     # Verificar si hay versiones disponibles
     if not versions:
-        return [], "Actual"
+        return [], "Sin versiones"
     
     for version in versions:
         # Formato más legible: 202502 -> Feb 2025
@@ -48,23 +48,23 @@ def get_formatted_versions():
                 versions_data.append({
                     'code': version,
                     'formatted': formatted,
-                    'is_latest': version == versions[0]  # La primera versión es la más reciente
+                    'is_latest': False  # Ninguna versión se marca como "latest"
                 })
             except:
                 versions_data.append({
                     'code': version,
                     'formatted': version,
-                    'is_latest': version == versions[0]
+                    'is_latest': False
                 })
         else:
             versions_data.append({
                 'code': version,
                 'formatted': version,
-                'is_latest': version == versions[0]
+                'is_latest': False
             })
     
     # Obtener la fecha formateada de la versión más reciente
-    latest_formatted = "Actual"
+    latest_formatted = "Sin versión"
     if versions_data:
         latest_formatted = versions_data[0]['formatted']
         
@@ -83,7 +83,7 @@ def index():
         versiones, latest_formatted = get_formatted_versions()
     except Exception as e:
         logging.error(f"Error obteniendo versiones formateadas: {str(e)}")
-        versiones, latest_formatted = [], "Actual"
+        versiones, latest_formatted = [], "Sin versiones"
     
     try:
         if not has_app_context():
@@ -913,6 +913,9 @@ def set_version():
     # Obtener la versión solicitada
     version = request.args.get('version', '')
     
+    # Obtener la página a la que redirigir después de cambiar la versión
+    redirect_to = request.args.get('redirect', '')
+    
     # Si es 'latest', resetear la versión
     if version == 'latest':
         if 'arancel_version' in session:
@@ -922,23 +925,60 @@ def set_version():
         session['arancel_version'] = version
     
     flash(f'Se ha establecido la versión del arancel a: {version}', 'success')
+    
+    # Redirigir a la página correspondiente
+    if redirect_to == 'configuracion':
+        return redirect(url_for('main.configuracion'))
     return redirect(url_for('main.index'))
 
 @main_bp.route('/reset_version')
 @login_required
 def reset_version():
-    """Ruta para resetear la versión del arancel a la más reciente. Solo para administradores."""
+    """Ruta para establecer la versión del arancel a la primera versión disponible. Solo para administradores."""
     # Verificar que es administrador
     if current_user.role != 'admin':
         flash('Solo los administradores pueden cambiar la versión del arancel.', 'error')
         return redirect(url_for('main.index'))
     
-    # Eliminar la versión de la sesión
-    if 'arancel_version' in session:
-        session.pop('arancel_version')
+    # Obtener la primera versión disponible
+    from ..db_utils import get_available_versions
+    versions = get_available_versions()
+    
+    if versions and len(versions) > 0:
+        # Establecer la primera versión disponible (la más reciente)
+        session['arancel_version'] = versions[0]
+        flash(f'Se ha restablecido la versión del arancel a la más reciente ({versions[0]}).', 'success')
+    else:
+        # Si no hay versiones disponibles, eliminar la versión de la sesión
+        if 'arancel_version' in session:
+            session.pop('arancel_version')
+        flash('No hay versiones de arancel disponibles.', 'warning')
         
-    flash('Se ha restablecido la versión del arancel a la más reciente.', 'success')
     return redirect(url_for('main.index'))
+
+@main_bp.route('/configuracion')
+@login_required
+def configuracion():
+    """Página de configuración del sistema. Solo para administradores."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        flash('Solo los administradores pueden acceder a la configuración del sistema.', 'error')
+        return redirect(url_for('main.index'))
+    
+    # Obtener las versiones disponibles
+    versiones, latest_formatted = get_formatted_versions()
+    
+    try:
+        # Obtener información adicional sobre las versiones (futuras expansiones)
+        # Por ejemplo, fechas de creación, tamaños, etc.
+        
+        return render_template('configuracion.html', 
+                              versiones=versiones,
+                              latest_formatted=latest_formatted)
+    except Exception as e:
+        logging.error(f"Error en la ruta configuracion: {str(e)}")
+        flash(f"Error al cargar la configuración: {str(e)}", 'error')
+        return redirect(url_for('main.index'))
 
 @main_bp.route('/resoluciones')
 @login_required

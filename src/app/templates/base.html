@@ -144,6 +144,13 @@
                                     <i class="fas fa-gamepad mr-1"></i> Playground
                                 </a>
                                 {% endif %}
+                                
+                                <!-- Enlace a Configuración (solo para administradores) -->
+                                {% if current_user.is_admin %}
+                                <a href="{{ url_for('main.configuracion') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <i class="fas fa-cogs mr-1"></i> Configuración
+                                </a>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -190,32 +197,6 @@
                             </a>
                         {% endif %}
                     </div>
-                    
-                    <!-- Selector de versiones (solo para administradores) -->
-                    {% if versiones and current_user.is_authenticated and current_user.role == 'admin' %}
-                    <div class="relative group">
-                        <div class="flex items-center">
-                            <span class="text-xs font-medium text-gray-300 mr-2">
-                                <i class="fas fa-calendar-alt mr-1"></i>Versión:
-                            </span>
-                            <select id="version-selector" 
-                                    class="appearance-none bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-600 dark:border-gray-700 text-white rounded-lg py-1.5 pl-3 pr-8 cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                                <option value="" {% if not g.version %}selected{% endif %}>Actual ({{ latest_formatted }})</option>
-                                {% for version in versiones %}
-                                    <option value="{{ version.code }}" {% if g.version == version.code %}selected{% endif %}>{{ version.formatted }}{% if version.is_latest %} (Actual){% endif %}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="pointer-events-none absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="hidden group-hover:block absolute top-10 right-0 bg-gray-800 text-xs text-gray-300 p-2 rounded shadow-lg z-10">
-                            Cambiar a otra versión del Arancel Nacional
-                        </div>
-                    </div>
-                    {% endif %}
                     
                     <!-- Toggle de tiempo restante para usuarios free -->
                     {% if current_user.is_authenticated and current_user.is_free %}
@@ -317,23 +298,11 @@
         </div>
     </footer>
     
-    <!-- Script para el selector de versiones -->
+    <!-- Script para el selector de versiones - YA NO ES NECESARIO -->
+    
+    <!-- Script para el temporizador de usuario free -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const versionSelector = document.getElementById('version-selector');
-            if (versionSelector) {
-                // Solo agregar este eventListener en páginas que NO son index.html
-                if (window.location.pathname !== '{{ url_for("main.index") }}') {
-                    versionSelector.addEventListener('change', function(e) {
-                        if (e.target.value) {
-                            window.location.href = '{{ url_for("main.set_version") }}?version=' + e.target.value;
-                        } else {
-                            window.location.href = '{{ url_for("main.reset_version") }}';
-                        }
-                    });
-                }
-            }
-            
             /* Manejo del menú móvil */
             const burgerButton = document.querySelector('.mobile-menu-button');
             const mobileMenu = document.querySelector('.mobile-menu');
@@ -343,12 +312,7 @@
                     mobileMenu.classList.toggle('hidden');
                 });
             }
-        });
-    </script>
-    
-    <!-- Script para el temporizador de usuario free -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            
             const timerButton = document.getElementById('timer-button');
             
             if (timerButton) {

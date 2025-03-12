@@ -105,9 +105,15 @@ def create_app(config_name='default'):
             if 'arancel_version' in session:
                 g.version = session.get('arancel_version')
             else:
-                # Si no hay versión en la sesión, no establecemos ninguna versión específica
-                # para que use la última por defecto (None o '')
-                g.version = ''
+                # Si no hay versión específica, obtener la primera versión disponible
+                from .db_utils import get_available_versions
+                versions = get_available_versions()
+                
+                if versions and len(versions) > 0:
+                    g.version = versions[0]  # Usar la primera versión disponible (la más reciente)
+                else:
+                    # Si no hay versiones disponibles, establecer una cadena vacía
+                    g.version = ''
     
     # Definir el cargador de usuarios para Flask-Login
     @login_manager.user_loader
