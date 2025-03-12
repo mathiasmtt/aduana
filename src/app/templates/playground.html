@@ -273,6 +273,19 @@
   .dark .btn-rechazar:hover {
     background-color: #b91c1c;
   }
+  .btn-confirmar {
+    background-color: #3498db;
+    color: white;
+  }
+  .btn-confirmar:hover {
+    background-color: #2980b9;
+  }
+  .dark .btn-confirmar {
+    background-color: #3b82f6;
+  }
+  .dark .btn-confirmar:hover {
+    background-color: #2563eb;
+  }
   .mensaje-confirmacion {
     margin-top: 10px;
     padding: 8px;
@@ -333,9 +346,25 @@
   }
 
   /* Estilos para la sección de servicios aceptados */
-  .servicios-aceptados {
-    display: none; /* Inicialmente oculto hasta que se acepte un servicio */
-    margin-top: 20px;
+  .servicios-aceptados, .servicios-confirmados {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .dark .servicios-aceptados, .dark .servicios-confirmados {
+    background-color: #1e293b;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .servicios-aceptados h2, .servicios-confirmados h2 {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .dark .servicios-aceptados h2, .dark .servicios-confirmados h2 {
+    border-bottom: 1px solid #4b5563;
   }
   .servicio-aceptado-item {
     display: flex;
@@ -439,11 +468,22 @@
     </div>
   </div>
   
-  <!-- Nueva sección para servicios aceptados -->
-  <div class="card card-horizontal servicios-aceptados" id="servicios-aceptados">
-    <h2><i class="fas fa-check-circle"></i> Servicios Aceptados</h2>
-    <div id="lista-servicios-aceptados">
-      <!-- Los servicios aceptados se mostrarán aquí -->
+  <!-- Sección para servicios aceptados y confirmados en dos cards side by side -->
+  <div class="card card-horizontal" id="servicios-container" style="display: none; margin-top: 20px;">
+    <div class="row" style="width: 100%; margin: 0; gap: 15px;">
+      <div class="servicios-aceptados" id="servicios-aceptados" style="flex: 1; min-width: 0;">
+        <h2><i class="fas fa-check-circle"></i> Servicios Aceptados</h2>
+        <div id="lista-servicios-aceptados">
+          <!-- Los servicios aceptados se mostrarán aquí -->
+        </div>
+      </div>
+      
+      <div class="servicios-confirmados" id="servicios-confirmados" style="flex: 1; min-width: 0;">
+        <h2><i class="fas fa-clipboard-check"></i> Servicios Confirmados</h2>
+        <div id="lista-servicios-confirmados">
+          <!-- Los servicios confirmados se mostrarán aquí -->
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -557,6 +597,9 @@
   // Array para almacenar los servicios aceptados
   const serviciosAceptados = [];
 
+  // Array para almacenar los servicios confirmados
+  const serviciosConfirmados = [];
+
   // Mapa de iconos para diferentes tipos de cargas
   const iconMap = {
     'textiles': 'tshirt',
@@ -638,12 +681,6 @@
     const container = document.getElementById('lista-servicios-aceptados');
     container.innerHTML = ''; // Limpiar contenido anterior
     
-    // Mostrar el contenedor si hay servicios aceptados
-    const serviciosContainer = document.getElementById('servicios-aceptados');
-    if (serviciosAceptados.length > 0) {
-      serviciosContainer.style.display = 'block';
-    }
-    
     // Detectar si estamos en modo oscuro
     const isDarkMode = document.documentElement.classList.contains('dark');
     
@@ -678,10 +715,76 @@
         <div class="servicio-aceptado-fecha">
           <i class="fas fa-clock mr-1"></i> ${fechaAceptacion}
         </div>
+        <button class="btn btn-confirmar" onclick="confirmarServicio(${servicio.id})">
+          <i class="fas fa-clipboard-check"></i> Confirmar
+        </button>
       `;
       
       container.appendChild(servicioElement);
     });
+    
+    // Actualizar la visibilidad del contenedor principal
+    actualizarVisibilidadContenedorServicios();
+  }
+
+  // Función para mostrar servicios confirmados
+  function mostrarServiciosConfirmados() {
+    const container = document.getElementById('lista-servicios-confirmados');
+    container.innerHTML = ''; // Limpiar contenido anterior
+    
+    // Detectar si estamos en modo oscuro
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Ordenar los servicios por fecha de confirmación (más recientes primero)
+    serviciosConfirmados.sort((a, b) => b.fechaConfirmacion - a.fechaConfirmacion);
+    
+    serviciosConfirmados.forEach(servicio => {
+      const servicioElement = document.createElement('div');
+      servicioElement.className = 'servicio-aceptado-item';
+      if (isDarkMode) {
+        servicioElement.classList.add('dark-mode');
+      }
+      
+      // Formatear la fecha de confirmación
+      const fechaConfirmacion = servicio.fechaConfirmacion.toLocaleDateString() + ' ' + 
+                              servicio.fechaConfirmacion.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      servicioElement.innerHTML = `
+        <div class="servicio-aceptado-info">
+          <div class="servicio-aceptado-header">
+            <i class="fas fa-${servicio.icon}"></i> ${servicio.descripcion}
+          </div>
+          <div class="servicio-aceptado-details">
+            <div class="servicio-aceptado-detail">
+              <i class="fas fa-weight-hanging"></i> ${servicio.peso}
+            </div>
+            <div class="servicio-aceptado-detail">
+              <i class="far fa-calendar-alt"></i> ${servicio.fecha}
+            </div>
+          </div>
+        </div>
+        <div class="servicio-aceptado-fecha">
+          <i class="fas fa-clock mr-1"></i> ${fechaConfirmacion}
+        </div>
+      `;
+      
+      container.appendChild(servicioElement);
+    });
+    
+    // Actualizar la visibilidad del contenedor principal
+    actualizarVisibilidadContenedorServicios();
+  }
+
+  // Función para actualizar la visibilidad del contenedor principal de servicios
+  function actualizarVisibilidadContenedorServicios() {
+    const contenedorPrincipal = document.getElementById('servicios-container');
+    
+    // Mostrar el contenedor principal si hay servicios aceptados o confirmados
+    if (serviciosAceptados.length > 0 || serviciosConfirmados.length > 0) {
+      contenedorPrincipal.style.display = 'block';
+    } else {
+      contenedorPrincipal.style.display = 'none';
+    }
   }
 
   // Función para aceptar una carga
@@ -759,9 +862,32 @@
     }
   }
 
+  // Función para confirmar un servicio
+  function confirmarServicio(id) {
+    const index = serviciosAceptados.findIndex(servicio => servicio.id === id);
+    
+    if (index !== -1) {
+      // Agregar el servicio a los confirmados (con fecha de confirmación)
+      const servicioConfirmado = {
+        ...serviciosAceptados[index], 
+        fechaConfirmacion: new Date()
+      };
+      serviciosConfirmados.push(servicioConfirmado);
+      
+      // Eliminar el servicio de la lista de aceptados
+      serviciosAceptados.splice(index, 1);
+      
+      // Actualizar ambas listas
+      mostrarServiciosAceptados();
+      mostrarServiciosConfirmados();
+    }
+  }
+
   // Inicializar la visualización de cargas disponibles
   document.addEventListener('DOMContentLoaded', () => {
     mostrarCargasDisponibles();
+    mostrarServiciosAceptados();
+    mostrarServiciosConfirmados();
     
     // Simular la llegada de nuevas cargas disponibles cada cierto tiempo
     setInterval(() => {

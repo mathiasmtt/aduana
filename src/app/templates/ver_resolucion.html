@@ -96,13 +96,13 @@
         
         <div class="flex space-x-4">
             <button type="button" 
-                    onclick="prepararEdicion({{ resolucion.id }}, {{ resolucion.year }}, {{ resolucion.numero }}, '{{ resolucion.fecha }}', '{{ resolucion.referencia|replace("'", "\\'") }}', '{{ resolucion.dictamen|replace("'", "\\'") }}', '{{ resolucion.resolucion|default('')|replace("'", "\\'") }}', '{{ resolucion.url_dictamen|default('') }}', '{{ resolucion.url_resolucion|default('') }}')"
+                    id="btnEditar"
                     class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
                 <i class="fas fa-edit mr-2"></i>Editar Resolución
             </button>
             
             <button type="button" 
-                    onclick="confirmarEliminacion({{ resolucion.id }}, {{ resolucion.year }}, {{ resolucion.numero }})"
+                    id="btnEliminar"
                     class="py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">
                 <i class="fas fa-trash-alt mr-2"></i>Eliminar Resolución
             </button>
@@ -110,42 +110,73 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Almacenamos datos para JavaScript en un formato seguro -->
+{% if current_user.is_admin %}
+<script type="application/json" id="resolucion-data">
+{
+    "id": {{ resolucion.id }},
+    "year": {{ resolucion.year }},
+    "numero": {{ resolucion.numero }},
+    "fecha": "{{ resolucion.fecha }}",
+    "referencia": "{{ resolucion.referencia|replace("'", "\\'") }}",
+    "dictamen": "{{ resolucion.dictamen|replace("'", "\\'") }}",
+    "resolucion": "{{ resolucion.resolucion|default('')|replace("'", "\\'") }}",
+    "urlDictamen": "{{ resolucion.url_dictamen|default('') }}",
+    "urlResolucion": "{{ resolucion.url_resolucion|default('') }}",
+    "urlResoluciones": "{{ url_for('main.resoluciones') }}",
+    "urlEliminar": "{{ url_for('main.eliminar_resolucion') }}",
+    "csrfToken": "{{ csrf_token() }}"
+}
+</script>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-    {% if current_user.is_admin %}
-    function prepararEdicion(id, year, numero, fecha, referencia, dictamen, resolucion, url_dictamen, url_resolucion) {
-        // Redirigir a la página de resoluciones con ancla al formulario de edición
-        window.location.href = "{{ url_for('main.resoluciones') }}?edit=true&id=" + id;
-    }
-    
-    function confirmarEliminacion(id, year, numero) {
-        if (confirm('¿Está seguro que desea eliminar la Resolución ' + year + '/' + numero + '?')) {
-            // Crear un formulario para enviar la solicitud POST
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ url_for('main.eliminar_resolucion') }}";
+    // Este código JavaScript puro no tendrá problemas con el linter
+    document.addEventListener('DOMContentLoaded', function() {
+        // Solo ejecutar si es administrador y existen los elementos
+        var btnEditar = document.getElementById('btnEditar');
+        var btnEliminar = document.getElementById('btnEliminar');
+        var dataElement = document.getElementById('resolucion-data');
+        
+        if (btnEditar && btnEliminar && dataElement) {
+            // Obtenemos los datos JSON
+            var resolucionData = JSON.parse(dataElement.textContent);
             
-            // Agregar el token CSRF
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = 'csrf_token';
-            csrfToken.value = "{{ csrf_token() }}";
-            form.appendChild(csrfToken);
+            // Configurar el botón Editar
+            btnEditar.addEventListener('click', function() {
+                window.location.href = resolucionData.urlResoluciones + "?edit=true&id=" + resolucionData.id;
+            });
             
-            // Agregar el ID de la resolución
-            const idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'id';
-            idInput.value = id;
-            form.appendChild(idInput);
-            
-            // Agregar el formulario al documento y enviarlo
-            document.body.appendChild(form);
-            form.submit();
+            // Configurar el botón Eliminar
+            btnEliminar.addEventListener('click', function() {
+                if (confirm('¿Está seguro que desea eliminar la Resolución ' + resolucionData.year + '/' + resolucionData.numero + '?')) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = resolucionData.urlEliminar;
+                    
+                    // Agregar el token CSRF
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = 'csrf_token';
+                    csrfToken.value = resolucionData.csrfToken;
+                    form.appendChild(csrfToken);
+                    
+                    // Agregar el ID de la resolución
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'id';
+                    idInput.value = resolucionData.id;
+                    form.appendChild(idInput);
+                    
+                    // Agregar el formulario al documento y enviarlo
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         }
-    }
-    {% endif %}
+    });
 </script>
 {% endblock %} 
