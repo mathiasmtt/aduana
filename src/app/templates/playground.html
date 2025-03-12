@@ -1,15 +1,62 @@
 {% extends 'base.html' %}
 
-{% block title %}Playground de Operadores Logísticos{% endblock %}
+{% block title %}Centro de Operaciones Logísticas{% endblock %}
 
 {% block extra_head %}
 <style>
-  /* Estilos generales */
+  /* Estilos generales con soporte para tema claro/oscuro */
+  .title-container {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .main-title {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .dark .main-title {
+    color: #ecf0f1;
+  }
+  .subtitle {
+    font-size: 1.2em;
+    color: #7f8c8d;
+    font-weight: 300;
+    margin-top: 5px;
+  }
+  .dark .subtitle {
+    color: #a0aec0;
+  }
+  .title-icon {
+    display: inline-block;
+    margin: 0 15px;
+    color: #3498db;
+    vertical-align: middle;
+  }
+  .dark .title-icon {
+    color: #60a5fa;
+  }
+  .title-divider {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    margin: 15px auto;
+    border-radius: 2px;
+  }
+  .dark .title-divider {
+    background: linear-gradient(90deg, #60a5fa, #059669);
+  }
   h1 {
     text-align: center;
     font-size: 2.2em;
     margin-bottom: 30px;
     color: #2c3e50;
+  }
+  .dark h1 {
+    color: #ecf0f1;
   }
   .container {
     display: flex;
@@ -33,9 +80,16 @@
     padding: 16px;
     transition: transform 0.2s, box-shadow 0.2s;
   }
+  .dark .card {
+    background: #1e293b;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
   .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  .dark .card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
   .card-vertical {
     flex: 1;
@@ -57,9 +111,16 @@
     align-items: center;
     justify-content: center;
   }
+  .dark .card h2 {
+    color: #ecf0f1;
+    border-bottom: 1px solid #4b5563;
+  }
   .card h2 i {
     margin-right: 8px;
     color: #3498db;
+  }
+  .dark .card h2 i {
+    color: #60a5fa;
   }
   .log {
     list-style: none;
@@ -70,6 +131,9 @@
     border-radius: 4px;
     background-color: #f9f9f9;
   }
+  .dark .log {
+    background-color: #374151;
+  }
   .log li {
     padding: 10px 12px;
     border-bottom: 1px solid #eee;
@@ -77,8 +141,14 @@
     position: relative;
     transition: background-color 0.2s;
   }
+  .dark .log li {
+    border-bottom: 1px solid #4b5563;
+  }
   .log li:hover {
     background-color: #f0f0f0;
+  }
+  .dark .log li:hover {
+    background-color: #4b5563;
   }
   .log li:last-child {
     border-bottom: none;
@@ -87,6 +157,9 @@
     font-weight: bold;
     color: #7f8c8d;
     margin-right: 6px;
+  }
+  .dark .timestamp {
+    color: #d1d5db;
   }
   /* Estilos para la sección de contratación */
   .carga-item {
@@ -99,9 +172,16 @@
     background-color: #fff;
     transition: transform 0.2s, box-shadow 0.2s;
   }
+  .dark .carga-item {
+    background-color: #1e293b;
+    border: 1px solid #4b5563;
+  }
   .carga-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .dark .carga-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   }
   .carga-header {
     font-weight: bold;
@@ -111,15 +191,24 @@
     display: flex;
     align-items: center;
   }
+  .dark .carga-header {
+    color: #e5e7eb;
+  }
   .carga-header i {
     margin-right: 8px;
     color: #3498db;
+  }
+  .dark .carga-header i {
+    color: #60a5fa;
   }
   .carga-details {
     display: flex;
     margin: 8px 0 15px;
     color: #555;
     font-size: 0.9em;
+  }
+  .dark .carga-details {
+    color: #d1d5db;
   }
   .carga-detail {
     display: flex;
@@ -129,6 +218,9 @@
   .carga-detail i {
     margin-right: 5px;
     color: #7f8c8d;
+  }
+  .dark .carga-detail i {
+    color: #9ca3af;
   }
   .carga-acciones {
     display: flex;
@@ -144,7 +236,7 @@
     font-size: 0.9em;
     display: flex;
     align-items: center;
-    transition: transform 0.1s, opacity 0.1s;
+    transition: transform 0.1s, opacity 0.1s, background-color 0.2s;
   }
   .btn i {
     margin-right: 5px;
@@ -162,12 +254,24 @@
   .btn-aceptar:hover {
     background-color: #27ae60;
   }
+  .dark .btn-aceptar {
+    background-color: #059669;
+  }
+  .dark .btn-aceptar:hover {
+    background-color: #047857;
+  }
   .btn-rechazar {
     background-color: #e74c3c;
     color: white;
   }
   .btn-rechazar:hover {
     background-color: #c0392b;
+  }
+  .dark .btn-rechazar {
+    background-color: #dc2626;
+  }
+  .dark .btn-rechazar:hover {
+    background-color: #b91c1c;
   }
   .mensaje-confirmacion {
     margin-top: 10px;
@@ -183,9 +287,17 @@
     background-color: #e8f5e9;
     color: #2e7d32;
   }
+  .dark .confirmacion-aceptar {
+    background-color: #064e3b;
+    color: #d1fae5;
+  }
   .confirmacion-rechazar {
     background-color: #ffebee;
     color: #c62828;
+  }
+  .dark .confirmacion-rechazar {
+    background-color: #7f1d1d;
+    color: #fee2e2;
   }
   /* Estilo específico para grid de cargas */
   .cargas-grid {
@@ -194,40 +306,166 @@
     gap: 15px;
     margin-top: 15px;
   }
+
+  /* Scrollbar personalizada para modo claro/oscuro */
+  .log::-webkit-scrollbar {
+    width: 8px;
+  }
+  .log::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  .dark .log::-webkit-scrollbar-track {
+    background: #4b5563;
+  }
+  .log::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  .dark .log::-webkit-scrollbar-thumb {
+    background: #6b7280;
+  }
+  .log::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+  }
+  .dark .log::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  /* Estilos para la sección de servicios aceptados */
+  .servicios-aceptados {
+    display: none; /* Inicialmente oculto hasta que se acepte un servicio */
+    margin-top: 20px;
+  }
+  .servicio-aceptado-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+    transition: transform 0.2s;
+  }
+  .dark .servicio-aceptado-item {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #059669;
+  }
+  .servicio-aceptado-item:hover {
+    transform: translateY(-2px);
+  }
+  .servicio-aceptado-info {
+    flex: 1;
+  }
+  .servicio-aceptado-header {
+    font-weight: bold;
+    font-size: 1.05em;
+    margin-bottom: 4px;
+    color: #2c3e50;
+  }
+  .dark .servicio-aceptado-header {
+    color: #ecf0f1;
+  }
+  .servicio-aceptado-header i {
+    margin-right: 8px;
+    color: #2ecc71;
+  }
+  .dark .servicio-aceptado-header i {
+    color: #059669;
+  }
+  .servicio-aceptado-details {
+    display: flex;
+    font-size: 0.85em;
+    color: #7f8c8d;
+  }
+  .dark .servicio-aceptado-details {
+    color: #9ca3af;
+  }
+  .servicio-aceptado-detail {
+    display: flex;
+    align-items: center;
+    margin-right: 16px;
+  }
+  .servicio-aceptado-detail i {
+    margin-right: 4px;
+  }
+  .servicio-aceptado-fecha {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+  }
+  .dark .servicio-aceptado-fecha {
+    color: #9ca3af;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1 class="mt-8">Playground en Tiempo Real</h1>
+<div class="title-container mt-8">
+  <div class="main-title">
+    <i class="fas fa-ship title-icon"></i>
+    Centro de Operaciones Logísticas
+    <i class="fas fa-truck title-icon"></i>
+  </div>
+  <div class="subtitle">Visualización y gestión de operaciones en tiempo real</div>
+  <div class="title-divider"></div>
+</div>
+
 <div class="container pb-10">
   <div class="row">
-    <div class="card card-vertical dark:bg-gray-800 dark:text-white" id="importadores">
+    <div class="card card-vertical" id="importadores">
       <h2><i class="fas fa-ship"></i> Importadores</h2>
-      <ul class="log dark:bg-gray-700 dark:text-gray-200" id="log-importadores"></ul>
+      <ul class="log" id="log-importadores"></ul>
     </div>
-    <div class="card card-vertical dark:bg-gray-800 dark:text-white" id="seguros">
+    <div class="card card-vertical" id="seguros">
       <h2><i class="fas fa-shield-alt"></i> Seguros</h2>
-      <ul class="log dark:bg-gray-700 dark:text-gray-200" id="log-seguros"></ul>
+      <ul class="log" id="log-seguros"></ul>
     </div>
-    <div class="card card-vertical dark:bg-gray-800 dark:text-white" id="transportistas">
+    <div class="card card-vertical" id="transportistas">
       <h2><i class="fas fa-truck"></i> Transportistas</h2>
-      <ul class="log dark:bg-gray-700 dark:text-gray-200" id="log-transportistas"></ul>
+      <ul class="log" id="log-transportistas"></ul>
     </div>
-    <div class="card card-vertical dark:bg-gray-800 dark:text-white" id="despachantes">
+    <div class="card card-vertical" id="despachantes">
       <h2><i class="fas fa-clipboard-check"></i> Despachantes de Aduana</h2>
-      <ul class="log dark:bg-gray-700 dark:text-gray-200" id="log-despachantes"></ul>
+      <ul class="log" id="log-despachantes"></ul>
     </div>
   </div>
   
-  <div class="card card-horizontal dark:bg-gray-800 dark:text-white" id="contratacion">
+  <div class="card card-horizontal" id="contratacion">
     <h2><i class="fas fa-handshake"></i> Contratación de Servicios</h2>
     <div id="cargas-disponibles" class="cargas-grid">
       <!-- Las cargas disponibles se cargarán aquí dinámicamente -->
     </div>
   </div>
+  
+  <!-- Nueva sección para servicios aceptados -->
+  <div class="card card-horizontal servicios-aceptados" id="servicios-aceptados">
+    <h2><i class="fas fa-check-circle"></i> Servicios Aceptados</h2>
+    <div id="lista-servicios-aceptados">
+      <!-- Los servicios aceptados se mostrarán aquí -->
+    </div>
+  </div>
 </div>
 
 <script>
+  // Detector de cambio de tema para actualizar dinámicamente elementos creados
+  const observer = new MutationObserver((mutations) => {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.carga-item, .servicio-aceptado-item').forEach(item => {
+      if (isDarkMode) {
+        item.classList.add('dark-mode');
+      } else {
+        item.classList.remove('dark-mode');
+      }
+    });
+  });
+  
+  observer.observe(document.documentElement, { 
+    attributes: true, 
+    attributeFilter: ['class'] 
+  });
+
   // Datos de cada rol con mensajes de ejemplo
   const roles = [
     {
@@ -316,6 +554,9 @@
     }
   ];
 
+  // Array para almacenar los servicios aceptados
+  const serviciosAceptados = [];
+
   // Mapa de iconos para diferentes tipos de cargas
   const iconMap = {
     'textiles': 'tshirt',
@@ -355,9 +596,15 @@
     const container = document.getElementById('cargas-disponibles');
     container.innerHTML = ''; // Limpiar contenido anterior
     
+    // Detectar si estamos en modo oscuro
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
     cargasDisponibles.forEach(carga => {
       const cargaElement = document.createElement('div');
-      cargaElement.className = 'carga-item dark:bg-gray-700 dark:text-gray-200';
+      cargaElement.className = 'carga-item';
+      if (isDarkMode) {
+        cargaElement.classList.add('dark-mode');
+      }
       cargaElement.id = `carga-${carga.id}`;
       
       cargaElement.innerHTML = `
@@ -386,6 +633,57 @@
     });
   }
 
+  // Función para mostrar servicios aceptados
+  function mostrarServiciosAceptados() {
+    const container = document.getElementById('lista-servicios-aceptados');
+    container.innerHTML = ''; // Limpiar contenido anterior
+    
+    // Mostrar el contenedor si hay servicios aceptados
+    const serviciosContainer = document.getElementById('servicios-aceptados');
+    if (serviciosAceptados.length > 0) {
+      serviciosContainer.style.display = 'block';
+    }
+    
+    // Detectar si estamos en modo oscuro
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    
+    // Ordenar los servicios por fecha de aceptación (más recientes primero)
+    serviciosAceptados.sort((a, b) => b.fechaAceptacion - a.fechaAceptacion);
+    
+    serviciosAceptados.forEach(servicio => {
+      const servicioElement = document.createElement('div');
+      servicioElement.className = 'servicio-aceptado-item';
+      if (isDarkMode) {
+        servicioElement.classList.add('dark-mode');
+      }
+      
+      // Formatear la fecha de aceptación
+      const fechaAceptacion = servicio.fechaAceptacion.toLocaleDateString() + ' ' + 
+                             servicio.fechaAceptacion.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      servicioElement.innerHTML = `
+        <div class="servicio-aceptado-info">
+          <div class="servicio-aceptado-header">
+            <i class="fas fa-${servicio.icon}"></i> ${servicio.descripcion}
+          </div>
+          <div class="servicio-aceptado-details">
+            <div class="servicio-aceptado-detail">
+              <i class="fas fa-weight-hanging"></i> ${servicio.peso}
+            </div>
+            <div class="servicio-aceptado-detail">
+              <i class="far fa-calendar-alt"></i> ${servicio.fecha}
+            </div>
+          </div>
+        </div>
+        <div class="servicio-aceptado-fecha">
+          <i class="fas fa-clock mr-1"></i> ${fechaAceptacion}
+        </div>
+      `;
+      
+      container.appendChild(servicioElement);
+    });
+  }
+
   // Función para aceptar una carga
   function aceptarCarga(id) {
     const cargaElement = document.getElementById(`carga-${id}`);
@@ -401,6 +699,13 @@
       confirmacion.className = 'mensaje-confirmacion confirmacion-aceptar';
       confirmacion.innerHTML = '<i class="fas fa-check-circle"></i> Carga aceptada';
       cargaElement.appendChild(confirmacion);
+      
+      // Agregar la carga a servicios aceptados (con fecha de aceptación)
+      const cargaAceptada = {...cargasDisponibles[index], fechaAceptacion: new Date()};
+      serviciosAceptados.push(cargaAceptada);
+      
+      // Actualizar la lista de servicios aceptados
+      mostrarServiciosAceptados();
       
       // Eliminar la carga de la lista después de un tiempo
       setTimeout(() => {
