@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Usuarios - Sistema de Aranceles{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_usuarios.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Pestañas de navegación -->
+    <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+        <ul class="flex flex-wrap -mb-px" id="adminTabs" role="tablist">
+            <li class="mr-2" role="presentation">
+                <button class="admin-tab inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 active" 
+                        id="usuarios-tab" 
+                        data-tabs-target="#usuarios" 
+                        type="button" 
+                        role="tab">
+                    <i class="fas fa-users mr-2"></i>Usuarios
+                </button>
+            </li>
+            <li class="mr-2" role="presentation">
+                <button class="admin-tab inline-block py-4 px-4 text-sm font-medium text-center rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" 
+                        id="roles-tab" 
+                        data-tabs-target="#roles" 
+                        type="button" 
+                        role="tab">
+                    <i class="fas fa-user-tag mr-2"></i>Roles y Permisos
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div id="adminTabContent">
+        <!-- Pestaña de Usuarios -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden tab-content active" id="usuarios" role="tabpanel">
+            <div class="admin-header px-6 py-4">
+                <h1 class="text-white text-xl font-bold">
+                    <i class="fas fa-users-cog mr-2"></i>Administración de Usuarios
+                </h1>
+            </div>
+            
+            <div class="p-4">
+                <!-- Resumen de usuarios -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="stat-card p-4 shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="stat-icon bg-blue-100 text-blue-600 mr-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Total de Usuarios</div>
+                                <div class="text-lg font-bold text-blue-600">{{ usuarios|length }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card p-4 shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="stat-icon bg-yellow-100 text-yellow-600 mr-3">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Usuarios VIP</div>
+                                <div class="text-lg font-bold text-yellow-600">{{ usuarios|selectattr('role', 'equalto', 'vip')|list|length }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card p-4 shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="stat-icon bg-green-100 text-green-600 mr-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Usuarios Estándar</div>
+                                <div class="text-lg font-bold text-green-600">{{ usuarios|selectattr('role', 'equalto', 'free')|list|length + usuarios|selectattr('role', 'equalto', 'user')|list|length }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabla de usuarios -->
+                <div class="overflow-x-auto mb-4">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol de Importación</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creado</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Acceso</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-700 divide-y divide-gray-200">
+                            {% for usuario in usuarios %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-600" 
+                                data-user-id="{{ usuario.id }}" 
+                                data-username="{{ usuario.username }}" 
+                                data-name="{{ usuario.name }}" 
+                                data-email="{{ usuario.email }}" 
+                                data-role="{{ usuario.role }}" 
+                                data-import-role="{{ usuario.import_role or '' }}">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="user-avatar h-8 w-8 rounded-full flex items-center justify-center text-white">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium">{{ usuario.username }}</div>
+                                            <div class="text-xs text-gray-500">{{ usuario.name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">{{ usuario.email }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if usuario.role == 'admin' %}
+                                    <span class="role-badge role-badge-admin"><i class="fas fa-shield-alt mr-1"></i>Admin</span>
+                                    {% elif usuario.role == 'vip' %}
+                                    <span class="role-badge role-badge-vip"><i class="fas fa-crown mr-1"></i>VIP</span>
+                                    {% else %}
+                                    <span class="role-badge role-badge-free"><i class="fas fa-user mr-1"></i>{{ usuario.role|capitalize }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if usuario.import_role %}
+                                    <span class="role-badge role-badge-{{ usuario.import_role }}">
+                                        <i class="fas fa-{% if usuario.import_role == 'transportista' %}truck{% elif usuario.import_role == 'corredor' %}shield-alt{% elif usuario.import_role == 'despachante' %}clipboard-check{% elif usuario.import_role == 'importador' %}ship{% elif usuario.import_role == 'profesional' %}briefcase{% else %}user-tag{% endif %} mr-1"></i>
+                                        {{ usuario.import_role|capitalize }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-gray-400">No asignado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    {{ usuario.created_at.strftime('%d/%m/%Y') if usuario.created_at else 'N/A' }}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    {{ usuario.last_login.strftime('%d/%m/%Y') if usuario.last_login else 'Nunca' }}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex space-x-2">
+                                        <button class="action-btn text-indigo-600 bg-indigo-100 p-1.5 rounded-full" 
+                                                title="Editar usuario"
+                                                data-action="editar"
+                                                data-id="{{ usuario.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        {% if usuario.id != current_user.id %}
+                                        <button class="action-btn text-red-600 bg-red-100 p-1.5 rounded-full" 
+                                                title="Eliminar usuario"
+                                                data-action="eliminar"
+                                                data-id="{{ usuario.id }}"
+                                                data-username="{{ usuario.username }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Botón de acción -->
+                <div class="mt-4 flex justify-end">
+                    <button id="btn-nuevo-usuario" class="action-btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-user-plus mr-2"></i> Nuevo Usuario
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pestaña de Roles y Permisos -->
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden hidden tab-content" id="roles" role="tabpanel">
+            <div class="admin-header px-6 py-4">
+                <h1 class="text-white text-xl font-bold">
+                    <i class="fas fa-user-shield mr-2"></i>Gestión de Roles y Permisos
+                </h1>
+            </div>
+            
+            <div class="p-4">
+                <!-- Selector de rol -->
+                <div class="mb-6">
+                    <label for="role-selector" class="block text-sm font-medium mb-2">Seleccionar Rol</label>
+                    <select id="role-selector" class="form-input w-full md:w-1/3 px-3 py-2 rounded-md">
+                        <option value="admin">Administrador</option>
+                        <option value="vip">Usuario VIP</option>
+                        <option value="free">Usuario Free</option>
+                        <option value="transportista">Transportista</option>
+                        <option value="corredor">Corredor de Seguros</option>
+                        <option value="despachante">Despachante</option>
+                        <option value="importador">Importador</option>
+                        <option value="profesional">Profesional Asociado</option>
+                    </select>
+                </div>
+                
+                <!-- Tabla de permisos -->
+                <div class="overflow-x-auto mb-4">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sección</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acceso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permisos-body" class="bg-white dark:bg-gray-700 divide-y divide-gray-200">
+                            <!-- Se llenará dinámicamente con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button id="btn-restablecer" class="action-btn bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-undo mr-2"></i> Restablecer
+                    </button>
+                    <button id="btn-guardar-permisos" class="action-btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de edición de usuario -->
+<div id="modal-usuario" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full mx-4">
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h2 id="modal-title" class="text-lg font-semibold flex items-center">
+                <i class="fas fa-user-edit mr-2"></i>
+                <span>Editar Usuario</span>
+            </h2>
+        </div>
+        
+        <div class="p-4">
+            <form id="form-usuario" onsubmit="event.preventDefault();">
+                <input type="hidden" id="usuario-id">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="mb-4">
+                    <label for="usuario-username" class="block text-sm font-medium mb-1">Nombre de Usuario</label>
+                    <input type="text" id="usuario-username" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="usuario-name" class="block text-sm font-medium mb-1">Nombre Completo</label>
+                    <input type="text" id="usuario-name" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="usuario-email" class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="usuario-email" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="usuario-password" class="block text-sm font-medium mb-1">Contraseña</label>
+                    <input type="password" id="usuario-password" placeholder="Dejar en blanco para mantener la actual" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <p class="text-xs text-gray-500 mt-1">Si crea un usuario nuevo y deja este campo vacío, se usará "cambiar123" como contraseña predeterminada.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="usuario-role" class="block text-sm font-medium mb-1">Rol</label>
+                    <select id="usuario-role" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="admin">Administrador</option>
+                        <option value="vip">VIP</option>
+                        <option value="free">Free</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="usuario-import-role" class="block text-sm font-medium mb-1">Rol de Importación</label>
+                    <select id="usuario-import-role" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">Sin rol de importación</option>
+                        <option value="transportista">Transportista</option>
+                        <option value="corredor">Corredor de Seguros</option>
+                        <option value="despachante">Despachante</option>
+                        <option value="importador">Importador</option>
+                        <option value="profesional">Profesional Asociado</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2">
+            <button type="button" id="btn-cancelar" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md">
+                Cancelar
+            </button>
+            <button type="button" id="btn-guardar-usuario" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">
+                Guardar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/admin_usuarios.js') }}"></script>
+{% endblock %} 

@@ -11,8 +11,20 @@ import os
 from pathlib import Path
 import sqlite3
 from datetime import datetime
+import json
+import pandas as pd
+from werkzeug.utils import secure_filename
+import uuid
+import io
+from werkzeug.security import generate_password_hash
 
-main_bp = Blueprint('main', __name__)
+from ..models.arancel import Arancel
+from ..models.section_note import SectionNote
+from ..models.chapter_note import ChapterNote
+from ..db_utils import set_arancel_version, get_active_db, get_all_versions, get_latest_version
+from ..models.user import User
+
+main_bp = Blueprint('main', __name__, template_folder='../templates')
 
 # Función para verificar si hay un contexto de aplicación
 def has_app_context():
@@ -980,6 +992,189 @@ def configuracion():
         flash(f"Error al cargar la configuración: {str(e)}", 'error')
         return redirect(url_for('main.index'))
 
+@main_bp.route('/admin/usuarios')
+@login_required
+def admin_usuarios():
+    """Página de administración de usuarios. Solo para administradores."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        flash('Solo los administradores pueden acceder a la gestión de usuarios.', 'error')
+        return redirect(url_for('main.index'))
+    
+    try:
+        # Obtener todos los usuarios
+        usuarios = User.query.all()
+        
+        return render_template('admin/usuarios.html', usuarios=usuarios)
+    except Exception as e:
+        logging.error(f"Error en la ruta admin_usuarios: {str(e)}")
+        flash(f"Error al cargar la lista de usuarios: {str(e)}", 'error')
+        return redirect(url_for('main.index'))
+
+@main_bp.route('/admin/usuarios/guardar', methods=['POST'])
+@login_required
+def admin_guardar_usuario():
+    """API para guardar cambios en un usuario."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        return jsonify({
+            'success': False,
+            'message': 'Acceso denegado. Se requiere rol de administrador.',
+        }), 403
+    
+    try:
+        data = request.json
+        user_id = data.get('id')
+        
+        if user_id:  # Actualizar usuario existente
+            usuario = User.query.get(user_id)
+            if not usuario:
+                return jsonify({
+                    'success': False,
+                    'message': f'Usuario con ID {user_id} no encontrado.',
+                }), 404
+                
+            # Actualizar contraseña solo si se proporciona una nueva
+            if data.get('password'):
+                usuario.password_hash = generate_password_hash(data.get('password'))
+        else:  # Crear nuevo usuario
+            usuario = User()
+            # Usar la contraseña proporcionada o la predeterminada 'cambiar123'
+            password = data.get('password') or 'cambiar123'
+            usuario.password_hash = generate_password_hash(password)
+        
+        # Actualizar datos
+        usuario.username = data.get('username')
+        usuario.name = data.get('name')
+        usuario.email = data.get('email')
+        usuario.role = data.get('role')
+        usuario.import_role = data.get('import_role')
+        
+        # Guardar cambios
+        db.session.add(usuario)
+        db.session.commit()
+        
+        # Preparar mensaje según si es nuevo o existente
+        if user_id:
+            mensaje = f'Usuario {usuario.username} actualizado correctamente.'
+        else:
+            if data.get('password'):
+                mensaje = f'Usuario {usuario.username} creado correctamente.'
+            else:
+                mensaje = f'Usuario {usuario.username} creado correctamente con contraseña predeterminada "cambiar123".'
+        
+        return jsonify({
+            'success': True,
+            'message': mensaje,
+        })
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error al guardar usuario: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error al guardar usuario: {str(e)}',
+        }), 500
+
+@main_bp.route('/admin/usuarios/eliminar/<int:user_id>', methods=['POST'])
+@login_required
+def admin_eliminar_usuario(user_id):
+    """API para eliminar un usuario."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        return jsonify({
+            'success': False,
+            'message': 'Acceso denegado. Se requiere rol de administrador.',
+        }), 403
+    
+    try:
+        usuario = User.query.get(user_id)
+        if not usuario:
+            return jsonify({
+                'success': False,
+                'message': f'Usuario con ID {user_id} no encontrado.',
+            }), 404
+        
+        # No permitir eliminar al usuario actual
+        if usuario.id == current_user.id:
+            return jsonify({
+                'success': False,
+                'message': 'No puede eliminar su propio usuario.',
+            }), 400
+        
+        db.session.delete(usuario)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Usuario {usuario.username} eliminado correctamente.',
+        })
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error al eliminar usuario: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error al eliminar usuario: {str(e)}',
+        }), 500
+
+@main_bp.route('/admin/permisos/rol/<string:rol>', methods=['GET'])
+@login_required
+def admin_permisos_rol(rol):
+    """API para obtener los permisos de un rol específico."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        return jsonify({
+            'success': False,
+            'message': 'Acceso denegado. Se requiere rol de administrador.',
+        }), 403
+    
+    # En una implementación real, estos permisos se cargarían desde la base de datos
+    permisos_por_rol = {
+        'admin': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos', 'configuracion', 'admin'],
+        'vip': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+        'free': ['inicio', 'buscar', 'secciones'],
+        'transportista': ['inicio', 'buscar', 'secciones', 'grupos'],
+        'corredor': ['inicio', 'buscar', 'secciones', 'grupos'],
+        'despachante': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+        'importador': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+        'profesional': ['inicio', 'buscar', 'secciones', 'grupos']
+    }
+    
+    return jsonify({
+        'success': True,
+        'permisos': permisos_por_rol.get(rol, [])
+    })
+
+@main_bp.route('/admin/permisos/guardar', methods=['POST'])
+@login_required
+def admin_guardar_permisos():
+    """API para guardar los permisos de un rol."""
+    # Verificar que es administrador
+    if current_user.role != 'admin':
+        return jsonify({
+            'success': False,
+            'message': 'Acceso denegado. Se requiere rol de administrador.',
+        }), 403
+    
+    try:
+        data = request.json
+        rol = data.get('rol')
+        permisos = data.get('permisos', [])
+        
+        # En una implementación real, se guardarían los permisos en la base de datos
+        # Aquí solo simulamos el guardado
+        
+        return jsonify({
+            'success': True,
+            'message': f'Permisos actualizados para el rol: {rol}',
+            'permisos': permisos
+        })
+    except Exception as e:
+        logging.error(f"Error al guardar permisos: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error al guardar permisos: {str(e)}',
+        }), 500
+
 @main_bp.route('/resoluciones')
 @login_required
 def resoluciones():
@@ -1387,22 +1582,16 @@ def eliminar_resolucion():
     
     return redirect(url_for('main.resoluciones'))
 
-@main_bp.route('/playground')
+@main_bp.route('/sistema_grupo')
 @login_required
-def playground():
-    """Ruta para acceder al playground de operadores logísticos.
-    Acceso permitido solo para usuarios admin y vip."""
-    # Verificar si el usuario es admin o vip
-    if not (current_user.is_admin or current_user.is_vip):
-        flash('Acceso restringido. Se requiere una cuenta de nivel superior.', 'warning')
-        return redirect(url_for('main.index'))
-    
+def sistema_grupo():
+    """Renderiza la página del sistema de grupos de importación."""
     # Verificar si la sesión ha expirado
     expiry_redirect = check_session_expiry()
     if expiry_redirect:
         return expiry_redirect
-    
+        
     # Obtener las versiones para el selector
     versions_data, default_version = get_formatted_versions()
     
-    return render_template('playground.html', versiones=versions_data, latest_formatted=default_version)
+    return render_template('sistema_grupo.html', versiones=versions_data, latest_formatted=default_version)

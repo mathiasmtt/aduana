@@ -23,150 +23,103 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     
-    <!-- Tema Dark/Light -->
-    <script>
-        // Verificar si hay una preferencia guardada
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-        
-        // Función para cambiar el tema
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-                document.querySelector('.fa-moon').classList.remove('hidden');
-                document.querySelector('.fa-sun').classList.add('hidden');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
-                document.querySelector('.fa-moon').classList.add('hidden');
-                document.querySelector('.fa-sun').classList.remove('hidden');
-            }
-        }
-
-        // Establecer el icono correcto al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.querySelector('.fa-moon').classList.add('hidden');
-                document.querySelector('.fa-sun').classList.remove('hidden');
-            } else {
-                document.querySelector('.fa-moon').classList.remove('hidden');
-                document.querySelector('.fa-sun').classList.add('hidden');
-            }
-        });
-    </script>
-    
-    <style>
-        /* Variables CSS según el sistema de diseño */
-        :root {
-            /* Colores primarios */
-            --color-primary: 59, 130, 246; /* rgb values for #3B82F6 */
-            --color-primary-dark: 30, 64, 175;
-            
-            /* Colores secundarios */
-            --color-secondary: 16, 185, 129;
-            --color-secondary-alt: 139, 92, 246;
-            
-            /* Colores neutros */
-            --color-text: 31, 41, 55;
-            --color-text-light: 107, 114, 128;
-            --color-background: 255, 255, 255;
-            --color-background-alt: 243, 244, 246;
-            
-            /* Colores de estado */
-            --color-success: 16, 185, 129;
-            --color-warning: 245, 158, 11;
-            --color-error: 239, 68, 68;
-            --color-info: 59, 130, 246;
-        }
-
-        .dark {
-            --color-text: 249, 250, 251;
-            --color-text-light: 209, 213, 219;
-            --color-background: 17, 24, 39;
-            --color-background-alt: 31, 41, 55;
-        }
-        
-        /* Estilos para el temporizador */
-        @keyframes pulsate {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .timer-alert {
-            animation: pulsate 1.5s ease-in-out infinite;
-        }
-        
-        .timer-low {
-            animation: pulsate 0.8s ease-in-out infinite;
-        }
-    </style>
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     
     {% block extra_head %}{% endblock %}
 </head>
 
 <body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col h-full">
     <!-- Navbar -->
-    <nav class="bg-gray-800 dark:bg-gray-950">
+    <nav class="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ url_for('main.index') }}" class="text-blue-400 dark:text-blue-400 font-bold text-xl">
-                            <i class="fas fa-box-open mr-2"></i>Aduana
+                        <a href="{{ url_for('main.index') }}" class="text-blue-400 dark:text-blue-400 font-bold text-xl transition-all duration-300 hover:text-blue-300">
+                            <i class="fa-solid fa-truck-fast mr-2 navbar-icon"></i>Aduana
                         </a>
                     </div>
                     
                     <div class="hidden md:block">
                         <div class="ml-10 flex items-baseline space-x-4">
-                            <a href="{{ url_for('main.index') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                <i class="fas fa-home mr-1"></i> Inicio
-                            </a>
-                            {% if current_user.is_authenticated %}
-                                <a href="{{ url_for('main.buscar') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-search mr-1"></i> Buscar
-                                </a>
-                                <a href="{{ url_for('main.secciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-book mr-1"></i> Secciones
-                                </a>
-                                <a href="{{ url_for('main.costo') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-calculator mr-1"></i> Costos
-                                </a>
-                                {% if current_user.is_admin or current_user.is_vip %}
-                                <a href="{{ url_for('main.resoluciones') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-file-contract mr-1"></i> Resoluciones
-                                </a>
-                                <a href="{{ url_for('main.playground') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-gamepad mr-1"></i> Playground
-                                </a>
-                                {% endif %}
-                                
-                                <!-- Enlace a Configuración (solo para administradores) -->
-                                {% if current_user.is_admin %}
-                                <a href="{{ url_for('main.configuracion') }}" class="border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 border-b-2 hover:border-blue-500 inline-flex items-center px-1 pt-1 text-sm font-medium">
-                                    <i class="fas fa-cogs mr-1"></i> Configuración
-                                </a>
-                                {% endif %}
-                            {% endif %}
+                            <!-- Links de navegación principal (mostrados según permisos) -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                              <!-- Home - Accesible para todos los usuarios autenticados -->
+                              <a href="{{ url_for('main.index') }}" class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.index') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium nav-link">
+                                <i class="fa-solid fa-house-chimney mr-1 navbar-icon"></i> Inicio
+                              </a>
+                              
+                              <!-- Búsqueda - Requiere permiso 'buscar' -->
+                              {% if current_user.has_permission('buscar') %}
+                              <a href="{{ url_for('main.buscar') }}" class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.buscar') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium nav-link">
+                                <i class="fa-solid fa-magnifying-glass mr-1 navbar-icon"></i> Búsqueda
+                              </a>
+                              {% endif %}
+                              
+                              <!-- Secciones - Requiere permiso 'secciones' -->
+                              {% if current_user.has_permission('secciones') %}
+                              <a href="{{ url_for('main.secciones') }}" class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.secciones') or request.path == url_for('main.capitulos') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium nav-link">
+                                <i class="fa-solid fa-book-open mr-1 navbar-icon"></i> Secciones
+                              </a>
+                              {% endif %}
+                              
+                              <!-- Operaciones - Requiere permiso 'costos' o 'resoluciones' -->
+                              {% if current_user.has_permission('costos') or current_user.has_permission('resoluciones') %}
+                              <div class="relative group dropdown">
+                                <button class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.costo') or request.path == url_for('main.resoluciones') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} border-b-2 inline-flex items-center px-1 pt-1 text-sm font-medium nav-link">
+                                  <i class="fa-solid fa-chart-line mr-1 navbar-icon"></i> Operaciones <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
+                                </button>
+                                <div class="absolute z-10 left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dropdown-content">
+                                  {% if current_user.has_permission('costos') %}
+                                  <a href="{{ url_for('main.costo') }}" class="{{ 'bg-gray-100 dark:bg-gray-700' if request.path == url_for('main.costo') else '' }} block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fa-solid fa-sack-dollar mr-1"></i> Cálculo de Costos
+                                  </a>
+                                  {% endif %}
+                                  {% if current_user.has_permission('resoluciones') %}
+                                  <a href="{{ url_for('main.resoluciones') }}" class="{{ 'bg-gray-100 dark:bg-gray-700' if request.path == url_for('main.resoluciones') else '' }} block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <i class="fa-solid fa-scale-balanced mr-1"></i> Resoluciones
+                                  </a>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              {% endif %}
+                              
+                              <!-- Grupos - Requiere permiso 'grupos' -->
+                              {% if current_user.has_permission('grupos') %}
+                              <a href="{{ url_for('main.sistema_grupo') }}" class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.sistema_grupo') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} border-b-2 inline-flex items-center px-1 pt-1 text-sm font-medium nav-link">
+                                <i class="fa-solid fa-cubes mr-1 navbar-icon"></i> Grupos
+                              </a>
+                              {% endif %}
+                              
+                              <!-- Panel Admin - Solo para administradores -->
+                              {% if current_user.has_permission('admin') %}
+                              <a href="{{ url_for('main.admin_usuarios') }}" class="{{ 'border-blue-500 text-gray-100 dark:text-white' if request.path == url_for('main.admin_usuarios') else 'border-transparent text-white dark:text-gray-200 hover:text-blue-300 dark:hover:text-blue-300 hover:border-blue-500' }} border-b-2 inline-flex items-center px-1 pt-1 text-sm font-medium nav-link">
+                                <i class="fa-solid fa-user-shield mr-1 navbar-icon"></i> Administración
+                              </a>
+                              {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Botón para menú móvil -->
+                <button class="mobile-menu-button md:hidden flex items-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                    <span class="sr-only">Abrir menú principal</span>
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
                 
                 <div class="flex items-center space-x-4">
                     <!-- Autenticación -->
                     <div class="relative">
                         {% if current_user.is_authenticated %}
-                            <div class="relative group">
-                                <button class="flex items-center text-white hover:text-blue-300 focus:outline-none">
-                                    <i class="fas fa-user-circle text-lg mr-1"></i>
+                            <div class="relative group dropdown">
+                                <button class="flex items-center text-white hover:text-blue-300 focus:outline-none transition-colors duration-300">
+                                    <i class="fa-solid fa-user text-lg mr-1 navbar-icon"></i>
                                     <span class="text-sm">{{ current_user.username }}</span>
-                                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                                    <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
                                 </button>
-                                <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                                <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 dropdown-content">
                                     <div class="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
                                         <div>{{ current_user.email }}</div>
                                         <div class="mt-1">
@@ -222,9 +175,9 @@
                     {% endif %}
                     
                     <!-- Botón para alternar modo oscuro/claro -->
-                    <button onclick="toggleDarkMode()" class="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white dark:bg-gray-900 dark:hover:bg-gray-800 p-2 rounded-full w-10 h-10" title="Cambiar tema">
-                        <i class="fas fa-moon text-blue-300"></i>
-                        <i class="fas fa-sun text-yellow-300 hidden"></i>
+                    <button onclick="toggleDarkMode()" class="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white dark:bg-gray-900 dark:hover:bg-gray-800 p-2 rounded-full w-10 h-10 transition-all duration-300 hover:shadow-lg" title="Cambiar tema">
+                        <i class="fa-solid fa-moon text-blue-300 navbar-icon"></i>
+                        <i class="fa-solid fa-sun text-yellow-300 hidden navbar-icon"></i>
                         <span class="sr-only">Cambiar tema</span>
                     </button>
                 </div>
@@ -233,30 +186,30 @@
         
         <!-- Menú móvil -->
         <div class="mobile-menu hidden md:hidden bg-white dark:bg-gray-800 pt-2 pb-3 space-y-1 shadow-lg">
-            <a href="{{ url_for('main.index') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-home mr-1"></i> Inicio
+            <a href="{{ url_for('main.index') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fa-solid fa-house-chimney mr-1"></i> Inicio
             </a>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.buscar') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-search mr-1"></i> Buscar
+                <a href="{{ url_for('main.buscar') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fa-solid fa-magnifying-glass mr-1"></i> Buscar
                 </a>
-                <a href="{{ url_for('main.secciones') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-book mr-1"></i> Secciones
+                <a href="{{ url_for('main.secciones') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fa-solid fa-book-open mr-1"></i> Secciones
                 </a>
                 {% if current_user.role in ['admin', 'vip'] %}
-                    <a href="{{ url_for('main.capitulos') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="fas fa-bookmark mr-1"></i> Capítulos
+                    <a href="{{ url_for('main.capitulos') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <i class="fa-solid fa-bookmark mr-1"></i> Capítulos
                     </a>
                 {% endif %}
-                <a href="{{ url_for('auth.profile') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-user mr-1"></i> Mi Perfil
+                <a href="{{ url_for('auth.profile') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fa-solid fa-user mr-1"></i> Mi Perfil
                 </a>
-                <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-sign-out-alt mr-1"></i> Cerrar Sesión
+                <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Cerrar Sesión
                 </a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión
+                <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Iniciar Sesión
                 </a>
             {% endif %}
         </div>
@@ -298,76 +251,8 @@
         </div>
     </footer>
     
-    <!-- Script para el selector de versiones - YA NO ES NECESARIO -->
-    
-    <!-- Script para el temporizador de usuario free -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            /* Manejo del menú móvil */
-            const burgerButton = document.querySelector('.mobile-menu-button');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            
-            if (burgerButton && mobileMenu) {
-                burgerButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-            
-            const timerButton = document.getElementById('timer-button');
-            
-            if (timerButton) {
-                const tiempoRestante = document.getElementById("tiempo-restante");
-                const tiempoDetallado = document.getElementById("tiempo-detallado");
-                const barraProgreso = document.getElementById("barra-progreso");
-                
-                if (tiempoRestante && tiempoDetallado && barraProgreso) {
-                    let minutos = parseInt(timerButton.getAttribute('data-remaining-time') || '0');
-                    const tiempoTotal = 60; // La sesión es de 60 minutos (1 hora)
-                    
-                    // Configurar el ancho inicial de la barra de progreso
-                    barraProgreso.style.width = (minutos / tiempoTotal * 100) + "%";
-                    
-                    // Aplicar efectos visuales iniciales según el tiempo restante
-                    if (minutos <= 5) {
-                        tiempoRestante.classList.add("text-red-500");
-                        tiempoDetallado.classList.remove("text-yellow-400");
-                        tiempoDetallado.classList.add("text-red-500");
-                        barraProgreso.classList.remove("bg-yellow-400");
-                        barraProgreso.classList.add("bg-red-500");
-                    }
-                    
-                    function actualizarTiempo() {
-                        minutos = minutos - 1;
-                        
-                        // Actualizar texto y barra de progreso
-                        if (minutos > 0) {
-                            tiempoRestante.textContent = minutos + "m";
-                            tiempoDetallado.textContent = minutos + " minutos";
-                            barraProgreso.style.width = (minutos / tiempoTotal * 100) + "%";
-                            
-                            // Cambiar a rojo cuando quedan 5 minutos o menos
-                            if (minutos <= 5 && !tiempoRestante.classList.contains("text-red-500")) {
-                                tiempoRestante.classList.add("text-red-500");
-                                tiempoDetallado.classList.remove("text-yellow-400");
-                                tiempoDetallado.classList.add("text-red-500");
-                                barraProgreso.classList.remove("bg-yellow-400");
-                                barraProgreso.classList.add("bg-red-500");
-                                
-                                // Hacer que el botón del temporizador parpadee cuando queda poco tiempo
-                                timerButton.classList.add("animate-pulse");
-                            }
-                        } else {
-                            // Tiempo expirado, redireccionar a logout
-                            window.location.href = "{{ url_for('auth.logout') }}";
-                        }
-                    }
-                    
-                    // Actualizar cada minuto
-                    setInterval(actualizarTiempo, 60000);
-                }
-            }
-        });
-    </script>
+    <!-- Scripts propios -->
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     
     {% block extra_scripts %}{% endblock %}
     

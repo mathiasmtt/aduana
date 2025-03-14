@@ -3,39 +3,8 @@
 {% block title %}Sistema de Aranceles - Búsqueda{% endblock %}
 
 {% block extra_head %}
-<script>
-    $(document).ready(function() {
-        // Inicializar DataTables solo si hay resultados
-        if ($('#tabla-resultados tbody tr').length > 0) {
-            $('#tabla-resultados').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-                },
-                responsive: true,
-                pageLength: 25,
-                order: [[0, 'asc']]
-            });
-        }
-    });
-
-    function toggleNote(id) {
-        const note = document.getElementById(id);
-        const expandBtn = document.getElementById(id + '-expand');
-        const collapseBtn = document.getElementById(id + '-collapse');
-        
-        if (note.classList.contains('max-h-40')) {
-            note.classList.remove('max-h-40');
-            note.classList.add('max-h-full');
-            expandBtn.classList.add('hidden');
-            collapseBtn.classList.remove('hidden');
-        } else {
-            note.classList.add('max-h-40');
-            note.classList.remove('max-h-full');
-            expandBtn.classList.remove('hidden');
-            collapseBtn.classList.add('hidden');
-        }
-    }
-</script>
+<!-- Estilos específicos para la página de búsqueda -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buscar.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -169,4 +138,9 @@
     {% endif %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Scripts específicos para la página de búsqueda -->
+<script src="{{ url_for('static', filename='js/buscar.js') }}"></script>
 {% endblock %}

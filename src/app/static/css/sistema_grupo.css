@@ -1,0 +1,111 @@
+/* Estilos para sistema de grupos de importación */
+
+/* Estilos de las tarjetas */
+.import-group {
+  font-size: 0.9rem;
+  width: 100%;
+  display: block;
+}
+
+.import-group h3 {
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Grid para los grupos */
+#import-groups-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Estilos para la sección de roles */
+.import-group .rolesList {
+  font-size: 0.85rem;
+}
+
+.import-group .rolesList .role-item {
+  display: flex;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.import-group .rolesList .covered-role {
+  background-color: rgba(0, 128, 0, 0.1);
+  border: 1px solid rgba(0, 128, 0, 0.2);
+}
+
+.import-group .rolesList .missing-role {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+}
+
+/* Modo oscuro */
+.dark .import-group .rolesList .covered-role {
+  background-color: rgba(0, 128, 0, 0.2);
+  border-color: rgba(0, 128, 0, 0.3);
+}
+
+.dark .import-group .rolesList .missing-role {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste de tamaño para las partes */
+.import-group .partsContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.import-group .h-20 {
+  height: 4rem; /* Reducir altura */
+}
+
+/* Ajustes para detalles */
+.import-group .grid-cols-3 {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 768px) {
+  .import-group .grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Ajustar tamaño de texto en las etiquetas */
+.import-group .text-sm {
+  font-size: 0.75rem;
+}
+
+/* Reducir padding en diferentes elementos */
+.import-group .p-4 {
+  padding: 0.75rem;
+}
+
+.import-group .py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.import-group .px-3 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Ajustar márgenes */
+.import-group .mb-3 {
+  margin-bottom: 0.5rem;
+}
+
+.import-group .mb-4 {
+  margin-bottom: 0.75rem;
+}
+
+.import-group .mt-4 {
+  margin-top: 0.5rem;
+} 

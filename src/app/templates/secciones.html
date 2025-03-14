@@ -2,34 +2,23 @@
 
 {% block title %}Sistema de Aranceles - Secciones{% endblock %}
 
-{% block extra_head %}
-<script>
-    $(document).ready(function() {
-        $('#tabla-secciones').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-            },
-            responsive: true,
-            pageLength: 25,
-            order: [[0, 'asc']]
-        });
-    });
-</script>
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/secciones.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+<div class="seccion-container bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
     <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-        <div class="flex justify-between items-center">
+        <div class="seccion-header flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+                <h1 class="seccion-title text-2xl font-bold text-gray-800 dark:text-white">
                     Secciones del Arancel Nacional
                 </h1>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <p class="seccion-description mt-1 text-sm text-gray-600 dark:text-gray-400">
                     Lista completa de las secciones disponibles en el arancel.
                 </p>
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">
+            <div class="version-badge text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-md">
                 <span class="font-medium">Versión actual:</span> {{ version_actual }}
             </div>
         </div>
@@ -37,8 +26,8 @@
     
     <div class="px-4 py-5 sm:p-6">
         {% if secciones %}
-        <div class="overflow-x-auto">
-            <table id="tabla-secciones" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <div class="seccion-table-container overflow-x-auto">
+            <table id="tabla-secciones" class="seccion-table min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Número</th>
@@ -49,26 +38,37 @@
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {% for seccion in secciones %}
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                            {% if seccion.numero %}
-                                Sección {{ seccion.numero }}
-                            {% else %}
-                                -
-                            {% endif %}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="seccion-numero text-sm font-medium text-gray-900 dark:text-white">
+                                {% if seccion.numero %}
+                                    Sección {{ seccion.numero }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
-                            {{ seccion.titulo }}
+                        <td class="px-6 py-4">
+                            <span class="seccion-titulo text-sm text-gray-500 dark:text-gray-300">
+                                {{ seccion.titulo }}
+                            </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ url_for('main.buscar', tipo='seccion', q=seccion.seccion) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">
+                            <a href="{{ url_for('main.buscar', tipo='seccion', q=seccion.seccion) }}" 
+                               class="seccion-action accion-buscar text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                               title="Ver aranceles de esta sección">
                                 <i class="fas fa-search"></i> Ver aranceles
                             </a>
-                            <a href="{{ url_for('main.capitulos', seccion=seccion.seccion) }}" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3">
+                            <a href="{{ url_for('main.capitulos', seccion=seccion.seccion) }}" 
+                               class="seccion-action accion-capitulos text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
+                               title="Ver capítulos de esta sección">
                                 <i class="fas fa-bookmark"></i> Ver capítulos
                             </a>
                             {% if seccion.tiene_nota %}
-                            <a href="#" class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300" title="Esta sección tiene notas">
-                                <i class="fas fa-sticky-note"></i>
+                            <a href="#" 
+                               class="seccion-action accion-notas text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300" 
+                               title="Ver notas de esta sección"
+                               onclick="mostrarDetalleSecccion('{{ seccion.numero }}'); return false;">
+                                <i class="fas fa-sticky-note"></i> Ver notas
                             </a>
                             {% endif %}
                         </td>
@@ -78,11 +78,15 @@
             </table>
         </div>
         {% else %}
-        <div class="p-10 text-center">
-            <i class="fas fa-book text-gray-400 text-5xl mb-4"></i>
-            <p class="text-lg text-gray-600 dark:text-gray-400">No se encontraron secciones disponibles en la versión actual.</p>
+        <div class="estado-vacio p-10 text-center">
+            <i class="estado-vacio-icono fas fa-book text-gray-400 text-5xl mb-4"></i>
+            <p class="estado-vacio-mensaje text-lg text-gray-600 dark:text-gray-400">No se encontraron secciones disponibles en la versión actual.</p>
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/secciones.js') }}"></script>
 {% endblock %}

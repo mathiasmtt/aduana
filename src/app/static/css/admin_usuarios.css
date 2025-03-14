@@ -1,0 +1,1122 @@
+/* Estilos para la página de administración de usuarios */
+
+/* Estilos para encabezados con gradientes */
+.admin-header {
+    background-image: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.8;
+}
+
+/* Estilos para las pestañas de navegación */
+.admin-tab {
+    position: relative;
+    overflow: hidden;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.admin-tab.active {
+    color: #4f46e5;
+    border-bottom: 2px solid #4f46e5;
+}
+
+.dark .admin-tab.active {
+    color: #818cf8;
+    border-bottom-color: #818cf8;
+}
+
+.admin-tab:hover:not(.active) {
+    color: #6366f1;
+    border-bottom: 2px solid #6366f1;
+}
+
+.dark .admin-tab:hover:not(.active) {
+    color: #a5b4fc;
+    border-bottom-color: #a5b4fc;
+}
+
+.admin-tab::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #4f46e5;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.dark .admin-tab::before {
+    background-color: #818cf8;
+}
+
+.admin-tab:hover::before {
+    width: 100%;
+}
+
+/* Estilos mejorados para las tarjetas de estadísticas */
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.dark .stat-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid rgba(51, 65, 85, 0.7);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .stat-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+    border-color: rgba(71, 85, 105, 0.8);
+}
+
+.stat-card .stat-icon {
+    font-size: 1.25rem;
+    height: 3.5rem;
+    width: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card .stat-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover .stat-icon::after {
+    opacity: 1;
+}
+
+/* Estilos mejorados para emojis en tarjetas */
+.stat-icon span.emoji-stat {
+    font-size: 2rem;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .stat-icon span.emoji-stat {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card .stat-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #64748b;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .stat-card .stat-title {
+    color: #94a3b8;
+}
+
+.dark .stat-card .stat-value {
+    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para la tabla de usuarios */
+.admin-table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.admin-table thead th {
+    vertical-align: middle;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    padding: 0.85rem 1rem;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.admin-table thead th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.admin-table thead th:hover::after {
+    transform: scaleX(1);
+}
+
+.dark .admin-table thead th {
+    background: linear-gradient(to bottom, #1e293b, #0f172a);
+    border-bottom: 2px solid #334155;
+    color: #e2e8f0;
+}
+
+.dark .admin-table thead th::after {
+    background: linear-gradient(to right, #60a5fa, #a78bfa);
+}
+
+.admin-table th:hover i {
+    transform: scale(1.2);
+}
+
+.dark .admin-table {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    background-color: #1e293b;
+    border: 1px solid #334155;
+}
+
+.dark .admin-table thead th {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-bottom: 1px solid #334155;
+}
+
+.dark .admin-table thead th i {
+    color: #818cf8;
+    opacity: 0.9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .admin-table th:hover i {
+    transform: scale(1.2);
+    color: #a5b4fc;
+}
+
+.dark .admin-table tbody {
+    background-color: #1e293b;
+}
+
+.dark .admin-table tbody tr {
+    border-bottom: 1px solid #334155;
+}
+
+.dark .admin-table tbody tr:hover {
+    background-color: #334155;
+}
+
+.admin-table .user-avatar {
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.admin-table tr:hover .user-avatar {
+    transform: scale(1.05);
+}
+
+.dark .admin-table .user-avatar {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dark .admin-table tr:hover .user-avatar {
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Estilos para badges de filtros activos */
+.filtros-activos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    background-color: transparent;
+    border-radius: 0.375rem;
+    border: none;
+}
+
+.dark .filtros-activos {
+    background-color: transparent;
+    border: none;
+}
+
+.filtros-activos-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.dark .filtros-activos-label {
+    color: #94a3b8;
+}
+
+/* Corrección para los badges de rol en la tabla */
+td .role-badge {
+    margin: 0;
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: normal;
+}
+
+/* Asegurar que los emojis tienen el tamaño adecuado */
+.emoji-badge {
+    display: inline-block !important;
+    width: 1.5em;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Fijar el tamaño mínimo de los badges */
+.role-badge {
+    min-width: 5rem;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Estilos específicos para badges en modo oscuro */
+.dark .role-badge {
+    border-width: 2px;
+}
+
+/* Estilo específico para el badge de VIP */
+.role-badge-vip .emoji-badge {
+    color: inherit;
+    font-size: 1.4rem;
+    margin-right: 0.3rem;
+}
+
+/* Estilo específico para el badge de Admin */
+.role-badge-admin .emoji-badge {
+    color: inherit;
+    font-size: 1.3rem;
+    margin-right: 0.3rem;
+}
+
+/* Estilos adicionales para transportista */
+.role-badge-transportista .emoji-badge {
+    color: inherit;
+    font-size: 1.3rem;
+    margin-right: 0.3rem;
+}
+
+/* Estilos para badges de rol con emojis - mejorado para flat pill with dot */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    box-shadow: none;
+    text-shadow: none;
+    letter-spacing: 0.01em;
+    margin: 0;
+    position: relative;
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Quitar efectos de brillo, pulso y animaciones innecesarias */
+.shine-effect {
+    display: none;
+}
+
+.badge-pulse {
+    animation: none;
+    box-shadow: none;
+}
+
+/* Dot para los badges */
+.badge-dot {
+    height: 0.375rem;
+    width: 0.375rem;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+    background-color: currentColor;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Ajuste para emojis en badges - más pequeños y sin efectos excesivos */
+.emoji-badge {
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+    filter: none;
+}
+
+.dark .emoji-badge {
+    filter: none;
+}
+
+/* Estilos de colores planos para los badges por rol */
+.role-badge-vip {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.dark .role-badge-vip {
+    background-color: #92400e;
+    color: #fef3c7;
+    border-color: #f59e0b;
+}
+
+.role-badge-admin {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.dark .role-badge-admin {
+    background-color: #b91c1c;
+    color: #fee2e2;
+    border-color: #ef4444;
+}
+
+.role-badge-transportista {
+    background-color: #ffedd5;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.dark .role-badge-transportista {
+    background-color: #c2410c;
+    color: #ffedd5;
+    border-color: #fb923c;
+}
+
+.role-badge-despachante {
+    background-color: #d1fae5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.dark .role-badge-despachante {
+    background-color: #047857;
+    color: #d1fae5;
+    border-color: #10b981;
+}
+
+/* Efectos de hover sutiles para los badges */
+.role-badge:hover {
+    transform: none;
+    filter: none;
+    opacity: 0.9;
+}
+
+.dark .role-badge:hover {
+    opacity: 0.9;
+    border-color: currentColor;
+}
+
+/* Quitar todos los gradientes y efectos 3D */
+.role-badge, 
+.role-badge-admin, 
+.role-badge-vip, 
+.role-badge-transportista, 
+.role-badge-despachante {
+    background-image: none !important;
+}
+
+/* Ajustar tabla para evitar desbordamiento */
+.admin-table td {
+    vertical-align: middle !important;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Correcciones para Firefox */
+@-moz-document url-prefix() {
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Estilos para el modal */
+.admin-modal {
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.admin-modal-header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.admin-modal-body {
+    padding: 1.5rem;
+}
+
+.admin-modal-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark .admin-modal-footer {
+    border-color: #374151;
+}
+
+/* Estilos para formularios */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.dark .form-label {
+    color: #e5e7eb;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.dark .form-input {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+}
+
+.dark .form-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Estilos para notificaciones */
+.admin-notification {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    max-width: 24rem;
+    transform: translateX(150%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.dark .admin-notification {
+    background-color: #1f2937;
+    color: #e5e7eb;
+}
+
+.admin-notification.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.admin-notification button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.admin-notification button:hover {
+    color: #4b5563;
+}
+
+.dark .admin-notification button {
+    color: #9ca3af;
+}
+
+.dark .admin-notification button:hover {
+    color: #d1d5db;
+}
+
+.admin-notification.success {
+    border-left: 4px solid #10b981;
+}
+
+.admin-notification.error {
+    border-left: 4px solid #ef4444;
+}
+
+.admin-notification.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.admin-notification.info {
+    border-left: 4px solid #3b82f6;
+}
+
+/* Efecto ripple para botones */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+    margin-left: -50px;
+    animation: ripple-animation 0.6s ease-out;
+    opacity: 0;
+}
+
+@keyframes ripple-animation {
+    0% {
+        transform: scale(0);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Botón guardando animación */
+.action-btn.saving {
+    position: relative;
+    pointer-events: none;
+    color: transparent !important;
+}
+
+.action-btn.saving::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -10px;
+    margin-left: -10px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Checkbox personalizado */
+.form-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    display: inline-block;
+    vertical-align: middle;
+    background-origin: border-box;
+    user-select: none;
+    flex-shrink: 0;
+    height: 1rem;
+    width: 1rem;
+    color: #4f46e5;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.dark .form-checkbox {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+.form-checkbox:checked {
+    background-color: currentColor;
+    border-color: currentColor;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Para los botones de acción circulares */
+.dark .action-btn.bg-indigo-100 {
+    background-color: rgba(79, 70, 229, 0.2);
+}
+
+.dark .action-btn.bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Estilos para la cabecera de administración en modo oscuro */
+.dark .admin-header {
+    background-image: linear-gradient(135deg, #3730a3, #6d28d9);
+}
+
+.dark .admin-header::before {
+    opacity: 0.5;
+}
+
+/* Personalización de iconos en modo oscuro */
+.dark .fas.fa-user {
+    color: #93c5fd;
+}
+
+.dark .fas.fa-crown {
+    color: #fcd34d;
+}
+
+.dark .fas.fa-users {
+    color: #93c5fd;
+}
+
+.dark .fas.fa-envelope {
+    color: #a5b4fc;
+}
+
+.dark .fas.fa-user-tag {
+    color: #c4b5fd;
+}
+
+.dark .fas.fa-file-import {
+    color: #a5b4fc;
+}
+
+.dark .fas.fa-calendar-plus,
+.dark .fas.fa-calendar-check {
+    color: #bae6fd;
+}
+
+.dark .fas.fa-tools {
+    color: #d8b4fe;
+}
+
+.dark .fas.fa-edit {
+    color: #818cf8;
+}
+
+.dark .fas.fa-trash-alt {
+    color: #f87171;
+}
+
+.dark .fas.fa-user-shield {
+    color: #a78bfa;
+}
+
+/* Estilos de celdas de tabla en modo oscuro */
+.dark .admin-table td {
+    padding: 0.75rem 1rem;
+    color: #e2e8f0;
+}
+
+.dark .admin-table td .text-gray-500,
+.dark .admin-table td .text-gray-400 {
+    color: #94a3b8 !important;
+}
+
+.dark .admin-table td .text-sm {
+    font-size: 0.875rem;
+}
+
+/* Mejoras para los avatares de usuario */
+.dark .user-avatar {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.dark .user-avatar::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.6s;
+}
+
+.dark .admin-table tr:hover .user-avatar::before {
+    opacity: 1;
+}
+
+/* Estilos para los nombres de usuario */
+.dark .admin-table .text-gray-900 {
+    color: #f8fafc !important;
+}
+
+.dark .admin-table .text-gray-500 {
+    color: #94a3b8 !important;
+}
+
+/* Gradientes para badges */
+.role-badge-admin {
+    background: linear-gradient(135deg, #ef4444, #f43f5e);
+    color: white;
+}
+
+.role-badge-vip {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #78350f;
+}
+
+.role-badge-free {
+    background: linear-gradient(135deg, #d1d5db, #e5e7eb);
+    color: #374151;
+}
+
+.dark .role-badge-free {
+    background: linear-gradient(135deg, #374151, #4b5563);
+    color: #e5e7eb;
+}
+
+.role-badge-transportista {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: white;
+}
+
+.role-badge-corredor {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: white;
+}
+
+.role-badge-despachante {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+}
+
+.role-badge-importador {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    color: white;
+}
+
+.role-badge-profesional {
+    background: linear-gradient(135deg, #0d9488, #2dd4bf);
+    color: white;
+}
+
+/* Estilos para badges en modo oscuro */
+.dark .role-badge {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .role-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    border-radius: 9999px 9999px 0 0;
+    pointer-events: none;
+}
+
+.dark .role-badge:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Animaciones sutiles para badges */
+@keyframes badgePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+.badge-pulse {
+    animation: badgePulse 2s infinite;
+}
+
+/* Mejora para las badges con puntos indicadores */
+.badge-with-dot {
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-dot {
+    flex-shrink: 0;
+}
+
+/* Variantes adicionales de badges */
+.badge-rounded {
+    border-radius: 0.375rem;
+}
+
+.badge-outlined {
+    background-color: transparent;
+}
+
+.badge-outlined.badge-success {
+    color: #059669;
+    border-color: currentColor;
+}
+
+.dark .badge-outlined.badge-success {
+    color: #10b981;
+}
+
+.badge-outlined.badge-warning {
+    color: #d97706;
+    border-color: currentColor;
+}
+
+.dark .badge-outlined.badge-warning {
+    color: #f59e0b;
+}
+
+.badge-outlined.badge-danger {
+    color: #dc2626;
+    border-color: currentColor;
+}
+
+.dark .badge-outlined.badge-danger {
+    color: #ef4444;
+}
+
+.badge-outlined.badge-info {
+    color: #2563eb;
+    border-color: currentColor;
+}
+
+.dark .badge-outlined.badge-info {
+    color: #3b82f6;
+}
+
+.badge-outlined.badge-purple {
+    color: #7c3aed;
+    border-color: currentColor;
+}
+
+.dark .badge-outlined.badge-purple {
+    color: #8b5cf6;
+}
+
+/* Badge con botón de eliminar */
+.badge-dismissible {
+    padding-right: 0.35rem;
+}
+
+.badge-dismiss-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.25rem;
+    height: 0.85rem;
+    width: 0.85rem;
+    border-radius: 9999px;
+    background-color: rgba(0, 0, 0, 0.1);
+    color: inherit;
+    opacity: 0.7;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+.badge-dismiss-btn:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark .badge-dismiss-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .badge-dismiss-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mejoras para badges en modo oscuro */
+.dark .role-badge {
+    position: relative;
+    overflow: hidden;
+}
+
+.dark .role-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    border-radius: 9999px 9999px 0 0;
+    pointer-events: none;
+}
+
+.dark .role-badge:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Animaciones sutiles para badges */
+@keyframes badgePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+.badge-pulse {
+    animation: badgePulse 2s infinite;
+}
+
+/* Mejora para las badges con puntos indicadores */
+.badge-with-dot {
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-dot {
+    flex-shrink: 0;
+}
+
+/* Ajustes para compatibilidad entre navegadores */
+.role-badge {
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.emoji-badge {
+    -webkit-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+    -moz-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.dark .emoji-badge {
+    -webkit-filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+    -moz-filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* Ajustar tabla para evitar desbordamiento */
+.admin-table td {
+    vertical-align: middle !important;
+}
+
+/* Estilos para badges en filtros activos */
+.filtros-activos .role-badge {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Pseudo-elemento para mejorar el espaciado */
+.role-badge::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+}
+
+/* Fix para Firefox */
+@-moz-document url-prefix() {
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .emoji-badge {
+        vertical-align: middle;
+    }
+} 

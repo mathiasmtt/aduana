@@ -1,0 +1,36 @@
+/* Estilos para la página de capítulos */
+
+/* Estilo para capítulos con notas */
+.nota-indicador {
+    color: #d97706;
+}
+
+/* Estilo para la etiqueta de versión */
+.version-badge {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+/* Estilos para el estado vacío */
+.empty-state {
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    color: #9ca3af;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Modo oscuro */
+.dark .version-badge {
+    background-color: #374151;
+    color: #9ca3af;
+}
+
+.dark .nota-indicador {
+    color: #fbbf24;
+} 

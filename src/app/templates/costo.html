@@ -2,33 +2,38 @@
 
 {% block title %}Sistema de Aranceles - Costos de Importación{% endblock %}
 
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/costo.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="max-w-5xl mx-auto">
-    <nav class="mb-5" aria-label="Breadcrumb">
-        <ol class="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
+    <nav class="costo-breadcrumb mb-5" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-1 text-sm">
             <li>
-                <a href="{{ url_for('main.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                <a href="{{ url_for('main.index') }}" class="costo-breadcrumb-link hover:text-blue-600 dark:hover:text-blue-400">
                     <i class="fas fa-home"></i> Inicio
                 </a>
             </li>
             <li class="flex items-center">
-                <i class="fas fa-chevron-right text-gray-400 mx-1 text-xs"></i>
-                <span class="text-gray-700 dark:text-gray-300">Costos de Importación</span>
+                <i class="fas fa-chevron-right costo-breadcrumb-separator mx-1 text-xs"></i>
+                <span class="costo-breadcrumb-current">Costos de Importación</span>
             </li>
         </ol>
     </nav>
 
-    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden mb-10">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-gray-800 dark:text-white text-xl font-semibold">Importación</h2>
-                <div class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ fecha_actual }}
-                </div>
+    <div class="costo-panel">
+        <div class="costo-panel-header">
+            <h2 class="costo-panel-title">Importación</h2>
+            <div class="costo-panel-date">
+                {{ fecha_actual }}
             </div>
-            
-            <div class="overflow-x-auto">
-                <table id="costos-table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        </div>
+        
+        <div class="costo-panel-body">
+            <div class="costo-table-container">
+                <table id="costos-table" class="costo-table min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-100 dark:bg-gray-700">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -60,21 +65,21 @@
                                 EXW
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="exw_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1250" data-row="exw" data-col="1">
+                                <input type="text" id="exw_1" class="costo-input" value="1250" data-row="exw" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="exw_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1500" data-row="exw" data-col="2">
+                                <input type="text" id="exw_2" class="costo-input" value="1500" data-row="exw" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="exw_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1350" data-row="exw" data-col="3">
+                                <input type="text" id="exw_3" class="costo-input" value="1350" data-row="exw" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="exw_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1780" data-row="exw" data-col="4">
+                                <input type="text" id="exw_4" class="costo-input" value="1780" data-row="exw" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="exw_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1420" data-row="exw" data-col="5">
+                                <input type="text" id="exw_5" class="costo-input" value="1420" data-row="exw" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="exw_total">$7,300</span>
                             </td>
                         </tr>
@@ -83,21 +88,21 @@
                                 Gastos de Fabricación
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_fab_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="350" data-row="gastos_fab" data-col="1">
+                                <input type="text" id="gastos_fab_1" class="costo-input" value="350" data-row="gastos_fab" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_fab_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="380" data-row="gastos_fab" data-col="2">
+                                <input type="text" id="gastos_fab_2" class="costo-input" value="380" data-row="gastos_fab" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_fab_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="320" data-row="gastos_fab" data-col="3">
+                                <input type="text" id="gastos_fab_3" class="costo-input" value="320" data-row="gastos_fab" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_fab_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="390" data-row="gastos_fab" data-col="4">
+                                <input type="text" id="gastos_fab_4" class="costo-input" value="390" data-row="gastos_fab" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_fab_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="360" data-row="gastos_fab" data-col="5">
+                                <input type="text" id="gastos_fab_5" class="costo-input" value="360" data-row="gastos_fab" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="gastos_fab_total">$1,800</span>
                             </td>
                         </tr>
@@ -106,21 +111,21 @@
                                 FCA
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="fca_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1600" data-row="fca" data-col="1">
+                                <input type="text" id="fca_1" class="costo-input" value="1600" data-row="fca" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="fca_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1880" data-row="fca" data-col="2">
+                                <input type="text" id="fca_2" class="costo-input" value="1880" data-row="fca" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="fca_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1670" data-row="fca" data-col="3">
+                                <input type="text" id="fca_3" class="costo-input" value="1670" data-row="fca" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="fca_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="2170" data-row="fca" data-col="4">
+                                <input type="text" id="fca_4" class="costo-input" value="2170" data-row="fca" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="fca_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="1780" data-row="fca" data-col="5">
+                                <input type="text" id="fca_5" class="costo-input" value="1780" data-row="fca" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="fca_total">$9,100</span>
                             </td>
                         </tr>
@@ -129,21 +134,21 @@
                                 Flete Internacional
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="flete_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="850" data-row="flete" data-col="1">
+                                <input type="text" id="flete_1" class="costo-input" value="850" data-row="flete" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="flete_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="920" data-row="flete" data-col="2">
+                                <input type="text" id="flete_2" class="costo-input" value="920" data-row="flete" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="flete_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="780" data-row="flete" data-col="3">
+                                <input type="text" id="flete_3" class="costo-input" value="780" data-row="flete" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="flete_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="900" data-row="flete" data-col="4">
+                                <input type="text" id="flete_4" class="costo-input" value="900" data-row="flete" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="flete_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="950" data-row="flete" data-col="5">
+                                <input type="text" id="flete_5" class="costo-input" value="950" data-row="flete" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="flete_total">$870</span>
                             </td>
                         </tr>
@@ -152,44 +157,44 @@
                                 Seguro
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="seguro_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="250" data-row="seguro" data-col="1">
+                                <input type="text" id="seguro_1" class="costo-input" value="250" data-row="seguro" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="seguro_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="280" data-row="seguro" data-col="2">
+                                <input type="text" id="seguro_2" class="costo-input" value="280" data-row="seguro" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="seguro_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="230" data-row="seguro" data-col="3">
+                                <input type="text" id="seguro_3" class="costo-input" value="230" data-row="seguro" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="seguro_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="270" data-row="seguro" data-col="4">
+                                <input type="text" id="seguro_4" class="costo-input" value="270" data-row="seguro" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="seguro_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="260" data-row="seguro" data-col="5">
+                                <input type="text" id="seguro_5" class="costo-input" value="260" data-row="seguro" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="seguro_total">$290</span>
                             </td>
                         </tr>
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                Valor CIF <i class="fas fa-calculator text-blue-400 dark:text-blue-300 text-xs ml-1" title="Valor calculado"></i>
+                                Valor CIF <i class="fas fa-calculator calc-icon" title="Valor calculado"></i>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_1">$2,700</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_2">$3,080</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_3">$2,680</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_4">$3,340</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_5">$2,990</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="cif_total">$10,260</span>
                             </td>
                         </tr>
@@ -198,44 +203,44 @@
                                 Gastos
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="350" data-row="gastos" data-col="1">
+                                <input type="text" id="gastos_1" class="costo-input" value="350" data-row="gastos" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="330" data-row="gastos" data-col="2">
+                                <input type="text" id="gastos_2" class="costo-input" value="330" data-row="gastos" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="370" data-row="gastos" data-col="3">
+                                <input type="text" id="gastos_3" class="costo-input" value="370" data-row="gastos" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="380" data-row="gastos" data-col="4">
+                                <input type="text" id="gastos_4" class="costo-input" value="380" data-row="gastos" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="gastos_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="340" data-row="gastos" data-col="5">
+                                <input type="text" id="gastos_5" class="costo-input" value="340" data-row="gastos" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="gastos_total">$360</span>
                             </td>
                         </tr>
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
-                                VNA <i class="fas fa-calculator text-blue-400 dark:text-blue-300 text-xs ml-1" title="Valor calculado"></i>
+                                VNA <i class="fas fa-calculator calc-icon" title="Valor calculado"></i>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_1">$3,050</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_2">$3,410</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_3">$3,050</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_4">$3,720</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_5">$3,330</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="vna_total">$17,170</span>
                             </td>
                         </tr>
@@ -244,44 +249,44 @@
                                 TGA (%)
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="tga_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="20" data-row="tga" data-col="1">
+                                <input type="text" id="tga_1" class="costo-input" value="20" data-row="tga" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="tga_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="18" data-row="tga" data-col="2">
+                                <input type="text" id="tga_2" class="costo-input" value="18" data-row="tga" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="tga_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="22" data-row="tga" data-col="3">
+                                <input type="text" id="tga_3" class="costo-input" value="22" data-row="tga" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="tga_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="19" data-row="tga" data-col="4">
+                                <input type="text" id="tga_4" class="costo-input" value="19" data-row="tga" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="tga_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="21" data-row="tga" data-col="5">
+                                <input type="text" id="tga_5" class="costo-input" value="21" data-row="tga" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="tga_total">0</span>
                             </td>
                         </tr>
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                Monto Imponible <i class="fas fa-calculator text-blue-400 dark:text-blue-300 text-xs ml-1" title="Valor calculado"></i>
+                                Monto Imponible <i class="fas fa-calculator calc-icon" title="Valor calculado"></i>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_1">$3,660</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_2">$4,024</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_3">$3,721</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_4">$4,427</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_5">$4,029</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imponible_total">$20,085</span>
                             </td>
                         </tr>
@@ -290,21 +295,21 @@
                                 Anticipo de IRAE
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="irae_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="183" data-row="irae" data-col="1">
+                                <input type="text" id="irae_1" class="costo-input" value="183" data-row="irae" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="irae_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="201" data-row="irae" data-col="2">
+                                <input type="text" id="irae_2" class="costo-input" value="201" data-row="irae" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="irae_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="186" data-row="irae" data-col="3">
+                                <input type="text" id="irae_3" class="costo-input" value="186" data-row="irae" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="irae_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="221" data-row="irae" data-col="4">
+                                <input type="text" id="irae_4" class="costo-input" value="221" data-row="irae" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="irae_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="201" data-row="irae" data-col="5">
+                                <input type="text" id="irae_5" class="costo-input" value="201" data-row="irae" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="irae_total">$211</span>
                             </td>
                         </tr>
@@ -313,21 +318,21 @@
                                 IVA
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="iva_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="805" data-row="iva" data-col="1">
+                                <input type="text" id="iva_1" class="costo-input" value="805" data-row="iva" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="iva_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="885" data-row="iva" data-col="2">
+                                <input type="text" id="iva_2" class="costo-input" value="885" data-row="iva" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="iva_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="819" data-row="iva" data-col="3">
+                                <input type="text" id="iva_3" class="costo-input" value="819" data-row="iva" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="iva_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="974" data-row="iva" data-col="4">
+                                <input type="text" id="iva_4" class="costo-input" value="974" data-row="iva" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="iva_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="886" data-row="iva" data-col="5">
+                                <input type="text" id="iva_5" class="costo-input" value="886" data-row="iva" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="iva_total">$929</span>
                             </td>
                         </tr>
@@ -336,21 +341,21 @@
                                 Anticipo de IVA
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="anticipo_iva_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="366" data-row="anticipo_iva" data-col="1">
+                                <input type="text" id="anticipo_iva_1" class="costo-input" value="366" data-row="anticipo_iva" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="anticipo_iva_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="402" data-row="anticipo_iva" data-col="2">
+                                <input type="text" id="anticipo_iva_2" class="costo-input" value="402" data-row="anticipo_iva" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="anticipo_iva_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="372" data-row="anticipo_iva" data-col="3">
+                                <input type="text" id="anticipo_iva_3" class="costo-input" value="372" data-row="anticipo_iva" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="anticipo_iva_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="443" data-row="anticipo_iva" data-col="4">
+                                <input type="text" id="anticipo_iva_4" class="costo-input" value="443" data-row="anticipo_iva" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="anticipo_iva_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="403" data-row="anticipo_iva" data-col="5">
+                                <input type="text" id="anticipo_iva_5" class="costo-input" value="403" data-row="anticipo_iva" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="anticipo_iva_total">$422</span>
                             </td>
                         </tr>
@@ -359,27 +364,27 @@
                                 IMESI
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="imesi_1" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="0" data-row="imesi" data-col="1">
+                                <input type="text" id="imesi_1" class="costo-input" value="0" data-row="imesi" data-col="1">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="imesi_2" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="804" data-row="imesi" data-col="2">
+                                <input type="text" id="imesi_2" class="costo-input" value="804" data-row="imesi" data-col="2">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="imesi_3" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="558" data-row="imesi" data-col="3">
+                                <input type="text" id="imesi_3" class="costo-input" value="558" data-row="imesi" data-col="3">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="imesi_4" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="0" data-row="imesi" data-col="4">
+                                <input type="text" id="imesi_4" class="costo-input" value="0" data-row="imesi" data-col="4">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                <input type="text" id="imesi_5" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors duration-200" value="806" data-row="imesi" data-col="5">
+                                <input type="text" id="imesi_5" class="costo-input" value="806" data-row="imesi" data-col="5">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-200 subtotal-cell">
                                 <span id="imesi_total">$0</span>
                             </td>
                         </tr>
-                        <tr class="bg-gray-50 dark:bg-gray-700">
+                        <tr class="total-row">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
-                                Total <i class="fas fa-calculator text-blue-400 dark:text-blue-300 text-xs ml-1" title="Valor calculado"></i>
+                                Total <i class="fas fa-calculator calc-icon" title="Valor calculado"></i>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-600">
                                 <span id="total_1">$5,014</span>
@@ -406,168 +411,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Obtener todos los inputs
-    const inputs = document.querySelectorAll('input[type="text"]');
-    
-    // Agregar evento de cambio a cada input
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            // Manejar la lógica de EXW, Gastos de Fabricación y FCA
-            if (this.id.startsWith('exw_') || this.id.startsWith('gastos_fab_')) {
-                const col = this.dataset.col;
-                const exwInput = document.getElementById(`exw_${col}`);
-                const gastosFabInput = document.getElementById(`gastos_fab_${col}`);
-                const fcaInput = document.getElementById(`fca_${col}`);
-                
-                // Verificar si hay valores en EXW o Gastos de Fabricación
-                const exwValue = parseFloat(exwInput.value) || 0;
-                const gastosFabValue = parseFloat(gastosFabInput.value) || 0;
-                
-                // Si hay valores, calcular FCA y deshabilitarlo
-                fcaInput.value = exwValue + gastosFabValue;
-                
-                // Siempre deshabilitar FCA si hay valores en EXW o Gastos de Fabricación
-                if (exwValue > 0 || gastosFabValue > 0) {
-                    fcaInput.disabled = true;
-                    fcaInput.classList.add('bg-gray-100', 'dark:bg-gray-700', 'cursor-not-allowed');
-                } else {
-                    fcaInput.disabled = false;
-                    fcaInput.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'cursor-not-allowed');
-                }
-            } 
-            else if (this.id.startsWith('fca_')) {
-                const col = this.dataset.col;
-                const exwInput = document.getElementById(`exw_${col}`);
-                const gastosFabInput = document.getElementById(`gastos_fab_${col}`);
-                
-                // Limpiar los valores de EXW y Gastos de Fabricación
-                exwInput.value = '';
-                gastosFabInput.value = '';
-            }
-            
-            calcularValores();
-        });
-    });
-    
-    // Agregar evento de clic a los campos FCA
-    for (let i = 1; i <= 5; i++) {
-        const fcaInput = document.getElementById(`fca_${i}`);
-        const exwInput = document.getElementById(`exw_${i}`);
-        const gastosFabInput = document.getElementById(`gastos_fab_${i}`);
-        
-        fcaInput.addEventListener('click', function() {
-            // Verificar si hay valores en EXW o Gastos de Fabricación
-            const exwValue = parseFloat(exwInput.value) || 0;
-            const gastosFabValue = parseFloat(gastosFabInput.value) || 0;
-            
-            // Solo permitir editar FCA si EXW y Gastos de Fabricación están vacíos o son cero
-            if (exwValue === 0 && gastosFabValue === 0) {
-                this.disabled = false;
-                this.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'cursor-not-allowed');
-            } else {
-                // Mostrar un mensaje explicativo
-                alert('Para editar FCA directamente, primero debe borrar los valores de EXW y Gastos de Fabricación.');
-            }
-        });
-    }
-    
-    // Inicializar el estado de los campos
-    for (let i = 1; i <= 5; i++) {
-        const exwInput = document.getElementById(`exw_${i}`);
-        const gastosFabInput = document.getElementById(`gastos_fab_${i}`);
-        const fcaInput = document.getElementById(`fca_${i}`);
-        
-        // Verificar si hay valores en EXW o Gastos de Fabricación
-        const exwValue = parseFloat(exwInput.value) || 0;
-        const gastosFabValue = parseFloat(gastosFabInput.value) || 0;
-        
-        // Si hay valores, deshabilitar FCA
-        if (exwValue > 0 || gastosFabValue > 0) {
-            fcaInput.disabled = true;
-            fcaInput.classList.add('bg-gray-100', 'dark:bg-gray-700', 'cursor-not-allowed');
-        } else {
-            fcaInput.disabled = false;
-            fcaInput.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'cursor-not-allowed');
-        }
-    }
-    
-    // Función para calcular todos los valores
-    function calcularValores() {
-        // Calcular Valor CIF (FCA + Flete + Seguro)
-        for (let i = 1; i <= 5; i++) {
-            const fca = parseFloat(document.getElementById(`fca_${i}`).value) || 0;
-            const flete = parseFloat(document.getElementById(`flete_${i}`).value) || 0;
-            const seguro = parseFloat(document.getElementById(`seguro_${i}`).value) || 0;
-            
-            const cif = fca + flete + seguro;
-            document.getElementById(`cif_${i}`).textContent = `$${cif.toLocaleString('es-ES')}`;
-            
-            // Calcular VNA (CIF + Gastos)
-            const gastos = parseFloat(document.getElementById(`gastos_${i}`).value) || 0;
-            const vna = cif + gastos;
-            document.getElementById(`vna_${i}`).textContent = `$${vna.toLocaleString('es-ES')}`;
-            
-            // Calcular Monto Imponible (VNA + TGA%)
-            const tga = parseFloat(document.getElementById(`tga_${i}`).value) || 0;
-            const montoImponible = vna * (1 + tga/100);
-            document.getElementById(`imponible_${i}`).textContent = `$${montoImponible.toLocaleString('es-ES')}`;
-        }
-        
-        // Calcular totales por fila
-        calcularTotalesPorFila();
-    }
-    
-    // Función para calcular los totales por fila
-    function calcularTotalesPorFila() {
-        const filas = ['exw', 'gastos_fab', 'fca', 'flete', 'seguro', 'cif', 'gastos', 'vna', 'tga', 'imponible', 'irae', 'iva', 'anticipo_iva', 'imesi', 'total'];
-        
-        filas.forEach(fila => {
-            let total = 0;
-            
-            // Para filas con inputs
-            if (['exw', 'gastos_fab', 'fca', 'flete', 'seguro', 'gastos', 'irae', 'iva', 'anticipo_iva', 'imesi'].includes(fila)) {
-                for (let i = 1; i <= 5; i++) {
-                    const valor = parseFloat(document.getElementById(`${fila}_${i}`).value) || 0;
-                    total += valor;
-                }
-            } 
-            // Para filas con spans (calculados)
-            else if (['cif', 'vna', 'imponible'].includes(fila)) {
-                for (let i = 1; i <= 5; i++) {
-                    const texto = document.getElementById(`${fila}_${i}`).textContent;
-                    const valor = parseFloat(texto.replace('$', '').replace(',', '')) || 0;
-                    total += valor;
-                }
-            }
-            // Para la fila de total
-            else if (fila === 'total') {
-                // El total se calcula sumando todos los valores de cada columna
-                for (let i = 1; i <= 5; i++) {
-                    let subtotal = 0;
-                    const imponible = parseFloat(document.getElementById(`imponible_${i}`).textContent.replace('$', '').replace(',', '')) || 0;
-                    const irae = parseFloat(document.getElementById(`irae_${i}`).value) || 0;
-                    const iva = parseFloat(document.getElementById(`iva_${i}`).value) || 0;
-                    const anticipoIva = parseFloat(document.getElementById(`anticipo_iva_${i}`).value) || 0;
-                    const imesi = parseFloat(document.getElementById(`imesi_${i}`).value) || 0;
-                    
-                    subtotal = imponible + irae + iva + anticipoIva + imesi;
-                    document.getElementById(`total_${i}`).textContent = `$${subtotal.toLocaleString('es-ES')}`;
-                    total += subtotal;
-                }
-            }
-            
-            // Actualizar el total en la tabla
-            if (fila !== 'tga') { // TGA no tiene un total significativo
-                document.getElementById(`${fila}_total`).textContent = `$${total.toLocaleString('es-ES')}`;
-            }
-        });
-    }
-    
-    // Calcular valores iniciales
-    calcularValores();
-});
-</script>
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/costo.js') }}"></script>
 {% endblock %} 

@@ -2,14 +2,19 @@
 
 {% block title %}Sistema de Aranceles - Inicio{% endblock %}
 
+{% block extra_head %}
+<!-- CSS específico para la página de inicio -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg shadow-lg">
-    <div class="py-12 px-6 lg:px-16">
+<div class="hero-gradient">
+    <div class="hero-content text-center">
         <div class="text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-white">
                 Sistema de Consulta de Aranceles
             </h1>
-            <p class="mt-6 max-w-2xl mx-auto text-xl">
+            <p class="mt-6 max-w-2xl mx-auto text-xl text-white">
                 Acceda a información actualizada del Arancel Nacional
             </p>
             <div class="mt-10 sm:flex sm:justify-center">
@@ -37,10 +42,10 @@
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Total de registros -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+        <div class="stats-card">
             <div class="p-5">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                    <div class="stats-icon bg-blue-500">
                         <i class="fas fa-database text-white text-xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
@@ -49,7 +54,7 @@
                                 Total de Aranceles
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-aranceles">
+                                <div class="stats-value text-gray-900 dark:text-white estadisticas-valor" id="total-aranceles">
                                     {{ total_registros|default('0', true) }}
                                 </div>
                             </dd>
@@ -60,10 +65,10 @@
         </div>
         
         <!-- Total de Capítulos -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+        <div class="stats-card">
             <div class="p-5">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                    <div class="stats-icon bg-indigo-500">
                         <i class="fas fa-book-open text-white text-xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
@@ -72,7 +77,7 @@
                                 Total de Capítulos
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-capitulos">
+                                <div class="stats-value text-gray-900 dark:text-white estadisticas-valor" id="total-capitulos">
                                     {{ total_capitulos|default('0', true) }}
                                 </div>
                             </dd>
@@ -83,10 +88,10 @@
         </div>
         
         <!-- Total de Secciones -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+        <div class="stats-card">
             <div class="p-5">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-amber-500 rounded-md p-3">
+                    <div class="stats-icon bg-amber-500">
                         <i class="fas fa-folder-open text-white text-xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
@@ -95,7 +100,7 @@
                                 Total de Secciones
                             </dt>
                             <dd>
-                                <div class="text-lg font-medium text-gray-900 dark:text-white estadisticas-valor" id="total-secciones">
+                                <div class="stats-value text-gray-900 dark:text-white estadisticas-valor" id="total-secciones">
                                     {{ total_secciones|default('0', true) }}
                                 </div>
                             </dd>
@@ -106,10 +111,10 @@
         </div>
         
         <!-- API Activa -->
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+        <div class="stats-card">
             <div class="p-5">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                    <div class="stats-icon bg-purple-500">
                         <i class="fas fa-code text-white text-xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
@@ -120,9 +125,9 @@
                             <dd>
                                 <div class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                                     <span class="mr-2">Activa</span>
-                                    <span class="flex h-3 w-3">
-                                        <span class="animate-ping absolute h-3 w-3 rounded-full bg-green-400 opacity-75"></span>
-                                        <span class="relative rounded-full h-3 w-3 bg-green-500"></span>
+                                    <span class="pulse-indicator">
+                                        <span class="ping"></span>
+                                        <span class="dot"></span>
                                     </span>
                                 </div>
                             </dd>
@@ -142,67 +147,67 @@
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Característica 1 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-blue-500 mb-4">
-                <i class="fas fa-search text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-blue-500">
+                <i class="fas fa-search"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Búsqueda Avanzada</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">Búsqueda Avanzada</h3>
+            <p class="feature-description">
                 Busca aranceles por código NCM o por texto en descripción con resultados instantáneos.
             </p>
         </div>
         
         <!-- Característica 2 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-green-500 mb-4">
-                <i class="fas fa-table text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-green-500">
+                <i class="fas fa-table"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Tablas Interactivas</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">Tablas Interactivas</h3>
+            <p class="feature-description">
                 Visualiza datos en tablas ordenables y filtrables con paginación para una mejor experiencia.
             </p>
         </div>
         
         <!-- Característica 3 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-purple-500 mb-4">
-                <i class="fas fa-code text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-purple-500">
+                <i class="fas fa-code"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">API RESTful</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">API RESTful</h3>
+            <p class="feature-description">
                 Accede a los datos mediante una API REST completa para integrar con otros sistemas.
             </p>
         </div>
         
         <!-- Característica 4 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-yellow-500 mb-4">
-                <i class="fas fa-palette text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-yellow-500">
+                <i class="fas fa-palette"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Tema Claro/Oscuro</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">Tema Claro/Oscuro</h3>
+            <p class="feature-description">
                 Cambia entre temas claro y oscuro según tu preferencia con persistencia automática.
             </p>
         </div>
         
         <!-- Característica 5 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-red-500 mb-4">
-                <i class="fas fa-mobile-alt text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-red-500">
+                <i class="fas fa-mobile-alt"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Diseño Responsive</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">Diseño Responsive</h3>
+            <p class="feature-description">
                 Interfaz adaptable a cualquier dispositivo para consultar aranceles desde donde estés.
             </p>
         </div>
         
         <!-- Característica 6 -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-            <div class="text-blue-500 mb-4">
-                <i class="fas fa-bolt text-3xl"></i>
+        <div class="feature-card">
+            <div class="feature-icon text-blue-500">
+                <i class="fas fa-bolt"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Alto Rendimiento</h3>
-            <p class="text-gray-600 dark:text-gray-300">
+            <h3 class="feature-title text-gray-800 dark:text-white">Alto Rendimiento</h3>
+            <p class="feature-description">
                 Sistema optimizado para cargar rápidamente incluso con grandes volúmenes de datos.
             </p>
         </div>
@@ -211,89 +216,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Ejecutar código cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM cargado, iniciando carga de estadísticas...');
-        
-        // Obtener referencias a los elementos que mostrarán las estadísticas
-        var totalAranceles = document.getElementById('total-aranceles');
-        var totalCapitulos = document.getElementById('total-capitulos');
-        var totalSecciones = document.getElementById('total-secciones');
-        
-        // Mostrar indicadores de carga
-        if (totalAranceles) totalAranceles.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        if (totalCapitulos) totalCapitulos.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        if (totalSecciones) totalSecciones.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        
-        // Crear la solicitud AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '{{ url_for("api.get_estadisticas") }}', true);
-        
-        // Configurar el manejador de respuesta
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                console.log('Respuesta recibida del servidor');
-                try {
-                    // Convertir la respuesta JSON a un objeto
-                    var data = JSON.parse(xhr.responseText);
-                    console.log('Datos de estadísticas:', data);
-                    
-                    // Actualizar los valores en la página
-                    if (totalAranceles) totalAranceles.textContent = data.total_registros;
-                    if (totalCapitulos) totalCapitulos.textContent = data.total_capitulos;
-                    if (totalSecciones) totalSecciones.textContent = data.total_secciones;
-                    
-                    console.log('Estadísticas actualizadas correctamente');
-                } catch (error) {
-                    console.error('Error al procesar la respuesta JSON:', error);
-                    mostrarError();
-                }
-            } else {
-                console.error('Error en la solicitud HTTP:', xhr.status);
-                mostrarError();
-            }
-        };
-        
-        // Manejar errores de red
-        xhr.onerror = function() {
-            console.error('Error de red al solicitar estadísticas');
-            mostrarError();
-        };
-        
-        // Enviar la solicitud
-        console.log('Enviando solicitud de estadísticas...');
-        xhr.send();
-        
-        // Función para mostrar error en los contenedores
-        function mostrarError() {
-            if (totalAranceles) totalAranceles.innerHTML = '<span class="text-red-500">Error</span>';
-            if (totalCapitulos) totalCapitulos.innerHTML = '<span class="text-red-500">Error</span>';
-            if (totalSecciones) totalSecciones.innerHTML = '<span class="text-red-500">Error</span>';
-        }
-        
-        // Configurar el evento para el selector de versiones
-        var versionSelector = document.getElementById('version-selector');
-        if (versionSelector) {
-            console.log('Configurando evento para el selector de versiones');
-            versionSelector.addEventListener('change', function() {
-                // Mostrar indicadores de carga
-                if (totalAranceles) totalAranceles.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                if (totalCapitulos) totalCapitulos.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                if (totalSecciones) totalSecciones.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                
-                // Retrasar la redirección para que se vean los indicadores de carga
-                setTimeout(function() {
-                    var url = versionSelector.value ? 
-                        '{{ url_for("main.set_version") }}?version=' + versionSelector.value : 
-                        '{{ url_for("main.reset_version") }}';
-                    console.log('Redirigiendo a:', url);
-                    window.location.href = url;
-                }, 500);
-            });
-        } else {
-            console.log('Selector de versiones no encontrado');
-        }
-    });
-</script>
+<!-- JavaScript para la página de inicio -->
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

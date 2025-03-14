@@ -2,6 +2,10 @@
 
 {% block title %}Sistema de Aranceles - {{ arancel.NCM }}{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/arancel.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="max-w-3xl mx-auto">
     <nav class="mb-5" aria-label="Breadcrumb">
@@ -276,65 +280,6 @@
 </div>
 {% endblock content %}
 
-{% block styles %}
-<style>
-    /* Estilos para la línea de tiempo */
-    .timeline {
-        position: relative;
-        padding-left: 20px;
-    }
-    
-    .timeline:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 4px;
-        background: #007bff;
-    }
-    
-    .timeline-item {
-        position: relative;
-        margin-bottom: 25px;
-        padding-left: 40px;
-    }
-    
-    .timeline-item:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 5px;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: #fff;
-        border: 4px solid #007bff;
-    }
-    
-    .timeline-date {
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #007bff;
-    }
-    
-    .timeline-content {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .timeline-title {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-</style>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-<script>
-    // No se requiere código JavaScript para la funcionalidad actual
-</script>
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/arancel.js') }}"></script>
 {% endblock %}

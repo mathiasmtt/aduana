@@ -1,0 +1,532 @@
+/* Estilos para la página de cálculo de costos de importación */
+
+/* Estilos para la tabla de costos */
+.costo-table-container {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+.costo-table {
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.costo-table thead {
+    background-color: #f3f4f6;
+}
+
+.dark .costo-table thead {
+    background-color: #374151;
+}
+
+.costo-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.dark .costo-table th {
+    color: #d1d5db;
+}
+
+.costo-table td {
+    padding: 1rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+}
+
+/* Estilos para las celdas de total y subtotal */
+.costo-table .total-row td {
+    background-color: #f9fafb;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dark .costo-table .total-row td {
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+.costo-table .subtotal-cell {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+}
+
+.dark .costo-table .subtotal-cell {
+    background-color: #4b5563;
+    color: #e5e7eb;
+}
+
+/* Estilos para los inputs dentro de la tabla */
+.costo-input {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.costo-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    outline: none;
+}
+
+.dark .costo-input {
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.dark .costo-input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+/* Estilos para inputs deshabilitados */
+.costo-input:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.dark .costo-input:disabled {
+    background-color: #374151;
+}
+
+/* Estilos para las etiquetas con iconos de calculadora */
+.calc-icon {
+    color: #3b82f6;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+.dark .calc-icon {
+    color: #60a5fa;
+}
+
+/* Estilos para el panel principal */
+.costo-panel {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+}
+
+.dark .costo-panel {
+    background-color: #1f2937;
+}
+
+.costo-panel-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .costo-panel-header {
+    border-color: #4b5563;
+}
+
+.costo-panel-title {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.dark .costo-panel-title {
+    color: #f9fafb;
+}
+
+.costo-panel-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.dark .costo-panel-date {
+    color: #9ca3af;
+}
+
+.costo-panel-body {
+    padding: 1.5rem;
+}
+
+/* Estilos para navegación "breadcrumb" */
+.costo-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1.25rem;
+}
+
+.dark .costo-breadcrumb {
+    color: #9ca3af;
+}
+
+.costo-breadcrumb-separator {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    margin: 0 0.25rem;
+}
+
+.costo-breadcrumb-link {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.costo-breadcrumb-link:hover {
+    color: #3b82f6;
+}
+
+.dark .costo-breadcrumb-link {
+    color: #9ca3af;
+}
+
+.dark .costo-breadcrumb-link:hover {
+    color: #60a5fa;
+}
+
+.costo-breadcrumb-current {
+    color: #111827;
+    font-weight: 500;
+}
+
+.dark .costo-breadcrumb-current {
+    color: #e5e7eb;
+}
+
+/* Animaciones para cuando cambian los valores */
+@keyframes highlight {
+    0% {
+        background-color: rgba(59, 130, 246, 0.2);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-change {
+    animation: highlight 1s ease-out;
+}
+
+/* Sistema de tarjetas para móviles */
+.costo-cards-container {
+    display: none; /* Por defecto oculto, se muestra en móviles */
+}
+
+.costo-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.dark .costo-card {
+    background-color: #1f2937;
+}
+
+.costo-card-header {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #111827;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dark .costo-card-header {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+.costo-card-body {
+    padding: 1rem;
+}
+
+.costo-card-section {
+    margin-bottom: 1.5rem;
+}
+
+.costo-card-section-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dark .costo-card-section-title {
+    color: #9ca3af;
+}
+
+.costo-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.dark .costo-card-row {
+    border-color: #374151;
+}
+
+.costo-card-row:last-child {
+    border-bottom: none;
+}
+
+.costo-card-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+}
+
+.dark .costo-card-label {
+    color: #9ca3af;
+}
+
+.costo-card-value {
+    min-width: 120px;
+    text-align: right;
+}
+
+.costo-card-total {
+    font-weight: 700;
+    color: #111827;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dark .costo-card-total {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+.costo-card-total-value {
+    font-size: 1.125rem;
+}
+
+/* Navegación de tarjetas */
+.costo-tabs {
+    display: flex;
+    overflow-x: auto;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+    -webkit-overflow-scrolling: touch; /* Mejora el scroll en iOS */
+    scrollbar-width: none; /* Oculta scrollbar en Firefox */
+}
+
+.costo-tabs::-webkit-scrollbar {
+    display: none; /* Oculta scrollbar en Chrome/Safari */
+}
+
+.dark .costo-tabs {
+    background-color: #1f2937;
+    border-color: #4b5563;
+}
+
+.costo-tab {
+    padding: 0.75rem 1.25rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    color: #6b7280;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.dark .costo-tab {
+    color: #9ca3af;
+}
+
+.costo-tab.active {
+    color: #3b82f6;
+    border-color: #3b82f6;
+    font-weight: 600;
+}
+
+.dark .costo-tab.active {
+    color: #60a5fa;
+    border-color: #60a5fa;
+}
+
+.costo-tab-content {
+    display: none;
+}
+
+.costo-tab-content.active {
+    display: block;
+}
+
+/* Totales finales para la vista móvil */
+.costo-mobile-totals {
+    margin-top: 1.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.dark .costo-mobile-totals {
+    background-color: #1f2937;
+}
+
+.costo-mobile-totals-header {
+    padding: 0.75rem 1rem;
+    background-color: #f3f4f6;
+    color: #111827;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .costo-mobile-totals-header {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+.costo-mobile-totals-body {
+    padding: 0.75rem 1rem;
+}
+
+.costo-mobile-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .costo-mobile-total-row {
+    border-color: #4b5563;
+}
+
+.costo-mobile-total-row:last-child {
+    border-bottom: none;
+}
+
+.costo-mobile-grand-total {
+    font-weight: 700;
+    color: #111827;
+    background-color: #e5e7eb;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #d1d5db;
+}
+
+.dark .costo-mobile-grand-total {
+    background-color: #4b5563;
+    color: #f9fafb;
+    border-color: #6b7280;
+}
+
+/* Modo de visualización en acordeón para móviles */
+.costo-accordion {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    margin-bottom: 0.75rem;
+}
+
+.dark .costo-accordion {
+    border-color: #4b5563;
+}
+
+.costo-accordion-header {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dark .costo-accordion-header {
+    background-color: #374151;
+    color: #d1d5db;
+}
+
+.costo-accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.costo-accordion.open .costo-accordion-body {
+    max-height: 500px; /* Altura máxima para la animación */
+}
+
+.costo-accordion-content {
+    padding: 1rem;
+}
+
+.costo-accordion-icon {
+    transition: transform 0.3s;
+}
+
+.costo-accordion.open .costo-accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .costo-panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .costo-table td,
+    .costo-table th {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .costo-input {
+        padding: 0.25rem;
+    }
+}
+
+/* Cambio de vista de tabla a tarjetas */
+@media (max-width: 640px) {
+    .costo-table-container {
+        display: none; /* Oculta la tabla en móviles */
+    }
+    
+    .costo-cards-container {
+        display: block; /* Muestra las tarjetas en móviles */
+    }
+    
+    .costo-panel-body {
+        padding: 0.75rem;
+    }
+} 

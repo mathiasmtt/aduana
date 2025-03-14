@@ -1,0 +1,271 @@
+/* Estilos para la página de visualización de resoluciones */
+
+/* Contenedor principal */
+.resolucion-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Cabecera con título y botón de volver */
+.resolucion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.resolucion-titulo {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+}
+
+.resolucion-titulo i {
+    margin-right: 0.5rem;
+}
+
+.dark .resolucion-titulo {
+    color: #f9fafb;
+}
+
+.volver-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    background-color: #4b5563;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.volver-btn:hover {
+    background-color: #374151;
+}
+
+.volver-btn i {
+    margin-right: 0.5rem;
+}
+
+/* Tarjeta de contenido */
+.resolucion-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.dark .resolucion-card {
+    background-color: #1f2937;
+}
+
+/* Secciones dentro de la tarjeta */
+.resolucion-section {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .resolucion-section {
+    border-color: #4b5563;
+}
+
+.resolucion-section:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.resolucion-section-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1f2937;
+}
+
+.dark .resolucion-section-titulo {
+    color: #f9fafb;
+}
+
+/* Grids y alineación */
+.resolucion-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .resolucion-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.resolucion-campo {
+    margin-bottom: 1rem;
+}
+
+.resolucion-campo:last-child {
+    margin-bottom: 0;
+}
+
+.resolucion-campo-etiqueta {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.dark .resolucion-campo-etiqueta {
+    color: #9ca3af;
+}
+
+.resolucion-campo-valor {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.dark .resolucion-campo-valor {
+    color: #f9fafb;
+}
+
+/* Bloque de texto con formato */
+.resolucion-texto-bloque {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.dark .resolucion-texto-bloque {
+    background-color: #374151;
+}
+
+.resolucion-texto {
+    color: #1f2937;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
+.dark .resolucion-texto {
+    color: #e5e7eb;
+}
+
+/* Enlaces a documentos */
+.enlaces-documentos {
+    margin-top: 1rem;
+}
+
+.enlaces-documentos-titulo {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.dark .enlaces-documentos-titulo {
+    color: #9ca3af;
+}
+
+.enlaces-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.enlace-documento {
+    display: inline-flex;
+    align-items: center;
+    color: #2563eb;
+    transition: color 0.2s;
+}
+
+.enlace-documento:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.enlace-documento i {
+    margin-right: 0.5rem;
+}
+
+.dark .enlace-documento {
+    color: #3b82f6;
+}
+
+.dark .enlace-documento:hover {
+    color: #60a5fa;
+}
+
+/* Sección de opciones administrativas */
+.opciones-admin {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+}
+
+.dark .opciones-admin {
+    background-color: #1f2937;
+}
+
+.opciones-admin-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+}
+
+.opciones-admin-titulo i {
+    margin-right: 0.5rem;
+}
+
+.dark .opciones-admin-titulo {
+    color: #f9fafb;
+}
+
+.opciones-botones {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Botones de acción */
+.boton-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.boton-accion i {
+    margin-right: 0.5rem;
+}
+
+.boton-editar {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.boton-editar:hover {
+    background-color: #1d4ed8;
+}
+
+.boton-eliminar {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.boton-eliminar:hover {
+    background-color: #b91c1c;
+} 

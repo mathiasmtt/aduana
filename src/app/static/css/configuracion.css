@@ -1,0 +1,196 @@
+/* Estilos para la página de configuración */
+
+/* Estilos para el toggle switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: #3B82F6;
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px #3B82F6;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* Estilo para las tarjetas de configuración */
+.config-card {
+    transition: all 0.3s ease;
+}
+
+.config-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para el encabezado principal */
+.config-header {
+    background-image: linear-gradient(to right, #2563eb, #7c3aed);
+    padding: 1rem 1.5rem;
+}
+
+/* Estilos para los botones de mantenimiento */
+.maintenance-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-verify {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.btn-verify:hover {
+    background-color: #bfdbfe;
+}
+
+.btn-backup {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.btn-backup:hover {
+    background-color: #a7f3d0;
+}
+
+.btn-index {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.btn-index:hover {
+    background-color: #fde68a;
+}
+
+.btn-cache {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+}
+
+.btn-cache:hover {
+    background-color: #e9d5ff;
+}
+
+.btn-users {
+    background-color: #e0e7ff;
+    color: #3730a3;
+}
+
+.btn-users:hover {
+    background-color: #c7d2fe;
+}
+
+/* Estilos para el modal de confirmación */
+.modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 28rem;
+    width: 100%;
+    margin: 0 1rem;
+}
+
+.modal-hidden {
+    display: none;
+}
+
+/* Modo oscuro */
+.dark .btn-verify {
+    background-color: #1e40af;
+    color: #dbeafe;
+}
+
+.dark .btn-verify:hover {
+    background-color: #1e3a8a;
+}
+
+.dark .btn-backup {
+    background-color: #065f46;
+    color: #d1fae5;
+}
+
+.dark .btn-backup:hover {
+    background-color: #064e3b;
+}
+
+.dark .btn-index {
+    background-color: #92400e;
+    color: #fef3c7;
+}
+
+.dark .btn-index:hover {
+    background-color: #78350f;
+}
+
+.dark .btn-cache {
+    background-color: #6b21a8;
+    color: #f3e8ff;
+}
+
+.dark .btn-cache:hover {
+    background-color: #581c87;
+}
+
+.dark .btn-users {
+    background-color: #3730a3;
+    color: #e0e7ff;
+}
+
+.dark .btn-users:hover {
+    background-color: #312e81;
+}
+
+.dark .modal-container {
+    background-color: #1f2937;
+    color: #f3f4f6;
+} 

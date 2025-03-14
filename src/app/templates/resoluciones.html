@@ -2,9 +2,13 @@
 
 {% block title %}Resoluciones - Sistema de Aranceles{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/resoluciones.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
+<div class="container-resoluciones container mx-auto px-4 py-8">
+    <h1 class="titulo-principal text-3xl font-bold mb-6 text-gray-800 dark:text-white">
         <i class="fas fa-file-contract mr-2"></i>RESOLUCIONES DE CLASIFICACIÓN ARANCELARIA
     </h1>
     
@@ -17,33 +21,36 @@
         </div>
         
         <!-- Formulario de búsqueda -->
-        <div class="mb-6">
-            <form method="GET" action="{{ url_for('main.resoluciones') }}" class="space-y-4">
+        <div class="busqueda-container mb-6">
+            <form id="busquedaForm" method="GET" action="{{ url_for('main.resoluciones') }}" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Año</label>
-                        <select id="year" name="year" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="year" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Año</label>
+                        <select id="year" name="year" class="form-select w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             <option value="">Todos</option>
                             {% for y in range(2025, 2019, -1) %}
                             <option value="{{ y }}" {% if request.args.get('year')|int == y %}selected{% endif %}>{{ y }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div>
-                        <label for="numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número</label>
-                        <input type="number" id="numero" name="numero" value="{{ request.args.get('numero', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
+                    <div class="form-field">
+                        <label for="numero" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Número</label>
+                        <input type="number" id="numero" name="numero" value="{{ request.args.get('numero', '') }}" class="form-input w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
                     </div>
-                    <div>
-                        <label for="ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">NCM</label>
-                        <input type="text" id="ncm" name="ncm" value="{{ request.args.get('ncm', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10">
+                    <div class="form-field">
+                        <label for="ncm" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">NCM</label>
+                        <input type="text" id="ncm" name="ncm" value="{{ request.args.get('ncm', '') }}" class="form-input w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10">
                     </div>
-                    <div>
-                        <label for="concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Concepto</label>
-                        <input type="text" id="concepto" name="concepto" value="{{ request.args.get('concepto', '') }}" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: Vehículo">
+                    <div class="form-field">
+                        <label for="concepto" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Concepto</label>
+                        <input type="text" id="concepto" name="concepto" value="{{ request.args.get('concepto', '') }}" class="form-input w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: Vehículo">
                     </div>
                 </div>
                 <div class="flex justify-end">
-                    <button type="submit" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                    <button id="limpiarBtn" type="button" class="form-button mr-2 py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">
+                        <i class="fas fa-eraser mr-2"></i>Limpiar
+                    </button>
+                    <button id="buscarBtn" type="submit" class="form-button py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
                         <i class="fas fa-search mr-2"></i>Buscar
                     </button>
                 </div>
@@ -52,7 +59,7 @@
         
         <!-- Tabla de resoluciones -->
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <table class="tabla-resoluciones min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-700">
                         <th class="py-3 px-4 border-b border-gray-200 dark:border-gray-600 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Año</th>
@@ -76,7 +83,7 @@
                                 <div class="flex justify-center space-x-2">
                                     <!-- Botón Ver -->
                                     <a href="{{ url_for('main.ver_resolucion', id=res.id) }}" 
-                                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                                       class="accion-ver accion-icono text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
                                        title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -84,17 +91,27 @@
                                     {% if current_user.is_admin %}
                                     <!-- Botón Modificar -->
                                     <button type="button" 
-                                            onclick="prepararEdicion({{ res.id }}, {{ res.year }}, {{ res.numero }}, '{{ res.fecha }}', '{{ res.referencia|replace("'", "\\'") }}', '{{ res.dictamen|replace("'", "\\'") }}', '{{ res.resolucion|default('')|replace("'", "\\'") }}', '{{ res.url_dictamen|default('') }}', '{{ res.url_resolucion|default('') }}')"
-                                            class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
-                                            title="Editar">
+                                            class="accion-editar accion-icono text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
+                                            title="Editar"
+                                            data-id="{{ res.id }}"
+                                            data-anio="{{ res.year }}"
+                                            data-numero="{{ res.numero }}"
+                                            data-fecha="{{ res.fecha }}"
+                                            data-ncm="{{ res.referencia }}"
+                                            data-concepto="{{ res.dictamen }}"
+                                            data-resolucion="{{ res.resolucion|default('') }}"
+                                            data-url-dictamen="{{ res.url_dictamen|default('') }}"
+                                            data-url-resolucion="{{ res.url_resolucion|default('') }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     
                                     <!-- Botón Eliminar -->
                                     <button type="button" 
-                                            onclick="confirmarEliminacion({{ res.id }}, {{ res.year }}, {{ res.numero }})"
-                                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
-                                            title="Eliminar">
+                                            class="accion-eliminar accion-icono text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
+                                            title="Eliminar"
+                                            data-id="{{ res.id }}"
+                                            data-anio="{{ res.year }}"
+                                            data-numero="{{ res.numero }}">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     {% endif %}
@@ -126,8 +143,8 @@
     
     <!-- SECCIÓN EXCLUSIVA PARA ADMINISTRADORES: Agregar resoluciones manualmente -->
     {% if current_user.is_admin %}
-    <div class="mt-8 bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+    <div class="formulario-container mt-8 bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <h2 class="formulario-titulo text-2xl font-bold mb-4 text-gray-800 dark:text-white">
             <i class="fas fa-plus-circle mr-2"></i>Agregar Nueva Resolución
         </h2>
         <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
@@ -137,65 +154,65 @@
         </div>
         
         <!-- Formulario para agregar resoluciones -->
-        <form method="POST" action="{{ url_for('main.agregar_resolucion') }}" class="space-y-6">
+        <form method="POST" action="{{ url_for('main.agregar_resolucion') }}" class="formulario-seccion space-y-6">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="formulario-grid grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Primera columna -->
                 <div class="space-y-4">
-                    <div>
-                        <label for="add_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
-                        <select id="add_year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="add_year" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
+                        <select id="add_year" name="year" required class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             {% for y in range(2025, 2019, -1) %}
                             <option value="{{ y }}">{{ y }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     
-                    <div>
-                        <label for="add_numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
-                        <input type="number" id="add_numero" name="numero" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
+                    <div class="form-field">
+                        <label for="add_numero" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
+                        <input type="number" id="add_numero" name="numero" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 123">
                     </div>
                     
-                    <div>
-                        <label for="add_fecha" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
-                        <input type="date" id="add_fecha" name="fecha" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="add_fecha" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
+                        <input type="date" id="add_fecha" name="fecha" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                 </div>
                 
                 <!-- Segunda columna -->
                 <div class="space-y-4">
-                    <div>
-                        <label for="add_ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
-                        <input type="text" id="add_ncm" name="ncm" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10.00">
+                    <div class="form-field">
+                        <label for="add_ncm" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
+                        <input type="text" id="add_ncm" name="ncm" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: 8471.50.10.00">
                     </div>
                     
-                    <div>
-                        <label for="add_concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
-                        <textarea id="add_concepto" name="concepto" required rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Descripción del producto o mercadería"></textarea>
+                    <div class="form-field">
+                        <label for="add_concepto" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
+                        <textarea id="add_concepto" name="concepto" required rows="3" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Descripción del producto o mercadería"></textarea>
                     </div>
                 </div>
             </div>
             
-            <div>
-                <label for="add_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
-                <textarea id="add_resolucion" name="resolucion" rows="4" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Texto completo de la resolución (opcional)"></textarea>
+            <div class="form-field">
+                <label for="add_resolucion" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
+                <textarea id="add_resolucion" name="resolucion" rows="4" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Texto completo de la resolución (opcional)"></textarea>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="add_url_dictamen" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Dictamen</label>
-                    <input type="url" id="add_url_dictamen" name="url_dictamen" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="https://example.com/dictamen">
+            <div class="formulario-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                    <label for="add_url_dictamen" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Dictamen</label>
+                    <input type="url" id="add_url_dictamen" name="url_dictamen" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="https://example.com/dictamen">
                 </div>
                 
-                <div>
-                    <label for="add_url_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL de la Resolución</label>
-                    <input type="url" id="add_url_resolucion" name="url_resolucion" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="https://example.com/resolucion">
+                <div class="form-field">
+                    <label for="add_url_resolucion" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">URL de la Resolución</label>
+                    <input type="url" id="add_url_resolucion" name="url_resolucion" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="https://example.com/resolucion">
                 </div>
             </div>
             
             <div class="flex justify-end">
-                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <button id="guardarResolucion" type="submit" class="form-button inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     <i class="fas fa-save mr-2"></i>Guardar Resolución
                 </button>
             </div>
@@ -203,171 +220,90 @@
     </div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Establecer la fecha actual por defecto en el formulario de agregar
-        const fechaInput = document.getElementById('add_fecha');
-        if (fechaInput) {
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            fechaInput.value = formattedDate;
-        }
-    });
-    
-    // Modal de edición
-    function prepararEdicion(id, year, numero, fecha, ncm, concepto, resolucion, url_dictamen, url_resolucion) {
-        // Rellenar el formulario con los datos de la resolución
-        const form = document.getElementById('editForm');
-        if (form) {
-            document.getElementById('edit_id').value = id;
-            document.getElementById('edit_year').value = year;
-            document.getElementById('edit_numero').value = numero;
-            document.getElementById('edit_fecha').value = formatDate(fecha);
-            document.getElementById('edit_ncm').value = ncm;
-            document.getElementById('edit_concepto').value = concepto;
-            document.getElementById('edit_resolucion').value = resolucion || '';
-            document.getElementById('edit_url_dictamen').value = url_dictamen || '';
-            document.getElementById('edit_url_resolucion').value = url_resolucion || '';
-            
-            // Mostrar el modal
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-    }
-    
-    // Función para formatear la fecha de DD/MM/YYYY a YYYY-MM-DD para el input date
-    function formatDate(dateString) {
-        // Si ya tiene formato YYYY-MM-DD, devolverlo tal cual
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-            return dateString;
-        }
-        
-        // Formato esperado: DD/MM/YYYY
-        const parts = dateString.split('/');
-        if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        
-        // Si no se puede formatear, devolver la fecha actual
-        const today = new Date();
-        return today.toISOString().split('T')[0];
-    }
-    
-    // Cerrar el modal de edición
-    function cerrarEditModal() {
-        document.getElementById('editModal').classList.add('hidden');
-    }
-    
-    // Confirmar eliminación
-    function confirmarEliminacion(id, year, numero) {
-        if (confirm(`¿Está seguro que desea eliminar la resolución ${numero}/${year}?`)) {
-            // Enviar solicitud de eliminación
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ url_for('main.eliminar_resolucion') }}";
-            
-            // Agregar token CSRF
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = 'csrf_token';
-            csrfToken.value = "{{ csrf_token() }}";
-            form.appendChild(csrfToken);
-            
-            // Agregar ID de la resolución
-            const idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'id';
-            idInput.value = id;
-            form.appendChild(idInput);
-            
-            // Enviar el formulario
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-</script>
 
 <!-- Modal para editar resolución -->
-<div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
-        <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">
+<div id="editarModal" class="modal-overlay hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="modal-container relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="modal-header flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="modal-title text-xl font-semibold text-gray-800 dark:text-white">
                 <i class="fas fa-edit mr-2"></i>Editar Resolución
             </h3>
-            <button onclick="cerrarEditModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
+            <button class="modal-close text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         
         <form id="editForm" method="POST" action="{{ url_for('main.editar_resolucion') }}" class="mt-4 space-y-6">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" id="edit_id" name="id">
+            <input type="hidden" id="editId" name="id">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="formulario-grid grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Primera columna -->
                 <div class="space-y-4">
-                    <div>
-                        <label for="edit_year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
-                        <select id="edit_year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="editAnio" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Año *</label>
+                        <select id="editAnio" name="year" required class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             {% for y in range(2025, 2019, -1) %}
                             <option value="{{ y }}">{{ y }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     
-                    <div>
-                        <label for="edit_numero" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
-                        <input type="number" id="edit_numero" name="numero" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="editNumero" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Número *</label>
+                        <input type="number" id="editNumero" name="numero" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                     
-                    <div>
-                        <label for="edit_fecha" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
-                        <input type="date" id="edit_fecha" name="fecha" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="editFecha" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha *</label>
+                        <input type="date" id="editFecha" name="fecha" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                 </div>
                 
                 <!-- Segunda columna -->
                 <div class="space-y-4">
-                    <div>
-                        <label for="edit_ncm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
-                        <input type="text" id="edit_ncm" name="ncm" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <div class="form-field">
+                        <label for="editNcm" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">NCM *</label>
+                        <input type="text" id="editNcm" name="ncm" required class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     </div>
                     
-                    <div>
-                        <label for="edit_concepto" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
-                        <textarea id="edit_concepto" name="concepto" required rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                    <div class="form-field">
+                        <label for="editConcepto" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Concepto/Dictamen *</label>
+                        <textarea id="editConcepto" name="concepto" required rows="3" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
                     </div>
                 </div>
             </div>
             
-            <div>
-                <label for="edit_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
-                <textarea id="edit_resolucion" name="resolucion" rows="4" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+            <div class="form-field">
+                <label for="editResolucion" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">Texto de la Resolución</label>
+                <textarea id="editResolucion" name="resolucion" rows="4" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="edit_url_dictamen" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Dictamen</label>
-                    <input type="url" id="edit_url_dictamen" name="url_dictamen" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            <div class="formulario-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-field">
+                    <label for="editUrlDictamen" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">URL del Dictamen</label>
+                    <input type="url" id="editUrlDictamen" name="url_dictamen" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                 </div>
                 
-                <div>
-                    <label for="edit_url_resolucion" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL de la Resolución</label>
-                    <input type="url" id="edit_url_resolucion" name="url_resolucion" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                <div class="form-field">
+                    <label for="editUrlResolucion" class="form-label block text-sm font-medium text-gray-700 dark:text-gray-300">URL de la Resolución</label>
+                    <input type="url" id="editUrlResolucion" name="url_resolucion" class="form-input mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                 </div>
             </div>
             
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="cerrarEditModal()" class="py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">
+            <div class="modal-footer flex justify-end space-x-3">
+                <button id="cancelarEdicion" type="button" class="form-button py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
-                <button type="submit" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                <button type="submit" class="form-button py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
                     <i class="fas fa-save mr-2"></i>Guardar Cambios
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/resoluciones.js') }}"></script>
 {% endblock %} 

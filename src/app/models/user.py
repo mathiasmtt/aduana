@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app
 from .. import db
 
@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role = db.Column(db.String(20), default='free')  # 'admin', 'vip', 'free'
+    import_role = db.Column(db.String(50), nullable=True)  # 'transportista', 'corredor', 'despachante', 'importador', 'profesional'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
     session_expires_at = db.Column(db.DateTime, nullable=True)
@@ -95,3 +96,49 @@ class User(UserMixin, db.Model):
         remaining = self.session_expires_at - datetime.utcnow()
         # Convertir a minutos
         return max(0, int(remaining.total_seconds() / 60))
+        
+    def has_permission(self, permission):
+        """Verifica si el usuario tiene un permiso específico basado en su rol."""
+        # Definición de permisos por rol
+        permisos_por_rol = {
+            'admin': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos', 'configuracion', 'admin'],
+            'vip': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+            'free': ['inicio', 'buscar', 'secciones'],
+            'transportista': ['inicio', 'buscar', 'secciones', 'grupos'],
+            'corredor': ['inicio', 'buscar', 'secciones', 'grupos'],
+            'despachante': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+            'importador': ['inicio', 'buscar', 'secciones', 'costos', 'resoluciones', 'grupos'],
+            'profesional': ['inicio', 'buscar', 'secciones', 'grupos']
+        }
+        
+        # Obtener permisos del rol principal del usuario
+        user_permissions = permisos_por_rol.get(self.role, [])
+        
+        # Si el usuario tiene un rol de importación, añadir esos permisos también
+        if self.import_role and self.import_role in permisos_por_rol:
+            user_permissions.extend([p for p in permisos_por_rol[self.import_role] if p not in user_permissions])
+            
+        return permission in user_permissions
+
+class AnonymousUser(AnonymousUserMixin):
+    """Clase para representar usuarios no autenticados."""
+    
+    @property
+    def is_admin(self):
+        return False
+        
+    @property
+    def is_vip(self):
+        return False
+        
+    @property
+    def is_free(self):
+        return False
+    
+    @property
+    def session_remaining_time(self):
+        return None
+        
+    def has_permission(self, permission):
+        """Los usuarios anónimos no tienen permisos."""
+        return False

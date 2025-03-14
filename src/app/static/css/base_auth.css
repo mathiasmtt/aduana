@@ -1,0 +1,65 @@
+/* Variables CSS según el sistema de diseño */
+:root {
+    /* Colores primarios */
+    --color-primary: 59, 130, 246; /* rgb values for #3B82F6 */
+    --color-primary-dark: 30, 64, 175;
+    
+    /* Colores secundarios */
+    --color-secondary: 16, 185, 129;
+    --color-secondary-alt: 139, 92, 246;
+    
+    /* Colores neutros */
+    --color-text: 31, 41, 55;
+    --color-text-light: 107, 114, 128;
+    --color-background: 255, 255, 255;
+    --color-background-alt: 243, 244, 246;
+    
+    /* Colores de estado */
+    --color-success: 16, 185, 129;
+    --color-warning: 245, 158, 11;
+    --color-error: 239, 68, 68;
+    --color-info: 59, 130, 246;
+}
+
+.dark {
+    --color-text: 249, 250, 251;
+    --color-text-light: 209, 213, 219;
+    --color-background: 17, 24, 39;
+    --color-background-alt: 31, 41, 55;
+}
+
+/* Estilos específicos para páginas de autenticación */
+.auth-card {
+    transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.auth-input:focus {
+    border-color: rgb(var(--color-primary));
+    box-shadow: 0 0 0 3px rgba(var(--color-primary), 0.2);
+}
+
+.auth-button {
+    transition: all 0.2s ease;
+}
+
+.auth-button:hover {
+    transform: translateY(-1px);
+}
+
+.auth-button:active {
+    transform: translateY(1px);
+}
+
+/* Animación de fade-in para el contenido */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.auth-animate {
+    animation: fadeIn 0.5s ease-out forwards;
+} 

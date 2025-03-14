@@ -69,10 +69,15 @@ def create_app(config_name='default'):
     # Guardar como instancia global
     _app = app
     
-    # Inicializar extensiones con la app
+    # Inicializar extensiones con la aplicación
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    
+    # Configurar el usuario anónimo personalizado
+    from app.models.user import AnonymousUser
+    login_manager.anonymous_user = AnonymousUser
+    
     csrf.init_app(app)
     
     # Inicializar base de datos auxiliares

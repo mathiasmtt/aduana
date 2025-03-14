@@ -1,0 +1,133 @@
+/* Estilos para la página de búsqueda de aranceles */
+
+/* Estilos para el formulario de búsqueda */
+.search-container {
+    transition: all 0.3s ease;
+}
+
+.search-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: rgb(59, 130, 246);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.search-button {
+    transition: all 0.3s ease;
+}
+
+.search-button:hover {
+    transform: translateY(-1px);
+}
+
+/* Estilos para las notas de sección y capítulo */
+.note-container {
+    position: relative;
+}
+
+.note-content {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.note-toggle {
+    transition: all 0.2s ease;
+}
+
+.note-toggle:hover {
+    opacity: 0.8;
+}
+
+.note-text {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+}
+
+/* Indicador de expansión */
+.expand-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9));
+    pointer-events: none;
+}
+
+.dark .expand-indicator {
+    background: linear-gradient(to bottom, transparent, rgba(17, 24, 39, 0.9));
+}
+
+/* Estilos para la tabla de resultados */
+.results-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.results-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+.results-table tbody tr {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.results-table tbody tr:hover {
+    transform: translateX(2px);
+}
+
+.action-link {
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.action-link:hover {
+    transform: translateY(-1px);
+}
+
+.action-link i {
+    transition: transform 0.2s ease;
+}
+
+.action-link:hover i {
+    transform: scale(1.2);
+}
+
+/* Estilos para estados de carga y mensajes */
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.loading-indicator i {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.no-results {
+    transition: all 0.3s ease;
+}
+
+.no-results i {
+    transition: transform 0.5s ease;
+}
+
+.no-results:hover i {
+    transform: scale(1.1);
+} 

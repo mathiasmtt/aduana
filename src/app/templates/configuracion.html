@@ -3,73 +3,14 @@
 {% block title %}Sistema de Aranceles - Configuración{% endblock %}
 
 {% block extra_head %}
-<style>
-    /* Estilos para el toggle switch */
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 48px;
-        height: 24px;
-    }
-    
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 24px;
-    }
-    
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 18px;
-        width: 18px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-    }
-    
-    input:checked + .toggle-slider {
-        background-color: #3B82F6;
-    }
-    
-    input:focus + .toggle-slider {
-        box-shadow: 0 0 1px #3B82F6;
-    }
-    
-    input:checked + .toggle-slider:before {
-        transform: translateX(24px);
-    }
-    
-    /* Estilo para las tarjetas de configuración */
-    .config-card {
-        transition: all 0.3s ease;
-    }
-    
-    .config-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-</style>
+<!-- CSS específico para la página de configuración -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configuracion.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto">
     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+        <div class="config-header">
             <h1 class="text-white text-2xl font-bold">
                 <i class="fas fa-cogs mr-2"></i>Configuración del Sistema
             </h1>
@@ -235,18 +176,27 @@
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                         <h3 class="font-medium text-gray-800 dark:text-gray-200 mb-3">Operaciones de base de datos</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <button id="btn-verificar-db" class="bg-blue-100 hover:bg-blue-200 text-blue-800 dark:bg-blue-800 dark:hover:bg-blue-700 dark:text-blue-100 py-2 px-4 rounded-lg flex items-center">
+                            <button id="btn-verificar-db" class="maintenance-btn btn-verify">
                                 <i class="fas fa-check-circle mr-2"></i> Verificar integridad
                             </button>
-                            <button id="btn-backup-db" class="bg-green-100 hover:bg-green-200 text-green-800 dark:bg-green-800 dark:hover:bg-green-700 dark:text-green-100 py-2 px-4 rounded-lg flex items-center">
+                            <button id="btn-backup-db" class="maintenance-btn btn-backup">
                                 <i class="fas fa-database mr-2"></i> Backup
                             </button>
-                            <button id="btn-actualizar-indices" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-700 dark:text-yellow-100 py-2 px-4 rounded-lg flex items-center">
+                            <button id="btn-actualizar-indices" class="maintenance-btn btn-index">
                                 <i class="fas fa-sync mr-2"></i> Actualizar índices
                             </button>
-                            <button id="btn-limpiar-cache" class="bg-purple-100 hover:bg-purple-200 text-purple-800 dark:bg-purple-800 dark:hover:bg-purple-700 dark:text-purple-100 py-2 px-4 rounded-lg flex items-center">
+                            <button id="btn-limpiar-cache" class="maintenance-btn btn-cache">
                                 <i class="fas fa-broom mr-2"></i> Limpiar caché
                             </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <h3 class="font-medium text-gray-800 dark:text-gray-200 mb-3">Administración de usuarios</h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <a href="{{ url_for('main.admin_usuarios') }}" class="maintenance-btn btn-users text-center">
+                                <i class="fas fa-users-cog mr-2"></i> Gestionar usuarios
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -255,8 +205,8 @@
     </div>
     
     <!-- Modal para confirmar operaciones -->
-    <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <div id="confirmModal" class="hidden modal-overlay">
+        <div class="modal-container dark:bg-gray-800">
             <h3 id="confirmTitle" class="text-lg font-bold text-gray-900 dark:text-white mb-4"></h3>
             <p id="confirmMessage" class="text-gray-600 dark:text-gray-300 mb-6"></p>
             <div class="flex justify-end space-x-3">
@@ -273,113 +223,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const versionSelector = document.getElementById('version-selector');
-        const aplicarBtn = document.getElementById('aplicar-version');
-        
-        // Aplicar versión desde el selector principal
-        aplicarBtn.addEventListener('click', function() {
-            const selectedVersion = versionSelector.value;
-            window.location.href = '{{ url_for("main.set_version") }}?version=' + selectedVersion + '&redirect=configuracion';
-        });
-        
-        // Aplicar versión desde los radio toggles
-        const versionToggles = document.querySelectorAll('input[name="version-toggle"]');
-        versionToggles.forEach(toggle => {
-            toggle.addEventListener('change', function() {
-                if (this.checked) {
-                    const version = this.value;
-                    window.location.href = '{{ url_for("main.set_version") }}?version=' + version + '&redirect=configuracion';
-                }
-            });
-        });
-        
-        // Actualizar el valor del límite de búsqueda
-        const searchLimit = document.getElementById('search-limit');
-        const searchLimitValue = document.getElementById('search-limit-value');
-        
-        if (searchLimit && searchLimitValue) {
-            searchLimitValue.textContent = searchLimit.value;
-            searchLimit.addEventListener('input', function() {
-                searchLimitValue.textContent = this.value;
-            });
-        }
-        
-        // Modal de confirmación
-        const confirmModal = document.getElementById('confirmModal');
-        const confirmTitle = document.getElementById('confirmTitle');
-        const confirmMessage = document.getElementById('confirmMessage');
-        const confirmModalBtn = document.getElementById('confirmModalBtn');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        
-        function showConfirmModal(title, message, callback) {
-            confirmTitle.textContent = title;
-            confirmMessage.textContent = message;
-            confirmModal.classList.remove('hidden');
-            
-            confirmModalBtn.onclick = function() {
-                callback();
-                confirmModal.classList.add('hidden');
-            };
-            
-            cancelModalBtn.onclick = function() {
-                confirmModal.classList.add('hidden');
-            };
-        }
-        
-        // Botones de mantenimiento
-        document.getElementById('btn-verificar-db').addEventListener('click', function() {
-            showConfirmModal(
-                'Verificar integridad de la base de datos',
-                '¿Desea realizar una verificación de integridad de la base de datos? Esta operación puede tardar varios minutos.',
-                function() {
-                    // Aquí iría la lógica para verificar la integridad
-                    alert('Verificación iniciada. Se le notificará cuando finalice.');
-                }
-            );
-        });
-        
-        document.getElementById('btn-backup-db').addEventListener('click', function() {
-            showConfirmModal(
-                'Backup de la base de datos',
-                '¿Desea crear un backup de la base de datos actual?',
-                function() {
-                    // Aquí iría la lógica para crear un backup
-                    alert('Backup iniciado. Se le notificará cuando finalice.');
-                }
-            );
-        });
-        
-        document.getElementById('btn-actualizar-indices').addEventListener('click', function() {
-            showConfirmModal(
-                'Actualizar índices',
-                '¿Desea actualizar los índices de la base de datos? Esto puede mejorar el rendimiento de las búsquedas.',
-                function() {
-                    // Aquí iría la lógica para actualizar índices
-                    alert('Actualización de índices iniciada. Se le notificará cuando finalice.');
-                }
-            );
-        });
-        
-        document.getElementById('btn-limpiar-cache').addEventListener('click', function() {
-            showConfirmModal(
-                'Limpiar caché',
-                '¿Desea limpiar la caché del sistema? Esto puede ayudar a resolver problemas de rendimiento.',
-                function() {
-                    // Aquí iría la lógica para limpiar la caché
-                    alert('Limpieza de caché iniciada. Se le notificará cuando finalice.');
-                }
-            );
-        });
-        
-        // Guardar configuración de visualización y búsqueda
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                console.log(`Configuración ${this.id} cambiada a: ${this.checked}`);
-                // Aquí se agregaría la lógica para guardar la configuración
-            });
-        });
-    });
-</script>
+<!-- JavaScript para la página de configuración -->
+<script src="{{ url_for('static', filename='js/configuracion.js') }}"></script>
 {% endblock %} 

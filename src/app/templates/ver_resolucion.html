@@ -2,58 +2,73 @@
 
 {% block title %}Resolución {{ resolucion.year }}/{{ resolucion.numero }} - Sistema de Aranceles{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ver_resolucion.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+<div class="resolucion-container container mx-auto px-4 py-8">
+    <div class="resolucion-header flex justify-between items-center mb-6">
+        <h1 class="resolucion-titulo text-3xl font-bold text-gray-800 dark:text-white">
             <i class="fas fa-file-contract mr-2"></i>Resolución {{ resolucion.year }}/{{ resolucion.numero }}
         </h1>
-        <a href="{{ url_for('main.resoluciones') }}" class="py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-200">
+        <a href="{{ url_for('main.resoluciones') }}" class="volver-btn py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition duration-200">
             <i class="fas fa-arrow-left mr-2"></i>Volver a Resoluciones
         </a>
     </div>
     
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-8">
+    <div class="resolucion-card bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 mb-8">
         <!-- Información general -->
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+        <div class="resolucion-section border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <h2 class="resolucion-section-titulo text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                 Información General
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="resolucion-grid grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Primera columna -->
                 <div>
-                    <div class="mb-4">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Número de Resolución</h3>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.year }}/{{ resolucion.numero }}</p>
+                    <div class="resolucion-campo mb-4">
+                        <h3 class="resolucion-campo-etiqueta text-sm font-medium text-gray-500 dark:text-gray-400">Número de Resolución</h3>
+                        <p class="resolucion-campo-valor text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.year }}/{{ resolucion.numero }}</p>
                     </div>
                     
-                    <div class="mb-4">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Emisión</h3>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.fecha }}</p>
+                    <div class="resolucion-campo mb-4">
+                        <h3 class="resolucion-campo-etiqueta text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Emisión</h3>
+                        <p class="resolucion-campo-valor text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.fecha }}</p>
                     </div>
                 </div>
                 
                 <!-- Segunda columna -->
                 <div>
-                    <div class="mb-4">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Código NCM</h3>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ resolucion.referencia }}</p>
+                    <div class="resolucion-campo mb-4">
+                        <h3 class="resolucion-campo-etiqueta text-sm font-medium text-gray-500 dark:text-gray-400">Código NCM</h3>
+                        <p class="resolucion-campo-valor text-lg font-semibold text-gray-900 dark:text-white" 
+                           id="ncm-valor" 
+                           onclick="copiarNCM('{{ resolucion.referencia }}')" 
+                           title="Haga clic para copiar">
+                            {{ resolucion.referencia }}
+                        </p>
                     </div>
                     
                     <!-- Enlaces a documentos -->
                     {% if resolucion.url_dictamen or resolucion.url_resolucion %}
-                    <div class="mt-4">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Enlaces a documentos</h3>
-                        <div class="flex flex-col gap-2">
+                    <div class="enlaces-documentos mt-4">
+                        <h3 class="enlaces-documentos-titulo text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Enlaces a documentos</h3>
+                        <div class="enlaces-lista flex flex-col gap-2">
                             {% if resolucion.url_dictamen %}
-                            <a href="{{ resolucion.url_dictamen }}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
+                            <a href="{{ resolucion.url_dictamen }}" 
+                               target="_blank" 
+                               class="enlace-documento inline-flex items-center text-blue-600 hover:underline"
+                               onclick="abrirEnlaceExterno('{{ resolucion.url_dictamen }}'); return false;">
                                 <i class="fas fa-external-link-alt mr-2"></i>Ver dictamen original
                             </a>
                             {% endif %}
                             
                             {% if resolucion.url_resolucion %}
-                            <a href="{{ resolucion.url_resolucion }}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
+                            <a href="{{ resolucion.url_resolucion }}" 
+                               target="_blank" 
+                               class="enlace-documento inline-flex items-center text-blue-600 hover:underline"
+                               onclick="abrirEnlaceExterno('{{ resolucion.url_resolucion }}'); return false;">
                                 <i class="fas fa-external-link-alt mr-2"></i>Ver resolución original
                             </a>
                             {% endif %}
@@ -65,23 +80,23 @@
         </div>
         
         <!-- Concepto/Dictamen -->
-        <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+        <div class="resolucion-section border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <h2 class="resolucion-section-titulo text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                 Concepto/Dictamen
             </h2>
-            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p class="text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.dictamen }}</p>
+            <div class="resolucion-texto-bloque p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p class="resolucion-texto text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.dictamen }}</p>
             </div>
         </div>
         
         <!-- Texto de la Resolución -->
         {% if resolucion.resolucion %}
-        <div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+        <div class="resolucion-section">
+            <h2 class="resolucion-section-titulo text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                 Texto Completo de la Resolución
             </h2>
-            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p class="text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.resolucion }}</p>
+            <div class="resolucion-texto-bloque p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p class="resolucion-texto text-gray-900 dark:text-gray-200 whitespace-pre-line">{{ resolucion.resolucion }}</p>
             </div>
         </div>
         {% endif %}
@@ -89,21 +104,21 @@
     
     <!-- Opciones administrativas -->
     {% if current_user.is_admin %}
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+    <div class="opciones-admin bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <h2 class="opciones-admin-titulo text-2xl font-bold mb-4 text-gray-800 dark:text-white">
             <i class="fas fa-cog mr-2"></i>Opciones Administrativas
         </h2>
         
-        <div class="flex space-x-4">
+        <div class="opciones-botones flex space-x-4">
             <button type="button" 
                     id="btnEditar"
-                    class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
+                    class="boton-accion boton-editar py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200">
                 <i class="fas fa-edit mr-2"></i>Editar Resolución
             </button>
             
             <button type="button" 
                     id="btnEliminar"
-                    class="py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">
+                    class="boton-accion boton-eliminar py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">
                 <i class="fas fa-trash-alt mr-2"></i>Eliminar Resolución
             </button>
         </div>
@@ -133,50 +148,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Este código JavaScript puro no tendrá problemas con el linter
-    document.addEventListener('DOMContentLoaded', function() {
-        // Solo ejecutar si es administrador y existen los elementos
-        var btnEditar = document.getElementById('btnEditar');
-        var btnEliminar = document.getElementById('btnEliminar');
-        var dataElement = document.getElementById('resolucion-data');
-        
-        if (btnEditar && btnEliminar && dataElement) {
-            // Obtenemos los datos JSON
-            var resolucionData = JSON.parse(dataElement.textContent);
-            
-            // Configurar el botón Editar
-            btnEditar.addEventListener('click', function() {
-                window.location.href = resolucionData.urlResoluciones + "?edit=true&id=" + resolucionData.id;
-            });
-            
-            // Configurar el botón Eliminar
-            btnEliminar.addEventListener('click', function() {
-                if (confirm('¿Está seguro que desea eliminar la Resolución ' + resolucionData.year + '/' + resolucionData.numero + '?')) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = resolucionData.urlEliminar;
-                    
-                    // Agregar el token CSRF
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = 'csrf_token';
-                    csrfToken.value = resolucionData.csrfToken;
-                    form.appendChild(csrfToken);
-                    
-                    // Agregar el ID de la resolución
-                    const idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.name = 'id';
-                    idInput.value = resolucionData.id;
-                    form.appendChild(idInput);
-                    
-                    // Agregar el formulario al documento y enviarlo
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/ver_resolucion.js') }}"></script>
 {% endblock %} 

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema de Grupos de Importación{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sistema_grupo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Sistema de Grupos de Importación</h1>
+  
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow-md p-4 mb-6">
+    <p class="mb-3 dark:text-gray-200">
+      Este sistema simula la unión de las distintas partes involucradas en una importación:
+      transportistas, corredores de seguros, despachantes de aduana, importadores y Profesionales asociados.
+    </p>
+    <p class="dark:text-gray-200">
+      Los grupos se forman dinámicamente y una vez completos, desaparecen después de 3 segundos.
+    </p>
+  </div>
+  
+  <div id="controls-section" class="mb-6">
+    <!-- Sección de controles generada por JavaScript -->
+    <!-- Botón y filtros aparecerán aquí -->
+  </div>
+  
+  <div id="user-panel" class="mb-6">
+    <!-- Panel de usuario específico de rol (si está autenticado) -->
+  </div>
+  
+  <div id="available-groups" class="mb-6 hidden">
+    <!-- Grupos disponibles para unirse -->
+  </div>
+  
+  <div id="import-groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Aquí aparecerán las tarjetas de grupos -->
+  </div>
+</div>
+
+<!-- Datos para JavaScript -->
+<script type="application/json" id="sistema-grupo-data">
+{
+  "userRole": "{{ current_user.import_role if current_user.import_role else '' }}",
+  "containerId": "import-groups-container",
+  "controlsSectionId": "controls-section",
+  "userPanelId": "user-panel",
+  "availableGroupsId": "available-groups"
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/sistema_grupo.js') }}"></script>
+{% endblock %} 

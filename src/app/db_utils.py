@@ -232,6 +232,53 @@ def check_versions(app=None):
     # Ya no es necesario verificar el enlace simbólico a la base de datos principal
     # puesto que ya no se crea la base de datos predeterminada
 
+def get_latest_version():
+    """
+    Obtiene la versión más reciente disponible.
+    
+    Returns:
+        str: La versión más reciente, o None si no hay versiones disponibles.
+    """
+    versions = get_available_versions()
+    return versions[0] if versions else None
+
+def get_all_versions():
+    """
+    Obtiene todas las versiones disponibles.
+    
+    Returns:
+        list: Lista de todas las versiones disponibles.
+    """
+    return get_available_versions()
+
+def get_active_db():
+    """
+    Obtiene la conexión a la base de datos activa para la sesión actual.
+    
+    Returns:
+        Session: La sesión de SQLAlchemy activa.
+    """
+    return get_db()
+
+def set_arancel_version(version):
+    """
+    Establece la versión de arancel para la sesión actual.
+    
+    Args:
+        version (str): La versión a establecer.
+        
+    Returns:
+        bool: True si se estableció correctamente, False en caso contrario.
+    """
+    from flask import session
+    
+    try:
+        session['arancel_version'] = version
+        return True
+    except Exception as e:
+        logging.error(f"Error al establecer la versión del arancel: {str(e)}")
+        return False
+
 # Mapa de nombres de meses
 meses_map = {
     '01': 'Enero',

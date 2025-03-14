@@ -1,0 +1,80 @@
+/* Variables CSS según el sistema de diseño */
+:root {
+    /* Colores primarios */
+    --color-primary: 59, 130, 246; /* rgb values for #3B82F6 */
+    --color-primary-dark: 30, 64, 175;
+    
+    /* Colores secundarios */
+    --color-secondary: 16, 185, 129;
+    --color-secondary-alt: 139, 92, 246;
+    
+    /* Colores neutros */
+    --color-text: 31, 41, 55;
+    --color-text-light: 107, 114, 128;
+    --color-background: 255, 255, 255;
+    --color-background-alt: 243, 244, 246;
+    
+    /* Colores de estado */
+    --color-success: 16, 185, 129;
+    --color-warning: 245, 158, 11;
+    --color-error: 239, 68, 68;
+    --color-info: 59, 130, 246;
+}
+
+.dark {
+    --color-text: 249, 250, 251;
+    --color-text-light: 209, 213, 219;
+    --color-background: 17, 24, 39;
+    --color-background-alt: 31, 41, 55;
+}
+
+/* Estilos para el temporizador */
+@keyframes pulsate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.timer-alert {
+    animation: pulsate 1.5s ease-in-out infinite;
+}
+
+.timer-low {
+    animation: pulsate 0.8s ease-in-out infinite;
+}
+
+/* Efectos sutiles para el navbar */
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.navbar-icon {
+    transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.nav-link:hover .navbar-icon {
+    transform: translateY(-2px);
+}
+
+.dropdown-content {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    visibility: hidden;
+}
+
+.dropdown:hover .dropdown-content {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.active-nav-item {
+    border-color: rgb(var(--color-primary)) !important;
+    color: white !important;
+}
+
+.active-nav-item .navbar-icon {
+    color: rgb(var(--color-primary));
+} 
